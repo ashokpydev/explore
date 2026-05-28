@@ -1,26 +1,63 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Accessibility, Clock, IndianRupee, MapPinned, Navigation, Search, ShieldCheck, Star, type LucideIcon } from "lucide-react";
+import { listPlaces } from "@/lib/api";
 import { places } from "@/lib/data";
 
 const filters = ["All", "Monuments", "Lakes", "Markets", "Museums", "Weekend"];
 
 export function InteractiveExplore() {
+  const [items, setItems] = useState(places);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("All");
   const [selected, setSelected] = useState(places[0]);
   const [safeOnly, setSafeOnly] = useState(false);
+  const [source, setSource] = useState<"api" | "local">("local");
+
+  useEffect(() => {
+    let active = true;
+    listPlaces({ limit: 50 })
+      .then((apiPlaces) => {
+        if (!active || !apiPlaces.length) return;
+        const mapped = apiPlaces.map((place) => ({
+          name: place.name,
+          type: place.kind.replaceAll("_", " "),
+          category: place.kind === "lake" ? "Lakes" : place.kind === "market" ? "Markets" : place.kind === "weekend_getaway" ? "Weekend" : "Monuments",
+          image: places.find((item) => item.name === place.name)?.image ?? places[0].image,
+          rating: place.rating.toFixed(1),
+          meta: `${place.address} | ${place.city}`,
+          tip: place.ai_tips[0] ?? place.short_description,
+          lat: place.latitude,
+          lng: place.longitude,
+          distanceKm: 5,
+          durationHours: 2,
+          fee: Number(place.entry_fee.indian ?? place.entry_fee.general ?? 0),
+          crowd: "Moderate" as const,
+          safetyScore: Number(place.safety.score ?? 84),
+          accessibility: String(place.accessibility.summary ?? "Accessibility details available at venue"),
+          bestTime: place.best_time_to_visit,
+          tags: [place.kind, place.city.toLowerCase(), ...place.ai_tips.map((tip) => tip.toLowerCase())]
+        }));
+        setItems(mapped);
+        setSelected(mapped[0]);
+        setSource("api");
+      })
+      .catch(() => setSource("local"));
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const filtered = useMemo(() => {
-    return places.filter((place) => {
+    return items.filter((place) => {
       const matchesFilter = filter === "All" || place.category === filter;
       const matchesSafe = !safeOnly || place.safetyScore >= 85;
       const haystack = `${place.name} ${place.type} ${place.meta} ${place.tags.join(" ")}`.toLowerCase();
       return matchesFilter && matchesSafe && haystack.includes(query.toLowerCase());
     });
-  }, [filter, query, safeOnly]);
+  }, [filter, items, query, safeOnly]);
 
   return (
     <div className="grid gap-5 lg:grid-cols-[1fr_390px]">
@@ -95,7 +132,7 @@ export function InteractiveExplore() {
           <h2 className="font-semibold">Interactive city map</h2>
         </div>
         <div className="relative h-72 overflow-hidden rounded-md border border-white/12 bg-[linear-gradient(135deg,#173b4a,#111827)]">
-          {places.map((place) => (
+          {items.map((place) => (
             <button
               key={place.name}
               onClick={() => setSelected(place)}
@@ -112,7 +149,7 @@ export function InteractiveExplore() {
             </button>
           ))}
           <div className="absolute bottom-3 left-3 rounded-md bg-black/35 px-3 py-2 text-xs text-white/80">
-            Connect Google Maps API key for live tiles, traffic, and routes.
+            {source === "api" ? "Live API content loaded. Add Google Maps key for map tiles." : "Local demo content loaded. Start the API for live data."}
           </div>
         </div>
 

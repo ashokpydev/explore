@@ -1,12 +1,16 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BarChart3, CheckCircle2, ImagePlus, Search, Shield, Users } from "lucide-react";
+import { BarChart3, CheckCircle2, ImagePlus, KeyRound, Search, Shield, Users } from "lucide-react";
+import { getAdminAnalytics } from "@/lib/api";
 import { events, food, places } from "@/lib/data";
 
 export function AdminConsole() {
   const [query, setQuery] = useState("");
   const [moderated, setModerated] = useState<string[]>([]);
+  const [token, setToken] = useState("");
+  const [analytics, setAnalytics] = useState<Record<string, number> | null>(null);
+  const [analyticsStatus, setAnalyticsStatus] = useState("Local content metrics");
 
   const content = useMemo(() => {
     return places
@@ -17,14 +21,43 @@ export function AdminConsole() {
   }, [query]);
 
   const metrics = [
-    ["Places", places.length.toString()],
-    ["Food spots", food.length.toString()],
-    ["Events", events.length.toString()],
+    ["Places", String(analytics?.places ?? places.length)],
+    ["Food spots", String(analytics?.restaurants ?? food.length)],
+    ["Events", String(analytics?.events ?? events.length)],
     ["Moderated", moderated.length.toString()]
   ];
 
+  async function loadAnalytics() {
+    if (!token.trim()) {
+      setAnalyticsStatus("Paste an admin bearer token to load live analytics");
+      return;
+    }
+    try {
+      const data = await getAdminAnalytics(token.trim());
+      setAnalytics(data.counts);
+      setAnalyticsStatus("Live backend analytics loaded");
+    } catch {
+      setAnalyticsStatus("Could not load admin analytics with that token");
+    }
+  }
+
   return (
     <>
+      <div className="mt-8 grid gap-3 rounded-lg border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-white/5 md:grid-cols-[1fr_auto]">
+        <label className="relative block">
+          <KeyRound className="absolute left-3 top-3 text-black/45 dark:text-white/45" size={18} />
+          <input
+            value={token}
+            onChange={(event) => setToken(event.target.value)}
+            placeholder="Admin bearer token"
+            className="w-full rounded-md border border-black/10 bg-transparent py-2 pl-10 pr-3 outline-none focus:border-lac dark:border-white/10"
+          />
+        </label>
+        <button onClick={loadAnalytics} className="rounded-md bg-lac px-4 py-2 font-semibold text-white">
+          Load live analytics
+        </button>
+        <p className="text-sm text-black/60 dark:text-white/60 md:col-span-2">{analyticsStatus}</p>
+      </div>
       <div className="mt-8 grid gap-4 md:grid-cols-4">
         {metrics.map(([label, value]) => (
           <div key={label} className="rounded-lg border border-black/10 bg-white p-5 dark:border-white/10 dark:bg-white/5">
@@ -86,4 +119,3 @@ export function AdminConsole() {
     </>
   );
 }
-

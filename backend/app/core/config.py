@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     openai_api_key: str | None = None
     openai_model: str = "gpt-4.1-mini"
     google_maps_api_key: str | None = None
+    seed_demo_data: bool = True
+    seed_admin_email: str = "admin@explorehyderabad.local"
+    seed_admin_password: str = "ChangeMe123!"
     allowed_origins: list[AnyHttpUrl] | list[str] = [
         "http://localhost:3000",
         "http://127.0.0.1:3000",

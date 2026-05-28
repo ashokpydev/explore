@@ -5,8 +5,11 @@ from fastapi.responses import JSONResponse
 from slowapi import Limiter
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
+from sqlalchemy import text
 from app.api.router import api_router
 from app.core.config import settings
+from app.db.session import engine
+from app.services import cache
 
 logger = structlog.get_logger()
 limiter = Limiter(key_func=get_remote_address)
@@ -43,5 +46,34 @@ async def health() -> dict:
     return {"status": "ok", "service": settings.app_name, "environment": settings.environment}
 
 
-app.include_router(api_router, prefix=settings.api_prefix)
+@app.get("/ready")
+async def ready() -> JSONResponse:
+    checks: dict[str, str] = {}
+    status_code = 200
 
+    try:
+        async with engine.connect() as connection:
+            await connection.execute(text("SELECT 1"))
+        checks["database"] = "ok"
+    except Exception as exc:
+        logger.warning("readiness_database_failed", error=str(exc))
+        checks["database"] = "unavailable"
+        status_code = 503
+
+    try:
+        await cache.ping()
+        checks["redis"] = "ok"
+    except Exception as exc:
+        logger.warning("readiness_redis_failed", error=str(exc))
+        checks["redis"] = "unavailable"
+        status_code = 503
+
+    checks["ai"] = "configured" if settings.openai_api_key else "offline_fallback"
+    checks["maps"] = "configured" if settings.google_maps_api_key else "not_configured"
+    return JSONResponse(
+        status_code=status_code,
+        content={"status": "ready" if status_code == 200 else "degraded", "checks": checks},
+    )
+
+
+app.include_router(api_router, prefix=settings.api_prefix)

@@ -61,7 +61,8 @@ export function InteractivePlanner() {
         days,
         trip_type: tripType,
         budget_inr: budget,
-        interests
+        interests,
+        language: language.toLowerCase().slice(0, 2)
       });
       setPlan(data);
     } catch {

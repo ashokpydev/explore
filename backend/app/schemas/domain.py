@@ -8,6 +8,11 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
 
 
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=8)
+
+
 class UserCreate(BaseModel):
     email: EmailStr
     full_name: str = Field(min_length=2, max_length=160)
@@ -48,6 +53,23 @@ class PlaceRead(BaseModel):
     rating: float
     review_count: int
     is_featured: bool
+
+    model_config = {"from_attributes": True}
+
+
+class ReviewCreate(BaseModel):
+    rating: int = Field(ge=1, le=5)
+    body: str = Field(min_length=5, max_length=2000)
+
+
+class ReviewRead(BaseModel):
+    id: UUID
+    user_id: UUID
+    place_id: UUID
+    rating: int
+    body: str
+    sentiment: str | None
+    created_at: datetime
 
     model_config = {"from_attributes": True}
 
@@ -123,4 +145,3 @@ class ItineraryResponse(BaseModel):
     budget_inr: int
     route: list[dict]
     ai_reasoning: str
-

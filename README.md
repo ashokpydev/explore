@@ -126,3 +126,4 @@ Recommended RAG flow:
 ## Deployment
 
 Use `docker-compose.yml` for local and staging-style runs. For AWS, follow [infrastructure/aws/deploy-ecs.md](infrastructure/aws/deploy-ecs.md).
+For the production checklist and smoke checks, see [docs/deploy-readiness.md](docs/deploy-readiness.md).

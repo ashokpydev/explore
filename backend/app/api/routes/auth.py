@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.api.deps import get_current_user
 from app.core.security import create_access_token, hash_password, verify_password
 from app.db.session import get_session
 from app.models.domain import User
-from app.schemas.domain import TokenResponse, UserCreate, UserRead
+from app.schemas.domain import LoginRequest, TokenResponse, UserCreate, UserRead
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -28,10 +29,14 @@ async def register(payload: UserCreate, session: AsyncSession = Depends(get_sess
 
 
 @router.post("/login", response_model=TokenResponse)
-async def login(email: str, password: str, session: AsyncSession = Depends(get_session)) -> TokenResponse:
-    result = await session.execute(select(User).where(User.email == email))
+async def login(payload: LoginRequest, session: AsyncSession = Depends(get_session)) -> TokenResponse:
+    result = await session.execute(select(User).where(User.email == payload.email))
     user = result.scalar_one_or_none()
-    if not user or not verify_password(password, user.password_hash):
+    if not user or not verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     return TokenResponse(access_token=create_access_token(user.email, user.role.value))
 
+
+@router.get("/me", response_model=UserRead)
+async def me(user: User = Depends(get_current_user)) -> User:
+    return user

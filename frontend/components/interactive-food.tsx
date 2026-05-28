@@ -1,26 +1,58 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Coffee, IndianRupee, Moon, Search, ShieldCheck, Star, Utensils } from "lucide-react";
+import { listRestaurants } from "@/lib/api";
 import { food } from "@/lib/data";
 
 const foodFilters = ["All", "Biryani", "Street food", "Cafe", "Rooftop", "Midnight"];
 
 export function InteractiveFood() {
+  const [items, setItems] = useState(food);
   const [filter, setFilter] = useState("All");
   const [maxBudget, setMaxBudget] = useState(1500);
   const [openLate, setOpenLate] = useState(false);
   const [query, setQuery] = useState("");
 
+  useEffect(() => {
+    let active = true;
+    listRestaurants({ limit: 50 })
+      .then((restaurants) => {
+        if (!active || !restaurants.length) return;
+        setItems(
+          restaurants.map((restaurant) => ({
+            name: restaurant.name,
+            category: restaurant.cuisine.some((item) => item.toLowerCase().includes("biryani"))
+              ? "Biryani"
+              : restaurant.open_late
+                ? "Midnight"
+                : "Cafe",
+            area: restaurant.address,
+            costForTwo: restaurant.cost_for_two,
+            rating: restaurant.rating,
+            crowd: restaurant.crowd_level === "very_high" ? "Very high" : restaurant.crowd_level === "high" ? "High" : "Moderate",
+            openLate: restaurant.open_late,
+            distanceKm: 5,
+            specialties: restaurant.highlights.length ? restaurant.highlights : restaurant.cuisine,
+            safetyNote: "Use main pickup points and verify current opening hours before travel."
+          }))
+        );
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const filtered = useMemo(() => {
-    return food.filter((spot) => {
+    return items.filter((spot) => {
       const matchesFilter = filter === "All" || spot.category === filter;
       const matchesBudget = spot.costForTwo <= maxBudget;
       const matchesLate = !openLate || spot.openLate;
       const matchesQuery = `${spot.name} ${spot.area} ${spot.specialties.join(" ")}`.toLowerCase().includes(query.toLowerCase());
       return matchesFilter && matchesBudget && matchesLate && matchesQuery;
     });
-  }, [filter, maxBudget, openLate, query]);
+  }, [filter, items, maxBudget, openLate, query]);
 
   return (
     <>
@@ -117,4 +149,3 @@ export function InteractiveFood() {
     </>
   );
 }
-
