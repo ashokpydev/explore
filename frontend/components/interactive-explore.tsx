@@ -178,7 +178,15 @@ export function InteractiveExplore({ initialState = {} }: { initialState?: Initi
               }`}
             >
               <div className="relative aspect-[4/3]">
-                <Image src={place.image} alt={place.name} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" loading={index === 0 ? "eager" : "lazy"} />
+                <Image
+                  src={place.image}
+                  alt={place.name}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover"
+                  loading={index === 0 ? "eager" : "lazy"}
+                  unoptimized={place.image.endsWith(".svg")}
+                />
               </div>
               <div className="space-y-3 p-4">
                 <div className="flex items-start justify-between gap-3">
