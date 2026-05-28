@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Theme park rides">
+  <rect width="1200" height="900" fill="#fce7f3"/><circle cx="850" cy="300" r="185" fill="none" stroke="#7c1d36" stroke-width="35"/>
+  <path d="M850 115v370M665 300h370M720 170l260 260M980 170 720 430" stroke="#7c1d36" stroke-width="22"/>
+  <path d="M180 690c70-210 170-315 300-315s230 105 300 315" fill="none" stroke="#173b4a" stroke-width="38"/>
+  <text x="70" y="820" font-family="Arial, sans-serif" font-size="64" font-weight="700" fill="#7c1d36">Theme Parks</text>
+</svg>

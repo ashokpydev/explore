@@ -6,7 +6,21 @@ import { Accessibility, Clock, IndianRupee, MapPinned, Navigation, Search, Shiel
 import { listPlaces } from "@/lib/api";
 import { places } from "@/lib/data";
 
-const filters = ["All", "Monuments", "Lakes", "Markets", "Museums", "Weekend"];
+const filters = [
+  "All",
+  "Monuments",
+  "Lakes",
+  "Markets",
+  "Museums",
+  "Weekend",
+  "Theme Parks",
+  "Temples",
+  "Mosques",
+  "Malls",
+  "Theaters",
+  "Parks",
+  "Resorts"
+];
 
 type InitialExploreState = {
   category?: string;
@@ -33,6 +47,7 @@ function initialExploreState(params: InitialExploreState) {
 export function InteractiveExplore({ initialState = {} }: { initialState?: InitialExploreState }) {
   const initial = initialExploreState(initialState);
   const initialPlace = initialState.place;
+  const initialQuery = initial.query;
   const [items, setItems] = useState(places);
   const [query, setQuery] = useState(initial.query);
   const [filter, setFilter] = useState(initial.filter);
@@ -46,11 +61,26 @@ export function InteractiveExplore({ initialState = {} }: { initialState?: Initi
     listPlaces({ limit: 50 })
       .then((apiPlaces) => {
         if (!active || !apiPlaces.length) return;
-        const mapped = apiPlaces.map((place) => ({
+        const apiMapped = apiPlaces.map((place) => ({
           slug: place.slug,
           name: place.name,
           type: place.kind.replaceAll("_", " "),
-          category: place.kind === "lake" ? "Lakes" : place.kind === "market" ? "Markets" : place.kind === "weekend_getaway" ? "Weekend" : "Monuments",
+          category:
+            place.kind === "lake"
+              ? "Lakes"
+              : place.kind === "market"
+                ? "Markets"
+                : place.kind === "weekend_getaway"
+                  ? "Weekend"
+                  : place.kind === "temple"
+                    ? "Temples"
+                    : place.kind === "mosque"
+                      ? "Mosques"
+                      : place.kind === "mall"
+                        ? "Malls"
+                        : place.kind === "resort"
+                          ? "Resorts"
+                          : "Monuments",
           image: places.find((item) => item.name === place.name)?.image ?? places[0].image,
           rating: place.rating.toFixed(1),
           meta: `${place.address} | ${place.city}`,
@@ -66,10 +96,20 @@ export function InteractiveExplore({ initialState = {} }: { initialState?: Initi
           bestTime: place.best_time_to_visit,
           tags: [place.kind, place.city.toLowerCase(), ...place.ai_tips.map((tip) => tip.toLowerCase())]
         }));
-        setItems(mapped);
+        const merged = [...places];
+        apiMapped.forEach((apiPlace) => {
+          const index = merged.findIndex((place) => place.slug === apiPlace.slug);
+          if (index >= 0) {
+            merged[index] = { ...merged[index], ...apiPlace, image: merged[index].image };
+          } else {
+            merged.push(apiPlace);
+          }
+        });
+        setItems(merged);
         setSelected(
-          mapped.find((place) => place.slug === initialPlace || place.name.toLowerCase() === initialPlace?.toLowerCase()) ??
-            mapped[0]
+            merged.find((place) => place.slug === initialPlace || place.name.toLowerCase() === initialPlace?.toLowerCase()) ??
+            merged.find((place) => `${place.name} ${place.tags.join(" ")}`.toLowerCase().includes(initialQuery.toLowerCase())) ??
+            merged[0]
         );
         setSource("api");
       })
@@ -77,7 +117,7 @@ export function InteractiveExplore({ initialState = {} }: { initialState?: Initi
     return () => {
       active = false;
     };
-  }, [initialPlace]);
+  }, [initialPlace, initialQuery]);
 
   useEffect(() => {
     if (initial.focusSearch) {
@@ -95,8 +135,8 @@ export function InteractiveExplore({ initialState = {} }: { initialState?: Initi
   }, [filter, items, query, safeOnly]);
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[1fr_390px]">
-      <div>
+    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_390px]">
+      <div className="min-w-0">
         <div className="mb-5 grid gap-3 rounded-lg border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-white/5 md:grid-cols-[1fr_auto]">
           <label className="relative block">
             <Search className="absolute left-3 top-3 text-black/45 dark:text-white/45" size={18} />
@@ -138,7 +178,7 @@ export function InteractiveExplore({ initialState = {} }: { initialState?: Initi
               }`}
             >
               <div className="relative aspect-[4/3]">
-                <Image src={place.image} alt={place.name} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" priority={index === 0} />
+                <Image src={place.image} alt={place.name} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" loading={index === 0 ? "eager" : "lazy"} />
               </div>
               <div className="space-y-3 p-4">
                 <div className="flex items-start justify-between gap-3">
@@ -159,6 +199,11 @@ export function InteractiveExplore({ initialState = {} }: { initialState?: Initi
               </div>
             </button>
           ))}
+          {!filtered.length ? (
+            <div className="rounded-lg border border-dashed border-black/20 bg-white p-6 text-sm text-black/65 dark:border-white/20 dark:bg-white/5 dark:text-white/70 md:col-span-2">
+              No exact match found. Try Ramoji Film City, malls, theaters, temples, biryani, lakes, or weekend getaways.
+            </div>
+          ) : null}
         </div>
       </div>
 
@@ -176,8 +221,8 @@ export function InteractiveExplore({ initialState = {} }: { initialState?: Initi
                 selected.name === place.name ? "bg-turmeric text-charcoal" : "bg-white text-lac"
               }`}
               style={{
-                left: `${12 + ((place.lng - 77.85) / 0.75) * 76}%`,
-                top: `${82 - ((place.lat - 17.3) / 0.16) * 66}%`
+                left: `${Math.min(88, Math.max(8, 12 + ((place.lng - 77.85) / 0.9) * 76))}%`,
+                top: `${Math.min(88, Math.max(8, 82 - ((place.lat - 17.2) / 0.32) * 66))}%`
               }}
               aria-label={`Select ${place.name}`}
             >

@@ -3,12 +3,33 @@ import { Filter } from "lucide-react";
 import { InteractiveExplore } from "@/components/interactive-explore";
 import { Section } from "@/components/ui/section";
 
-const chips = ["Charminar", "Golconda", "Tank Bund", "Ramoji Film City", "Temples", "Mosques", "Lakes", "Hidden gems", "Weekend getaways"];
+const chips = [
+  "Charminar",
+  "Golconda",
+  "Tank Bund",
+  "Ramoji Film City",
+  "Malls",
+  "Restaurants",
+  "Popular theaters",
+  "Temples",
+  "Mosques",
+  "Lakes",
+  "Theme parks",
+  "Hidden gems",
+  "Weekend getaways"
+];
 const chipHref: Record<string, string> = {
   Charminar: "/explore?place=charminar",
   Golconda: "/explore?place=golconda-fort",
   "Tank Bund": "/explore?place=hussain-sagar",
+  "Ramoji Film City": "/explore?place=ramoji-film-city",
+  Malls: "/explore?category=Malls",
+  Restaurants: "/food",
+  "Popular theaters": "/explore?category=Theaters",
+  Temples: "/explore?category=Temples",
+  Mosques: "/explore?category=Mosques",
   Lakes: "/explore?category=Lakes",
+  "Theme parks": "/explore?category=Theme Parks",
   "Weekend getaways": "/explore?category=Weekend"
 };
 
@@ -42,7 +63,7 @@ export default async function ExplorePage({ searchParams }: ExplorePageProps) {
             <Filter size={18} /> Filters
           </Link>
         </div>
-        <div className="mb-8 flex gap-2 overflow-x-auto pb-2">
+        <div className="mb-8 flex max-w-full gap-2 overflow-x-auto pb-2">
           {chips.map((chip) => (
             <Link key={chip} href={chipHref[chip] ?? `/explore?focus=search&q=${encodeURIComponent(chip)}`} className="shrink-0 rounded-md border border-black/10 px-3 py-2 text-sm dark:border-white/10">
               {chip}

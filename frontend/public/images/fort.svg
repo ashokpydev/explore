@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Fort and ramparts">
+  <rect width="1200" height="900" fill="#173b4a"/><path d="M0 620c210-120 390-95 600-170s390-60 600-170v620H0Z" fill="#365f4d"/>
+  <path d="M210 650V390h105v-80h120v80h120v-80h120v80h120v-80h120v340H210Z" fill="#d9c2a3"/>
+  <path d="M365 650V520c0-45 36-82 80-82s80 37 80 82v130H365Z" fill="#173b4a"/>
+  <text x="70" y="820" font-family="Arial, sans-serif" font-size="64" font-weight="700" fill="#fff">Forts and Tombs</text>
+</svg>

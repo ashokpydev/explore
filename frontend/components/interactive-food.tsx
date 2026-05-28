@@ -3,9 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Coffee, IndianRupee, Moon, Search, ShieldCheck, Star, Utensils } from "lucide-react";
 import { listRestaurants } from "@/lib/api";
-import { food } from "@/lib/data";
+import { food, type FoodSpot } from "@/lib/data";
 
-const foodFilters = ["All", "Biryani", "Street food", "Cafe", "Rooftop", "Midnight"];
+const foodFilters = ["All", "Biryani", "Street food", "Cafe", "Rooftop", "Midnight", "Fine dining", "South Indian", "Bakery"];
 
 export function InteractiveFood() {
   const [items, setItems] = useState(food);
@@ -19,11 +19,14 @@ export function InteractiveFood() {
     listRestaurants({ limit: 50 })
       .then((restaurants) => {
         if (!active || !restaurants.length) return;
-        setItems(
-          restaurants.map((restaurant) => ({
+        const apiItems: FoodSpot[] = restaurants.map((restaurant) => ({
             name: restaurant.name,
             category: restaurant.cuisine.some((item) => item.toLowerCase().includes("biryani"))
               ? "Biryani"
+              : restaurant.cuisine.some((item) => item.toLowerCase().includes("bakery"))
+                ? "Bakery"
+                : restaurant.cuisine.some((item) => item.toLowerCase().includes("south"))
+                  ? "South Indian"
               : restaurant.open_late
                 ? "Midnight"
                 : "Cafe",
@@ -35,8 +38,17 @@ export function InteractiveFood() {
             distanceKm: 5,
             specialties: restaurant.highlights.length ? restaurant.highlights : restaurant.cuisine,
             safetyNote: "Use main pickup points and verify current opening hours before travel."
-          }))
-        );
+          }));
+        const merged = [...food];
+        apiItems.forEach((apiItem) => {
+          const index = merged.findIndex((item) => item.name === apiItem.name);
+          if (index >= 0) {
+            merged[index] = { ...merged[index], ...apiItem };
+          } else {
+            merged.push(apiItem);
+          }
+        });
+        setItems(merged);
       })
       .catch(() => undefined);
     return () => {
@@ -129,6 +141,11 @@ export function InteractiveFood() {
             </p>
           </article>
         ))}
+        {!filtered.length ? (
+          <div className="rounded-lg border border-dashed border-black/20 bg-white p-6 text-sm text-black/65 dark:border-white/20 dark:bg-white/5 dark:text-white/70 md:col-span-2 xl:col-span-3">
+            No restaurants match these filters. Try biryani, cafe, bakery, South Indian, rooftop, or midnight food.
+          </div>
+        ) : null}
       </div>
 
       <div className="mt-8 grid gap-5 md:grid-cols-2">

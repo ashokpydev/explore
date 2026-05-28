@@ -21,7 +21,7 @@ export function PlaceCard({
     >
       <Link href={`/explore?place=${place.slug ?? encodeURIComponent(place.name)}`} className="block focus:outline-none focus:ring-2 focus:ring-lac focus:ring-offset-2 dark:focus:ring-turmeric">
         <div className="relative aspect-[4/3]">
-          <Image src={place.image} alt={place.name} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" priority={priority} />
+          <Image src={place.image} alt={place.name} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" loading={priority ? "eager" : "lazy"} />
         </div>
         <div className="space-y-3 p-4">
           <div className="flex items-start justify-between gap-3">

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Cinema theater">
+  <rect width="1200" height="900" fill="#111827"/><path d="M180 230h840v470H180Z" fill="#fff8ed"/>
+  <path d="M230 285h740v360H230Z" fill="#7c1d36"/><path d="M330 720h540" stroke="#f5b841" stroke-width="55" stroke-linecap="round"/>
+  <circle cx="355" cy="505" r="45" fill="#fff8ed"/><circle cx="505" cy="505" r="45" fill="#fff8ed"/><circle cx="655" cy="505" r="45" fill="#fff8ed"/><circle cx="805" cy="505" r="45" fill="#fff8ed"/>
+  <text x="70" y="820" font-family="Arial, sans-serif" font-size="64" font-weight="700" fill="#fff">Popular Theaters</text>
+</svg>

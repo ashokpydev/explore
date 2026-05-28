@@ -32,3 +32,20 @@ test("explore filter links preserve useful query state", async ({ page }) => {
   await expect(page.getByRole("link", { name: "Charminar" })).toHaveAttribute("href", "/explore?place=charminar");
   await expect(page.getByRole("link", { name: "Weekend getaways" })).toHaveAttribute("href", "/explore?category=Weekend");
 });
+
+test("free-text URLs for major places and category chips show matching content", async ({ page }) => {
+  await page.goto("/explore?focus=search&q=Ramoji%20Film%20City");
+
+  await expect(page.getByPlaceholder("Search Charminar, lakes, markets, trekking, biryani...")).toHaveValue("Ramoji Film City");
+  await expect(page.getByText("Film Studio Theme Park")).toBeVisible();
+  await expect(page.locator("aside").getByRole("heading", { name: "Ramoji Film City" })).toBeVisible();
+
+  await page.goto("/explore?category=Malls");
+  await expect(page.getByRole("button", { name: "Malls", exact: true })).toHaveClass(/bg-lac/);
+  await expect(page.getByText("Inorbit Mall")).toBeVisible();
+  await expect(page.getByText("Sarath City Capital Mall")).toBeVisible();
+
+  await page.goto("/explore?category=Theaters");
+  await expect(page.getByText("Prasads Multiplex")).toBeVisible();
+  await expect(page.getByText("AAA Cinemas")).toBeVisible();
+});

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Hyderabad heritage monument">
+  <defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#7c1d36"/><stop offset="1" stop-color="#f5b841"/></linearGradient></defs>
+  <rect width="1200" height="900" fill="url(#g)"/><circle cx="1010" cy="160" r="105" fill="#fff3" />
+  <path d="M250 690V355h700v335H250Z" fill="#fff8ed"/><path d="M310 355c0-105 85-190 190-190s190 85 190 190H310Z" fill="#fff8ed"/>
+  <path d="M188 690V280h110v410H188Zm714 0V280h110v410H902Z" fill="#fff8ed"/><path d="M180 280c0-43 35-78 78-78s78 35 78 78H180Zm714 0c0-43 35-78 78-78s78 35 78 78H894Z" fill="#fff8ed"/>
+  <text x="70" y="820" font-family="Arial, sans-serif" font-size="64" font-weight="700" fill="#fff">Heritage Hyderabad</text>
+</svg>

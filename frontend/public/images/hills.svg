@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Green hills">
+  <rect width="1200" height="900" fill="#b7e4c7"/><path d="M0 705 260 345l210 245 185-300 270 415H0Z" fill="#365f4d"/>
+  <path d="M360 705 610 390l170 210 135-170 285 275H360Z" fill="#173b4a" opacity=".85"/>
+  <path d="M0 705h1200v195H0Z" fill="#1f7a4d"/>
+  <text x="70" y="820" font-family="Arial, sans-serif" font-size="64" font-weight="700" fill="#fff">Weekend Hills</text>
+</svg>

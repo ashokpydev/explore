@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Lakefront destination">
+  <linearGradient id="g" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#6fb7d6"/><stop offset="1" stop-color="#173b4a"/></linearGradient>
+  <rect width="1200" height="900" fill="url(#g)"/><circle cx="950" cy="150" r="90" fill="#f5b841"/>
+  <path d="M0 560c150-40 250 40 400 0s250-40 400 0 250 40 400 0v340H0Z" fill="#7dd3fc" opacity=".75"/>
+  <path d="M0 655c150-40 250 40 400 0s250-40 400 0 250 40 400 0v245H0Z" fill="#1d4ed8" opacity=".45"/>
+  <text x="70" y="820" font-family="Arial, sans-serif" font-size="64" font-weight="700" fill="#fff">Lakefronts</text>
+</svg>

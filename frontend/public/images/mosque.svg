@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Mosque courtyard">
+  <rect width="1200" height="900" fill="#d8f3dc"/><path d="M265 710V380h670v330H265Z" fill="#fff8ed"/>
+  <path d="M390 380c0-116 94-210 210-210s210 94 210 210H390Z" fill="#173b4a"/>
+  <path d="M170 710V260h80v450h-80Zm780 0V260h80v450h-80Z" fill="#173b4a"/><circle cx="210" cy="235" r="55" fill="#f5b841"/><circle cx="990" cy="235" r="55" fill="#f5b841"/>
+  <text x="70" y="820" font-family="Arial, sans-serif" font-size="64" font-weight="700" fill="#173b4a">Mosques</text>
+</svg>

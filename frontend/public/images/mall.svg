@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Shopping mall">
+  <rect width="1200" height="900" fill="#e0f2fe"/><path d="M210 710V250h780v460H210Z" fill="#fff"/>
+  <path d="M290 340h160v130H290V340Zm230 0h160v130H520V340Zm230 0h160v130H750V340ZM290 535h160v130H290V535Zm230 0h160v130H520V535Zm230 0h160v130H750V535Z" fill="#173b4a" opacity=".8"/>
+  <text x="70" y="820" font-family="Arial, sans-serif" font-size="64" font-weight="700" fill="#173b4a">Malls and Shopping</text>
+</svg>

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Museum gallery">
+  <rect width="1200" height="900" fill="#2f2546"/><path d="M180 710V320h840v390H180Z" fill="#fff8ed"/>
+  <path d="M120 320 600 115l480 205H120Z" fill="#f5b841"/><path d="M290 710V420h95v290H290Zm175 0V420h95v290h-95Zm175 0V420h95v290h-95Zm175 0V420h95v290h-95Z" fill="#7c1d36"/>
+  <text x="70" y="820" font-family="Arial, sans-serif" font-size="64" font-weight="700" fill="#fff">Museums and Palaces</text>
+</svg>

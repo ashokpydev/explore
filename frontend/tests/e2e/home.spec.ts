@@ -18,10 +18,11 @@ test("home page renders hero, corrected destination images, and working primary 
   await expect(main.getByRole("link", { name: "Safety", exact: true })).toHaveAttribute("href", "/explore?safe=true");
 
   const destinationLinks = page.locator('a[href^="/explore?place="]');
-  await expect(destinationLinks).toHaveCount(6);
+  expect(await destinationLinks.count()).toBeGreaterThanOrEqual(20);
   await expect(main.locator('a[href="/explore?place=charminar"]')).toBeVisible();
   await expect(main.locator('a[href="/explore?place=golconda-fort"]')).toBeVisible();
   await expect(main.locator('a[href="/explore?place=hussain-sagar"]')).toBeVisible();
+  await expect(main.locator('a[href="/explore?place=ramoji-film-city"]')).toBeVisible();
   await expect(main.locator('a[href="/explore?place=salar-jung-museum"]')).toBeVisible();
   await expect(main.locator('a[href="/explore?place=laad-bazaar"]')).toBeVisible();
   await expect(main.locator('a[href="/explore?place=ananthagiri-hills"]')).toBeVisible();

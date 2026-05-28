@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Resort and palace stay">
+  <rect width="1200" height="900" fill="#e0e7ff"/><path d="M170 700V330h860v370H170Z" fill="#fff8ed"/>
+  <path d="M260 330 600 150l340 180H260Z" fill="#7c1d36"/><path d="M310 700V455h120v245H310Zm230 0V455h120v245H540Zm230 0V455h120v245H770Z" fill="#173b4a"/>
+  <path d="M0 735c190-45 310 45 500 0s310-45 700 0v165H0Z" fill="#38bdf8"/>
+  <text x="70" y="820" font-family="Arial, sans-serif" font-size="64" font-weight="700" fill="#fff">Resorts and Luxury</text>
+</svg>

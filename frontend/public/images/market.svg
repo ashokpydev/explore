@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Market street">
+  <rect width="1200" height="900" fill="#f5b841"/><path d="M0 360h1200v540H0Z" fill="#fff8ed"/>
+  <path d="M130 360h210l-35-120H165l-35 120Zm365 0h210l-35-120H530l-35 120Zm365 0h210l-35-120H895l-35 120Z" fill="#7c1d36"/>
+  <circle cx="245" cy="560" r="65" fill="#173b4a"/><circle cx="600" cy="560" r="65" fill="#365f4d"/><circle cx="955" cy="560" r="65" fill="#7c1d36"/>
+  <text x="70" y="820" font-family="Arial, sans-serif" font-size="64" font-weight="700" fill="#171717">Markets and Crafts</text>
+</svg>

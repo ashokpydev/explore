@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Temple silhouette">
+  <rect width="1200" height="900" fill="#fff2cc"/><path d="M600 110 880 330H320L600 110Z" fill="#f5b841"/>
+  <path d="M260 710V330h680v380H260Z" fill="#fff8ed"/><path d="M375 710V455h95v255H375Zm175 0V455h100v255H550Zm180 0V455h95v255H730Z" fill="#7c1d36"/>
+  <text x="70" y="820" font-family="Arial, sans-serif" font-size="64" font-weight="700" fill="#7c1d36">Temples</text>
+</svg>
