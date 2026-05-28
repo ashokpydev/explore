@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Explore Hyderabad icon">
+  <rect width="512" height="512" rx="96" fill="#a5243d"/>
+  <circle cx="256" cy="256" r="176" fill="#fff8ed"/>
+  <path d="M150 330h212v46H150z" fill="#171717"/>
+  <path d="M190 190h132v140H190z" fill="#a5243d"/>
+  <path d="M170 190h172v42H170z" fill="#f4b942"/>
+  <path d="M206 174c0-28 22-50 50-50s50 22 50 50v16H206z" fill="#137c55"/>
+  <circle cx="256" cy="254" r="34" fill="#fff8ed"/>
+  <path d="M128 238h46v92h-46zM338 238h46v92h-46z" fill="#147c91"/>
+</svg>

@@ -1,0 +1,17 @@
+{
+  "name": "Explore Hyderabad",
+  "short_name": "Explore HYD",
+  "description": "AI-powered Hyderabad and Telangana tourism guide",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fff8ed",
+  "theme_color": "#a5243d",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

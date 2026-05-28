@@ -1,0 +1,58 @@
+{
+  "places": [
+    {
+      "name": "Charminar",
+      "kind": "monument",
+      "city": "Hyderabad",
+      "latitude": 17.3616,
+      "longitude": 78.4747,
+      "timings": { "open": "09:30", "close": "17:30" },
+      "entry_fee": { "indian": 25, "foreigner": 300 },
+      "best_time_to_visit": "Early morning or evening",
+      "ai_tips": ["Pair with Laad Bazaar", "Use metro plus auto during peak traffic"]
+    },
+    {
+      "name": "Golconda Fort",
+      "kind": "monument",
+      "city": "Hyderabad",
+      "latitude": 17.3833,
+      "longitude": 78.4011,
+      "timings": { "open": "09:00", "close": "17:30" },
+      "entry_fee": { "indian": 25, "foreigner": 300 },
+      "best_time_to_visit": "Late afternoon",
+      "ai_tips": ["Wear walking shoes", "Reserve time for Qutb Shahi Tombs"]
+    },
+    {
+      "name": "Hussain Sagar",
+      "kind": "lake",
+      "city": "Hyderabad",
+      "latitude": 17.4239,
+      "longitude": 78.4738,
+      "timings": { "open": "06:00", "close": "22:00" },
+      "entry_fee": { "general": 0 },
+      "best_time_to_visit": "Evening",
+      "ai_tips": ["Check Tank Bund traffic", "Good for family walks"]
+    }
+  ],
+  "restaurants": [
+    {
+      "name": "Paradise Biryani",
+      "cuisine": ["Hyderabadi", "Biryani"],
+      "price_band": "mid",
+      "cost_for_two": 900,
+      "latitude": 17.4419,
+      "longitude": 78.4873,
+      "crowd_level": "high"
+    },
+    {
+      "name": "Nimrah Cafe",
+      "cuisine": ["Irani Chai", "Bakery"],
+      "price_band": "budget",
+      "cost_for_two": 250,
+      "latitude": 17.3618,
+      "longitude": 78.4748,
+      "crowd_level": "very_high"
+    }
+  ]
+}
+
