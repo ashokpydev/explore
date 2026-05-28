@@ -29,6 +29,7 @@ export function InteractivePlanner() {
   const [interests, setInterests] = useState(["monuments", "biryani", "lakes"]);
   const [plan, setPlan] = useState<PlannerResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showQr, setShowQr] = useState(false);
 
   const pickedPlaces = useMemo(() => {
     return places
@@ -79,6 +80,17 @@ export function InteractivePlanner() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function downloadPlan() {
+    const payload = plan ?? { title: "Preview Hyderabad Plan", route: previewRoute, ai_reasoning: "Generate a plan for full AI reasoning." };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${payload.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
   }
 
   return (
@@ -150,10 +162,23 @@ export function InteractivePlanner() {
               <h2 className="text-2xl font-semibold">{plan?.title ?? "Your optimized route appears here"}</h2>
             </div>
             <div className="flex gap-2">
-              <button className="inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm"><QrCode size={16} /> QR guide</button>
-              <button className="inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm"><Download size={16} /> Offline</button>
+              <button onClick={() => setShowQr((current) => !current)} className="inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm"><QrCode size={16} /> QR guide</button>
+              <button onClick={downloadPlan} className="inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm"><Download size={16} /> Offline</button>
             </div>
           </div>
+          {showQr ? (
+            <div className="mb-5 grid gap-3 rounded-md border border-white/12 bg-white/8 p-4 text-sm md:grid-cols-[120px_1fr]">
+              <div className="grid aspect-square grid-cols-5 gap-1 rounded bg-white p-2">
+                {Array.from({ length: 25 }, (_, index) => (
+                  <span key={index} className={(index + days + interests.length) % 3 === 0 || index % 7 === 0 ? "bg-charcoal" : "bg-white"} />
+                ))}
+              </div>
+              <div>
+                <p className="font-semibold text-white">Offline guide ready</p>
+                <p className="mt-2 text-white/70">Use the Offline button to download the current plan as JSON for sharing, printing, or importing into a mobile wrapper.</p>
+              </div>
+            </div>
+          ) : null}
           <div className="grid gap-4">
             {(plan?.route ?? previewRoute).map((day) => (
               <div key={day.day} className="rounded-md border border-white/12 p-4">

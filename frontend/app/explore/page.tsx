@@ -1,8 +1,16 @@
+import Link from "next/link";
 import { Filter } from "lucide-react";
 import { InteractiveExplore } from "@/components/interactive-explore";
 import { Section } from "@/components/ui/section";
 
 const chips = ["Charminar", "Golconda", "Tank Bund", "Ramoji Film City", "Temples", "Mosques", "Lakes", "Hidden gems", "Weekend getaways"];
+const chipHref: Record<string, string> = {
+  Charminar: "/explore?place=charminar",
+  Golconda: "/explore?place=golconda-fort",
+  "Tank Bund": "/explore?place=hussain-sagar",
+  Lakes: "/explore?category=Lakes",
+  "Weekend getaways": "/explore?category=Weekend"
+};
 
 export default function ExplorePage() {
   return (
@@ -13,15 +21,15 @@ export default function ExplorePage() {
             <p className="text-sm font-semibold uppercase tracking-[0.16em] text-lac dark:text-turmeric">Explore Hyderabad</p>
             <h1 className="mt-2 text-4xl font-bold">Places with history, timings, fees, reviews, and AI tips</h1>
           </div>
-          <button className="inline-flex items-center justify-center gap-2 rounded-md bg-charcoal px-4 py-3 text-white dark:bg-turmeric dark:text-charcoal">
+          <Link href="/explore?focus=search" className="inline-flex items-center justify-center gap-2 rounded-md bg-charcoal px-4 py-3 text-white dark:bg-turmeric dark:text-charcoal">
             <Filter size={18} /> Filters
-          </button>
+          </Link>
         </div>
         <div className="mb-8 flex gap-2 overflow-x-auto pb-2">
           {chips.map((chip) => (
-            <button key={chip} className="shrink-0 rounded-md border border-black/10 px-3 py-2 text-sm dark:border-white/10">
+            <Link key={chip} href={chipHref[chip] ?? `/explore?focus=search&q=${encodeURIComponent(chip)}`} className="shrink-0 rounded-md border border-black/10 px-3 py-2 text-sm dark:border-white/10">
               {chip}
-            </button>
+            </Link>
           ))}
         </div>
         <InteractiveExplore />

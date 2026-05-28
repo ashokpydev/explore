@@ -31,12 +31,12 @@ export default function HomePage() {
 
       <Section className="-mt-8 grid gap-4 md:grid-cols-6">
         {categories.map((item) => (
-          <div key={item.label} className="glass rounded-lg p-4 shadow-sm">
+          <Link key={item.label} href={item.href} className="glass rounded-lg p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-premium focus:outline-none focus:ring-2 focus:ring-lac focus:ring-offset-2 dark:focus:ring-turmeric">
             <span className={`${item.color} mb-4 grid h-10 w-10 place-items-center rounded-md text-white`}>
               <item.icon size={18} />
             </span>
             <p className="font-semibold">{item.label}</p>
-          </div>
+          </Link>
         ))}
       </Section>
 

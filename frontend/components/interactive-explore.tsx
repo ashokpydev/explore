@@ -1,20 +1,40 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Accessibility, Clock, IndianRupee, MapPinned, Navigation, Search, ShieldCheck, Star, type LucideIcon } from "lucide-react";
 import { listPlaces } from "@/lib/api";
 import { places } from "@/lib/data";
 
 const filters = ["All", "Monuments", "Lakes", "Markets", "Museums", "Weekend"];
 
+function initialExploreState() {
+  if (typeof window === "undefined") {
+    return { query: "", filter: "All", selected: places[0], safeOnly: false, focusSearch: false };
+  }
+  const params = new URLSearchParams(window.location.search);
+  const category = params.get("category");
+  const placeSlug = params.get("place");
+  const freeQuery = params.get("q");
+  const selected = places.find((item) => item.slug === placeSlug || item.name.toLowerCase() === placeSlug?.toLowerCase()) ?? places[0];
+  return {
+    query: placeSlug ? selected.name : freeQuery ?? "",
+    filter: category && filters.includes(category) ? category : "All",
+    selected,
+    safeOnly: params.get("safe") === "true",
+    focusSearch: params.get("focus") === "search"
+  };
+}
+
 export function InteractiveExplore() {
+  const initial = initialExploreState();
   const [items, setItems] = useState(places);
-  const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState("All");
-  const [selected, setSelected] = useState(places[0]);
-  const [safeOnly, setSafeOnly] = useState(false);
+  const [query, setQuery] = useState(initial.query);
+  const [filter, setFilter] = useState(initial.filter);
+  const [selected, setSelected] = useState(initial.selected);
+  const [safeOnly, setSafeOnly] = useState(initial.safeOnly);
   const [source, setSource] = useState<"api" | "local">("local");
+  const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     let active = true;
@@ -22,6 +42,7 @@ export function InteractiveExplore() {
       .then((apiPlaces) => {
         if (!active || !apiPlaces.length) return;
         const mapped = apiPlaces.map((place) => ({
+          slug: place.slug,
           name: place.name,
           type: place.kind.replaceAll("_", " "),
           category: place.kind === "lake" ? "Lakes" : place.kind === "market" ? "Markets" : place.kind === "weekend_getaway" ? "Weekend" : "Monuments",
@@ -50,6 +71,12 @@ export function InteractiveExplore() {
     };
   }, []);
 
+  useEffect(() => {
+    if (initial.focusSearch) {
+      searchRef.current?.focus();
+    }
+  }, [initial.focusSearch]);
+
   const filtered = useMemo(() => {
     return items.filter((place) => {
       const matchesFilter = filter === "All" || place.category === filter;
@@ -66,6 +93,7 @@ export function InteractiveExplore() {
           <label className="relative block">
             <Search className="absolute left-3 top-3 text-black/45 dark:text-white/45" size={18} />
             <input
+              ref={searchRef}
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search Charminar, lakes, markets, trekking, biryani..."

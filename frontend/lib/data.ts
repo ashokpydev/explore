@@ -1,6 +1,7 @@
 import { Landmark, Map, ShieldCheck, Sparkles, Train, Utensils } from "lucide-react";
 
 export type Place = {
+  slug: string;
   name: string;
   type: string;
   category: string;
@@ -51,16 +52,17 @@ export type MetroRoute = {
 };
 
 export const categories = [
-  { label: "Monuments", icon: Landmark, color: "bg-lac" },
-  { label: "Food", icon: Utensils, color: "bg-turmeric text-charcoal" },
-  { label: "Metro", icon: Train, color: "bg-lake" },
-  { label: "AI Trips", icon: Sparkles, color: "bg-neem" },
-  { label: "Safety", icon: ShieldCheck, color: "bg-charcoal" },
-  { label: "Nearby", icon: Map, color: "bg-lac" }
+  { label: "Monuments", icon: Landmark, color: "bg-lac", href: "/explore?category=Monuments" },
+  { label: "Food", icon: Utensils, color: "bg-turmeric text-charcoal", href: "/food" },
+  { label: "Metro", icon: Train, color: "bg-lake", href: "/planner?mode=metro" },
+  { label: "AI Trips", icon: Sparkles, color: "bg-neem", href: "/planner" },
+  { label: "Safety", icon: ShieldCheck, color: "bg-charcoal", href: "/explore?safe=true" },
+  { label: "Nearby", icon: Map, color: "bg-lac", href: "/explore?nearby=true" }
 ];
 
 export const places: Place[] = [
   {
+    slug: "charminar",
     name: "Charminar",
     type: "Heritage Monument",
     category: "Monuments",
@@ -80,6 +82,7 @@ export const places: Place[] = [
     tags: ["history", "shopping", "street food", "mosque", "qr guide"]
   },
   {
+    slug: "golconda-fort",
     name: "Golconda Fort",
     type: "Fort and Sound Show",
     category: "Monuments",
@@ -99,6 +102,7 @@ export const places: Place[] = [
     tags: ["history", "trekking", "sunset", "drone video", "ar preview"]
   },
   {
+    slug: "hussain-sagar",
     name: "Hussain Sagar",
     type: "Lake and Promenade",
     category: "Lakes",
@@ -118,10 +122,11 @@ export const places: Place[] = [
     tags: ["lake", "family", "nightlife", "metro", "weather"]
   },
   {
+    slug: "salar-jung-museum",
     name: "Salar Jung Museum",
     type: "Museum",
     category: "Museums",
-    image: "https://upload.wikimedia.org/wikipedia/commons/d/d1/Charminar-Pride_of_Hyderabad.jpg",
+    image: "https://live.staticflickr.com/101/268247463_6a315c1083_o.jpg",
     rating: "4.6",
     meta: "Darulshifa | Art | Antiques | Families",
     tip: "Keep 2 hours and prioritize the clock gallery, sculptures, and textiles.",
@@ -137,10 +142,11 @@ export const places: Place[] = [
     tags: ["museum", "family", "indoor", "culture", "rain safe"]
   },
   {
+    slug: "laad-bazaar",
     name: "Laad Bazaar",
     type: "Market",
     category: "Markets",
-    image: "https://upload.wikimedia.org/wikipedia/commons/d/d1/Charminar-Pride_of_Hyderabad.jpg",
+    image: "https://upload.wikimedia.org/wikipedia/commons/8/86/Laad_Bazaar.jpg",
     rating: "4.4",
     meta: "Bangles | Pearls | Wedding shopping",
     tip: "Start from Charminar side and bargain politely; carry cash for small vendors.",
@@ -156,10 +162,11 @@ export const places: Place[] = [
     tags: ["shopping", "market", "bargaining", "pearls", "local"]
   },
   {
+    slug: "ananthagiri-hills",
     name: "Ananthagiri Hills",
     type: "Weekend Getaway",
     category: "Weekend",
-    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/The_Golkonda_Fort.jpg/960px-The_Golkonda_Fort.jpg",
+    image: "https://upload.wikimedia.org/wikipedia/commons/8/8e/Ananthagiri_Hills_Trekking_Area.jpg",
     rating: "4.3",
     meta: "Vikarabad | Forest trails | Coffee stops",
     tip: "Leave before 6 AM, avoid isolated trails after dark, and check rain forecasts.",

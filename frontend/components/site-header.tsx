@@ -31,9 +31,9 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="flex items-center gap-2">
-          <button className="grid h-9 w-9 place-items-center rounded-md border border-black/10 dark:border-white/10" aria-label="Search">
+          <Link href="/explore?focus=search" className="grid h-9 w-9 place-items-center rounded-md border border-black/10 dark:border-white/10" aria-label="Search places">
             <Search size={17} />
-          </button>
+          </Link>
           <button
             className="grid h-9 w-9 place-items-center rounded-md border border-black/10 dark:border-white/10"
             aria-label="Toggle theme"
@@ -47,4 +47,3 @@ export function SiteHeader() {
     </header>
   );
 }
-
