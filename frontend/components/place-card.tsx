@@ -5,7 +5,13 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { MapPin, Star } from "lucide-react";
 
-export function PlaceCard({ place }: { place: { slug?: string; name: string; type: string; image: string; rating: string; meta: string; tip: string } }) {
+export function PlaceCard({
+  place,
+  priority = false
+}: {
+  place: { slug?: string; name: string; type: string; image: string; rating: string; meta: string; tip: string };
+  priority?: boolean;
+}) {
   return (
     <motion.article
       initial={{ opacity: 0, y: 16 }}
@@ -15,7 +21,7 @@ export function PlaceCard({ place }: { place: { slug?: string; name: string; typ
     >
       <Link href={`/explore?place=${place.slug ?? encodeURIComponent(place.name)}`} className="block focus:outline-none focus:ring-2 focus:ring-lac focus:ring-offset-2 dark:focus:ring-turmeric">
         <div className="relative aspect-[4/3]">
-          <Image src={place.image} alt={place.name} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" />
+          <Image src={place.image} alt={place.name} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" priority={priority} />
         </div>
         <div className="space-y-3 p-4">
           <div className="flex items-start justify-between gap-3">

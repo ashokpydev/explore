@@ -8,26 +8,31 @@ import { places } from "@/lib/data";
 
 const filters = ["All", "Monuments", "Lakes", "Markets", "Museums", "Weekend"];
 
-function initialExploreState() {
-  if (typeof window === "undefined") {
-    return { query: "", filter: "All", selected: places[0], safeOnly: false, focusSearch: false };
-  }
-  const params = new URLSearchParams(window.location.search);
-  const category = params.get("category");
-  const placeSlug = params.get("place");
-  const freeQuery = params.get("q");
+type InitialExploreState = {
+  category?: string;
+  place?: string;
+  q?: string;
+  safe?: boolean;
+  focusSearch?: boolean;
+};
+
+function initialExploreState(params: InitialExploreState) {
+  const category = params.category;
+  const placeSlug = params.place;
+  const freeQuery = params.q;
   const selected = places.find((item) => item.slug === placeSlug || item.name.toLowerCase() === placeSlug?.toLowerCase()) ?? places[0];
   return {
     query: placeSlug ? selected.name : freeQuery ?? "",
     filter: category && filters.includes(category) ? category : "All",
     selected,
-    safeOnly: params.get("safe") === "true",
-    focusSearch: params.get("focus") === "search"
+    safeOnly: params.safe ?? false,
+    focusSearch: params.focusSearch ?? false
   };
 }
 
-export function InteractiveExplore() {
-  const initial = initialExploreState();
+export function InteractiveExplore({ initialState = {} }: { initialState?: InitialExploreState }) {
+  const initial = initialExploreState(initialState);
+  const initialPlace = initialState.place;
   const [items, setItems] = useState(places);
   const [query, setQuery] = useState(initial.query);
   const [filter, setFilter] = useState(initial.filter);
@@ -62,14 +67,17 @@ export function InteractiveExplore() {
           tags: [place.kind, place.city.toLowerCase(), ...place.ai_tips.map((tip) => tip.toLowerCase())]
         }));
         setItems(mapped);
-        setSelected(mapped[0]);
+        setSelected(
+          mapped.find((place) => place.slug === initialPlace || place.name.toLowerCase() === initialPlace?.toLowerCase()) ??
+            mapped[0]
+        );
         setSource("api");
       })
       .catch(() => setSource("local"));
     return () => {
       active = false;
     };
-  }, []);
+  }, [initialPlace]);
 
   useEffect(() => {
     if (initial.focusSearch) {
@@ -121,7 +129,7 @@ export function InteractiveExplore() {
         </div>
 
         <div className="grid gap-5 md:grid-cols-2">
-          {filtered.map((place) => (
+          {filtered.map((place, index) => (
             <button
               key={place.name}
               onClick={() => setSelected(place)}
@@ -130,7 +138,7 @@ export function InteractiveExplore() {
               }`}
             >
               <div className="relative aspect-[4/3]">
-                <Image src={place.image} alt={place.name} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
+                <Image src={place.image} alt={place.name} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" priority={index === 0} />
               </div>
               <div className="space-y-3 p-4">
                 <div className="flex items-start justify-between gap-3">

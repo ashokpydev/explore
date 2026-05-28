@@ -12,7 +12,24 @@ const chipHref: Record<string, string> = {
   "Weekend getaways": "/explore?category=Weekend"
 };
 
-export default function ExplorePage() {
+type ExplorePageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+function firstParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export default async function ExplorePage({ searchParams }: ExplorePageProps) {
+  const params = (await searchParams) ?? {};
+  const initialState = {
+    category: firstParam(params.category),
+    place: firstParam(params.place),
+    q: firstParam(params.q),
+    safe: firstParam(params.safe) === "true",
+    focusSearch: firstParam(params.focus) === "search"
+  };
+
   return (
     <main>
       <Section>
@@ -32,7 +49,7 @@ export default function ExplorePage() {
             </Link>
           ))}
         </div>
-        <InteractiveExplore />
+        <InteractiveExplore initialState={initialState} />
       </Section>
     </main>
   );

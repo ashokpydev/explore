@@ -56,12 +56,13 @@ export function AssistantPanel({ compact = false }: { compact?: boolean }) {
       </div>
       <div className="min-h-40 rounded-md bg-pearl p-4 text-sm leading-6 dark:bg-night">{loading ? "Thinking through timings, traffic, weather, and taste..." : answer}</div>
       {!compact ? (
-        <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+        <div className="relative z-10 mt-4 flex flex-wrap gap-2 pb-1">
           {quickPrompts.map((prompt) => (
             <button
+              type="button"
               key={prompt}
               onClick={() => handlePrompt(prompt)}
-              className="shrink-0 rounded-md border border-black/10 px-3 py-2 text-xs font-semibold dark:border-white/10"
+              className="rounded-md border border-black/10 px-3 py-2 text-xs font-semibold dark:border-white/10"
             >
               {prompt}
             </button>

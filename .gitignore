@@ -18,6 +18,8 @@ out/
 npm-debug.log*
 *.log
 validation-*.png
+frontend/playwright-report/
+frontend/test-results/
 
 .DS_Store
 Thumbs.db

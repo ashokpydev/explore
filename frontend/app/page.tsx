@@ -56,8 +56,8 @@ export default function HomePage() {
             </Link>
           </div>
           <div className="grid gap-5 md:grid-cols-3">
-            {places.map((place) => (
-              <PlaceCard key={place.name} place={place} />
+            {places.map((place, index) => (
+              <PlaceCard key={place.name} place={place} priority={index === 0} />
             ))}
           </div>
         </div>
