@@ -26,6 +26,13 @@ test("home page renders hero, corrected destination images, and working primary 
   await expect(main.locator('a[href="/explore?place=salar-jung-museum"]')).toBeVisible();
   await expect(main.locator('a[href="/explore?place=laad-bazaar"]')).toBeVisible();
   await expect(main.locator('a[href="/explore?place=ananthagiri-hills"]')).toBeVisible();
+  await expect(main.getByRole("heading", { name: "Simple stay options for business, family, and weekend breaks" })).toBeVisible();
+  await expect(main.locator('a[href="/explore?place=trident-hyderabad"]')).toBeVisible();
+  await expect(main.getByRole("heading", { name: "Temples and spiritual day trips" })).toBeVisible();
+  await expect(main.locator('a[href="/explore?place=chilkur-balaji-temple"]')).toBeVisible();
+  await expect(main.getByRole("heading", { name: "Play zones, water parks, parks, and indoor fun" })).toBeVisible();
+  await expect(main.locator('a[href="/explore?place=thrill-city"]')).toBeVisible();
+  await expect(main.getByRole("link", { name: "View restaurant guide" })).toHaveAttribute("href", "/food");
 
   await expectNoBrokenImages(page);
 });
