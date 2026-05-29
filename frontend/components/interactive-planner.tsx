@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { CalendarPlus, Download, IndianRupee, Languages, Map, Navigation, QrCode, Route, ShieldCheck, Sparkles, type LucideIcon } from "lucide-react";
 import { createItinerary } from "@/lib/api";
 import { emergencyContacts, metroRoutes, places } from "@/lib/data";
+import { googleMapsMultiStopUrl, openStreetMapRouteEmbedUrl } from "@/lib/maps";
 
 type RouteDay = {
   day: number;
@@ -30,6 +31,7 @@ export function InteractivePlanner() {
   const [plan, setPlan] = useState<PlannerResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [showQr, setShowQr] = useState(false);
+  const [origin, setOrigin] = useState("Current location");
 
   const pickedPlaces = useMemo(() => {
     return places
@@ -50,6 +52,14 @@ export function InteractivePlanner() {
     stops: pickedPlaces.slice(index, index + 3).map((place) => place.name),
     transport: metroRoutes[index % metroRoutes.length]?.duration ?? "Cab loop"
   }));
+  const visibleRoute = plan?.route ?? previewRoute;
+  const routeStops = useMemo(() => {
+    return visibleRoute
+      .flatMap((day) => day.stops)
+      .map((stop) => places.find((place) => place.name === stop))
+      .filter((place): place is (typeof places)[number] => Boolean(place));
+  }, [visibleRoute]);
+  const routeOrigin = origin === "Current location" ? undefined : origin;
 
   function toggleInterest(item: string) {
     setInterests((current) => (current.includes(item) ? current.filter((value) => value !== item) : [...current, item]));
@@ -123,6 +133,15 @@ export function InteractivePlanner() {
               {["English", "Telugu", "Hindi"].map((item) => <option key={item} value={item}>{item}</option>)}
             </select>
           </label>
+          <label className="text-sm font-medium">
+            Start location
+            <input
+              value={origin}
+              onChange={(event) => setOrigin(event.target.value)}
+              placeholder="Current location, Secunderabad, HITEC City..."
+              className="mt-2 w-full rounded-md border border-black/10 bg-transparent px-3 py-2 outline-none focus:border-lac dark:border-white/10"
+            />
+          </label>
         </div>
 
         <div className="mt-5">
@@ -179,15 +198,59 @@ export function InteractivePlanner() {
               </div>
             </div>
           ) : null}
+          <div className="mb-5 overflow-hidden rounded-md border border-white/12">
+            <iframe
+              title="Map for planned route"
+              src={openStreetMapRouteEmbedUrl(routeStops)}
+              className="h-80 w-full"
+              loading="lazy"
+            />
+          </div>
+          <div className="mb-5 flex flex-col gap-2 sm:flex-row">
+            <a
+              href={googleMapsMultiStopUrl(routeStops, routeOrigin)}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-turmeric px-3 py-2 text-sm font-semibold text-charcoal"
+            >
+              <Navigation size={16} /> Navigate full route
+            </a>
+            <a
+              href={routeStops[0] ? `https://www.openstreetmap.org/?mlat=${routeStops[0].lat}&mlon=${routeStops[0].lng}#map=12/${routeStops[0].lat}/${routeStops[0].lng}` : "https://www.openstreetmap.org"}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm font-semibold"
+            >
+              <Map size={16} /> Open route map
+            </a>
+          </div>
           <div className="grid gap-4">
-            {(plan?.route ?? previewRoute).map((day) => (
+            {visibleRoute.map((day) => {
+              const dayStops = day.stops
+                .map((stop) => places.find((place) => place.name === stop))
+                .filter((place): place is (typeof places)[number] => Boolean(place));
+              return (
               <div key={day.day} className="rounded-md border border-white/12 p-4">
-                <h3 className="font-semibold">Day {day.day}</h3>
-                <p className="mt-2 text-sm text-white/75">{day.stops.length ? day.stops.join(" -> ") : "Add more interests to populate route"}</p>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <h3 className="font-semibold">Day {day.day}</h3>
+                    <p className="mt-2 text-sm text-white/75">{day.stops.length ? day.stops.join(" -> ") : "Add more interests to populate route"}</p>
+                  </div>
+                  {dayStops.length ? (
+                    <a
+                      href={googleMapsMultiStopUrl(dayStops, routeOrigin)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex shrink-0 items-center justify-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm font-semibold"
+                    >
+                      <Navigation size={15} /> Day route
+                    </a>
+                  ) : null}
+                </div>
                 <p className="mt-2 text-sm text-turmeric">{day.transport}</p>
                 {day.budget_note ? <p className="mt-2 text-xs text-white/55">{day.budget_note}</p> : null}
               </div>
-            ))}
+            )})}
           </div>
           <p className="mt-6 text-sm leading-6 text-white/72">
             {plan?.ai_reasoning ?? "The planner estimates food, cab fares, metro segments, entry fees, stay cost, crowd risk, weather-sensitive stops, emergency contacts, and offline QR guide readiness."}

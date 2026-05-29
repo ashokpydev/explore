@@ -57,6 +57,19 @@ test("top quick chips navigate and update the interactive results", async ({ pag
   await expect(page.getByRole("heading", { name: "Biryani, street food, cafes, rooftops, and midnight Hyderabad" })).toBeVisible();
 });
 
+test("selected places include maps and navigation links", async ({ page }) => {
+  await page.goto("/explore?place=charminar");
+
+  const map = page.locator('iframe[title="Map for Charminar"]');
+  await expect(map).toBeVisible();
+  await expect(map).toHaveAttribute("src", /openstreetmap\.org\/export\/embed\.html/);
+  await expect(page.getByRole("link", { name: "Google directions" })).toHaveAttribute("href", /google\.com\/maps\/dir/);
+  await expect(page.getByRole("link", { name: "Open map" })).toHaveAttribute("href", /openstreetmap\.org/);
+
+  await page.getByPlaceholder("Current location, Secunderabad, HITEC City...").fill("Secunderabad");
+  await expect(page.getByRole("link", { name: "Google directions" })).toHaveAttribute("href", /origin=Secunderabad/);
+});
+
 test("free-text URLs for major places and category chips show matching content", async ({ page }) => {
   await page.goto("/explore?focus=search&q=Ramoji%20Film%20City");
 

@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Accessibility, Clock, IndianRupee, MapPinned, Navigation, Search, ShieldCheck, Star, type LucideIcon } from "lucide-react";
 import { listPlaces } from "@/lib/api";
 import { places } from "@/lib/data";
+import { googleMapsDirectionsUrl, openStreetMapEmbedUrl, openStreetMapPlaceUrl } from "@/lib/maps";
 
 const filters = [
   "All",
@@ -60,6 +61,7 @@ export function InteractiveExplore({ initialState = {} }: { initialState?: Initi
   const [selected, setSelected] = useState(initial.selected);
   const [safeOnly, setSafeOnly] = useState(initial.safeOnly);
   const [source, setSource] = useState<"api" | "local">("local");
+  const [origin, setOrigin] = useState("Current location");
   const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -230,26 +232,14 @@ export function InteractiveExplore({ initialState = {} }: { initialState?: Initi
           <MapPinned className="text-turmeric" />
           <h2 className="font-semibold">Interactive city map</h2>
         </div>
-        <div className="relative h-72 overflow-hidden rounded-md border border-white/12 bg-[linear-gradient(135deg,#173b4a,#111827)]">
-          {items.map((place) => (
-            <button
-              key={place.name}
-              onClick={() => setSelected(place)}
-              className={`absolute grid h-8 w-8 place-items-center rounded-full text-xs font-bold shadow-lg ${
-                selected.name === place.name ? "bg-turmeric text-charcoal" : "bg-white text-lac"
-              }`}
-              style={{
-                left: `${Math.min(88, Math.max(8, 12 + ((place.lng - 77.85) / 0.9) * 76))}%`,
-                top: `${Math.min(88, Math.max(8, 82 - ((place.lat - 17.2) / 0.32) * 66))}%`
-              }}
-              aria-label={`Select ${place.name}`}
-            >
-              {place.name.charAt(0)}
-            </button>
-          ))}
-          <div className="absolute bottom-3 left-3 rounded-md bg-black/35 px-3 py-2 text-xs text-white/80">
-            {source === "api" ? "Live API content loaded. Add Google Maps key for map tiles." : "Local demo content loaded. Start the API for live data."}
-          </div>
+        <div className="overflow-hidden rounded-md border border-white/12 bg-[linear-gradient(135deg,#173b4a,#111827)]">
+          <iframe
+            key={selected.slug}
+            title={`Map for ${selected.name}`}
+            src={openStreetMapEmbedUrl(selected)}
+            className="h-72 w-full"
+            loading="lazy"
+          />
         </div>
 
         <div className="mt-5 space-y-4">
@@ -265,6 +255,36 @@ export function InteractiveExplore({ initialState = {} }: { initialState?: Initi
             <Info icon={Accessibility} label="Accessibility" value={selected.accessibility} />
             <Info icon={Navigation} label="Route" value={`${selected.distanceKm} km, cab estimate INR ${Math.round(75 + selected.distanceKm * 25)}`} />
           </div>
+          <label className="block text-sm font-medium text-white/80">
+            Start from
+            <input
+              value={origin}
+              onChange={(event) => setOrigin(event.target.value)}
+              className="mt-2 w-full rounded-md border border-white/12 bg-white/8 px-3 py-2 text-white outline-none placeholder:text-white/40 focus:border-turmeric"
+              placeholder="Current location, Secunderabad, HITEC City..."
+            />
+          </label>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <a
+              href={googleMapsDirectionsUrl(selected, origin === "Current location" ? undefined : origin)}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-turmeric px-3 py-2 text-sm font-semibold text-charcoal"
+            >
+              <Navigation size={16} /> Google directions
+            </a>
+            <a
+              href={openStreetMapPlaceUrl(selected)}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm font-semibold"
+            >
+              <MapPinned size={16} /> Open map
+            </a>
+          </div>
+          <p className="text-xs text-white/50">
+            {source === "api" ? "Live API places loaded." : "Local location data loaded."} Maps use OpenStreetMap embeds; directions open in your maps app.
+          </p>
           <div className="flex flex-wrap gap-2">
             {selected.tags.map((tag) => (
               <span key={tag} className="rounded-md bg-white/10 px-2 py-1 text-xs text-white/80">

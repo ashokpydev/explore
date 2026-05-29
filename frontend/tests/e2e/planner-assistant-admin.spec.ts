@@ -13,6 +13,12 @@ test("planner generates itinerary, toggles QR guide, and downloads offline plan"
   await expect(page.getByRole("heading", { name: "2-Day Family Hyderabad Plan" })).toBeVisible();
   await expect(page.getByText("Charminar -> Salar Jung Museum")).toBeVisible();
   await expect(page.getByText("Balanced for heritage, food, family safety, and travel time.")).toBeVisible();
+  await expect(page.locator('iframe[title="Map for planned route"]')).toHaveAttribute("src", /openstreetmap\.org\/export\/embed\.html/);
+  await expect(page.getByRole("link", { name: "Navigate full route" })).toHaveAttribute("href", /google\.com\/maps\/dir/);
+  await expect(page.getByRole("link", { name: "Day route" }).first()).toHaveAttribute("href", /google\.com\/maps\/dir/);
+
+  await page.getByPlaceholder("Current location, Secunderabad, HITEC City...").fill("HITEC City");
+  await expect(page.getByRole("link", { name: "Navigate full route" })).toHaveAttribute("href", /origin=HITEC\+City/);
 
   await page.getByRole("button", { name: "QR guide" }).click();
   await expect(page.getByText("Offline guide ready")).toBeVisible();
