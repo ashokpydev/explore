@@ -19,7 +19,7 @@ const config: Config = {
       },
       backgroundImage: {
         "hyderabad-hero":
-          "linear-gradient(90deg, rgba(23,23,23,.78), rgba(23,23,23,.24)), url('/images/hero-hyderabad.svg')"
+          "linear-gradient(90deg, rgba(23,23,23,.78), rgba(23,23,23,.22)), url('/images/places/charminar.jpg')"
       }
     }
   },
