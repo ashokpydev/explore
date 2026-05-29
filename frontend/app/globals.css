@@ -13,17 +13,17 @@
 body {
   min-height: 100vh;
   overflow-x: hidden;
-  background: #fff8ed;
+  background: linear-gradient(180deg, #eaf7fb 0%, #f6fbfd 48%, #fff8ed 100%);
   color: #171717;
 }
 
 .dark body {
-  background: #111827;
+  background: linear-gradient(180deg, #071923 0%, #0b2230 48%, #111827 100%);
   color: #f9fafb;
 }
 
 .glass {
-  background: rgba(255, 248, 237, 0.82);
+  background: rgba(246, 251, 253, 0.84);
   backdrop-filter: blur(18px);
   border: 1px solid rgba(255, 255, 255, 0.55);
 }

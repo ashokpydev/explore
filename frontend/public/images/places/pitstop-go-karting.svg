@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Pitstop Go Karting">
+  <rect width="800" height="520" fill="#f1f5f9"/>
+  <path d="M0 360h800v160H0z" fill="#64748b"/>
+  <path d="M130 392c125-105 410-105 540 0" fill="none" stroke="#111827" stroke-width="34" stroke-linecap="round"/>
+  <path d="M250 318h220l72 55h-84l-28 44H298l-24-44h-76z" fill="#eab308"/>
+  <circle cx="320" cy="416" r="26" fill="#111827"/><circle cx="440" cy="416" r="26" fill="#111827"/>
+  <text x="400" y="468" text-anchor="middle" font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="#0f172a">Pitstop Go Karting</text>
+</svg>

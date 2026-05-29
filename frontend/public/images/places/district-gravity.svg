@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="District Gravity">
+  <rect width="800" height="520" fill="#f5f3ff"/>
+  <path d="M0 385h800v135H0z" fill="#c4b5fd"/>
+  <path d="M185 385l115-210 115 210m80 0 85-155 85 155" fill="none" stroke="#7c3aed" stroke-width="34" stroke-linejoin="round"/>
+  <circle cx="400" cy="200" r="42" fill="#f97316"/>
+  <path d="M350 278h100l-50 90z" fill="#10b981"/>
+  <text x="400" y="468" text-anchor="middle" font-family="Arial, sans-serif" font-size="44" font-weight="700" fill="#0f172a">District Gravity</text>
+</svg>

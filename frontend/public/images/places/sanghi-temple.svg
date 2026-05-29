@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Sanghi Temple">
+  <rect width="800" height="520" fill="#dbeafe"/>
+  <path d="M0 390c145-86 255-86 400 0s255 86 400 0v130H0z" fill="#86efac"/>
+  <path d="M270 378V215h260v163" fill="#fff7ed"/>
+  <path d="M235 220h330L400 78z" fill="#fb923c"/>
+  <path d="M356 378v-96h88v96" fill="#9a3412"/>
+  <path d="M388 82h24v-42h-24z" fill="#dc2626"/>
+  <text x="400" y="463" text-anchor="middle" font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="#0f172a">Sanghi Temple</text>
+</svg>

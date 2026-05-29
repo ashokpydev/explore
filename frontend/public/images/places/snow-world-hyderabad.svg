@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Snow World Hyderabad">
+  <rect width="800" height="520" fill="#e0f2fe"/>
+  <path d="M0 360h800v160H0z" fill="#f8fafc"/>
+  <path d="M150 360l120-175 120 175m40 0 155-235 155 235" fill="#bfdbfe"/>
+  <path d="M400 130v170m-74-128 148 86m0-86-148 86" stroke="#0284c7" stroke-width="18" stroke-linecap="round"/>
+  <text x="400" y="466" text-anchor="middle" font-family="Arial, sans-serif" font-size="44" font-weight="700" fill="#0f172a">Snow World Hyderabad</text>
+</svg>

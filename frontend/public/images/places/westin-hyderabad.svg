@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="The Westin Hyderabad Mindspace">
+  <rect width="800" height="520" fill="#e0f2fe"/>
+  <path d="M110 398h580v44H110z" fill="#164e63"/>
+  <path d="M210 398V160h150v238m80 0V105h150v293" fill="#f8fafc"/>
+  <path d="M240 205h34v36h-34zm54 0h34v36h-34zm176-50h34v36h-34zm54 0h34v36h-34zm-284 78h34v36h-34zm54 0h34v36h-34zm176 50h34v36h-34zm54 0h34v36h-34z" fill="#38bdf8"/>
+  <text x="400" y="468" text-anchor="middle" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#0f172a">The Westin Hyderabad Mindspace</text>
+</svg>
