@@ -30,6 +30,9 @@ test("explore filter links preserve useful query state", async ({ page }) => {
 
   await expect(page.getByRole("link", { name: "Filters" })).toHaveAttribute("href", "/explore?focus=search");
   await expect(page.getByRole("link", { name: "Charminar" })).toHaveAttribute("href", "/explore?place=charminar");
+  await expect(page.getByRole("link", { name: "Hotels and resorts" })).toHaveAttribute("href", "/explore?category=Stays");
+  await expect(page.getByRole("link", { name: "Kids play zones" })).toHaveAttribute("href", "/explore?category=Kids");
+  await expect(page.getByRole("link", { name: "Devotional places" })).toHaveAttribute("href", "/explore?category=Devotional");
   await expect(page.getByRole("link", { name: "Hidden gems" })).toHaveAttribute("href", "/explore?category=Hidden Gems");
   await expect(page.getByRole("link", { name: "Weekend getaways" })).toHaveAttribute("href", "/explore?category=Weekend");
 });
@@ -51,6 +54,22 @@ test("top quick chips navigate and update the interactive results", async ({ pag
   await expect(page).toHaveURL(/category=Hidden%20Gems/);
   await expect(page.getByRole("button", { name: "Hidden Gems", exact: true })).toHaveClass(/bg-lac/);
   await expect(page.getByText("Shilparamam")).toBeVisible();
+
+  await page.getByRole("link", { name: "Hotels and resorts" }).click();
+  await expect(page).toHaveURL(/category=Stays/);
+  await expect(page.getByRole("button", { name: "Stays", exact: true })).toHaveClass(/bg-lac/);
+  await expect(page.getByTestId("place-card-trident-hyderabad")).toBeVisible();
+  await expect(page.getByTestId("place-card-leonia-resort")).toBeVisible();
+
+  await page.getByRole("link", { name: "Kids play zones" }).click();
+  await expect(page).toHaveURL(/category=Kids/);
+  await expect(page.getByRole("button", { name: "Kids", exact: true })).toHaveClass(/bg-lac/);
+  await expect(page.getByTestId("place-card-thrill-city")).toBeVisible();
+
+  await page.getByRole("link", { name: "Devotional places" }).click();
+  await expect(page).toHaveURL(/category=Devotional/);
+  await expect(page.getByRole("button", { name: "Devotional", exact: true })).toHaveClass(/bg-lac/);
+  await expect(page.getByTestId("place-card-chilkur-balaji-temple")).toBeVisible();
 
   await page.getByRole("link", { name: "Restaurants" }).click();
   await expect(page).toHaveURL(/\/food$/);

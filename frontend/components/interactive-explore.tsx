@@ -19,6 +19,10 @@ const filters = [
   "Mosques",
   "Malls",
   "Theaters",
+  "Devotional",
+  "Stays",
+  "Hotels",
+  "Kids",
   "Hidden Gems",
   "Parks",
   "Resorts"
@@ -40,6 +44,8 @@ function initialExploreState(params: InitialExploreState) {
     places.find((item) => item.slug === placeSlug || item.name.toLowerCase() === placeSlug?.toLowerCase()) ??
     (category === "Hidden Gems"
       ? places.find((item) => item.tags.some((tag) => tag.includes("hidden")))
+      : category === "Stays"
+        ? places.find((item) => item.category === "Hotels" || item.category === "Resorts")
       : places.find((item) => item.category === category)) ??
     places[0];
   return {
@@ -138,6 +144,7 @@ export function InteractiveExplore({ initialState = {} }: { initialState?: Initi
       const matchesFilter =
         filter === "All" ||
         place.category === filter ||
+        (filter === "Stays" && (place.category === "Hotels" || place.category === "Resorts")) ||
         (filter === "Hidden Gems" && place.tags.some((tag) => tag.includes("hidden")));
       const matchesSafe = !safeOnly || place.safetyScore >= 85;
       const haystack = `${place.name} ${place.type} ${place.meta} ${place.tags.join(" ")}`.toLowerCase();
