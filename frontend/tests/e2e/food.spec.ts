@@ -9,8 +9,11 @@ test("food page filters by search, budget, category, and late-night availability
   await page.goto("/food");
 
   await expect(page.getByRole("heading", { name: "Biryani, street food, cafes, rooftops, and midnight Hyderabad" })).toBeVisible();
+  await expect(page.getByText(/Showing 1\d{2} of 1\d{2} restaurants across Hyderabad\./)).toBeVisible();
   await expect(page.getByRole("heading", { name: "Paradise Biryani" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Jubilee Hills Cafe Trail" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Adaa" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Hotel Shadab" })).toBeVisible();
 
   await page.getByPlaceholder("Search biryani, chai, rooftops, shawarma...").fill("coffee");
   await expect(page.getByRole("heading", { name: "Jubilee Hills Cafe Trail" })).toBeVisible();

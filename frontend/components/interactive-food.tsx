@@ -10,7 +10,7 @@ const foodFilters = ["All", "Biryani", "Street food", "Cafe", "Rooftop", "Midnig
 export function InteractiveFood() {
   const [items, setItems] = useState(food);
   const [filter, setFilter] = useState("All");
-  const [maxBudget, setMaxBudget] = useState(1500);
+  const [maxBudget, setMaxBudget] = useState(10000);
   const [openLate, setOpenLate] = useState(false);
   const [query, setQuery] = useState("");
 
@@ -83,7 +83,7 @@ export function InteractiveFood() {
           <input
             type="range"
             min={250}
-            max={3000}
+            max={10000}
             step={250}
             value={maxBudget}
             onChange={(event) => setMaxBudget(Number(event.target.value))}
@@ -109,6 +109,10 @@ export function InteractiveFood() {
           </button>
         ))}
       </div>
+
+      <p className="mt-3 text-sm font-medium text-black/60 dark:text-white/65">
+        Showing {filtered.length} of {items.length} restaurants across Hyderabad.
+      </p>
 
       <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {filtered.map((item) => (
