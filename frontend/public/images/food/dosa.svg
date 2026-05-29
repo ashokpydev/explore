@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" role="img" aria-label="Masala dosa">
+  <rect width="900" height="600" fill="#fff8ed"/>
+  <path d="M170 365c150-150 380-170 585-65-162 150-415 185-585 65Z" fill="#d78a2e"/>
+  <path d="M245 350c120-74 280-92 410-45" fill="none" stroke="#f4b942" stroke-width="26" stroke-linecap="round"/>
+  <circle cx="665" cy="412" r="46" fill="#137c55"/>
+  <circle cx="560" cy="438" r="38" fill="#a5243d"/>
+  <text x="70" y="105" font-family="Arial, sans-serif" font-size="48" font-weight="700" fill="#7c1d36">Dosa</text>
+</svg>

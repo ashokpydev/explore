@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" role="img" aria-label="Irani chai">
+  <rect width="900" height="600" fill="#7c1d36"/>
+  <path d="M320 210h250l-45 250H365Z" fill="#fff8ed"/>
+  <path d="M350 260h190l-25 155H378Z" fill="#b86a33"/>
+  <rect x="292" y="185" width="306" height="34" rx="17" fill="#f4b942"/>
+  <ellipse cx="445" cy="475" rx="145" ry="22" fill="#fff8ed" opacity=".7"/>
+  <text x="70" y="96" font-family="Arial, sans-serif" font-size="48" font-weight="700" fill="#fff8ed">Irani Chai</text>
+</svg>

@@ -34,6 +34,16 @@ export type FoodSpot = {
   safetyNote: string;
 };
 
+export type FoodMenuItem = {
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  tags: string[];
+  sourceName: string;
+  sourceUrl: string;
+};
+
 export type EventItem = {
   title: string;
   date: string;
@@ -785,6 +795,136 @@ const hyderabadRestaurantDirectory: FoodSpot[] = [
 ];
 
 export const food: FoodSpot[] = [...featuredFood, ...hyderabadRestaurantDirectory];
+
+const dishImages = {
+  biryani: "/images/food/biryani.jpg",
+  haleem: "/images/food/haleem.svg",
+  kebab: "/images/food/kebab.jpg",
+  mandi: "/images/food/mandi.svg",
+  dosa: "/images/food/dosa.svg",
+  idli: "/images/food/idli.jpg",
+  thali: "/images/food/thali.jpg",
+  coffee: "/images/food/filter-coffee.svg",
+  chai: "/images/food/chai.svg",
+  shawarma: "/images/food/shawarma.jpg",
+  chaat: "/images/food/chaat.jpg",
+  dessert: "/images/food/dessert.svg",
+  bakery: "/images/food/pastry.svg",
+  pizza: "/images/food/pizza.jpg",
+  sushi: "/images/food/sushi.jpg",
+  buffet: "/images/food/buffet.jpg",
+  rooftop: "/images/food/rooftop.svg"
+};
+
+const openDishSources = {
+  biryani: "https://commons.wikimedia.org/wiki/Category:Hyderabadi_biryani",
+  haleem: "https://commons.wikimedia.org/wiki/Category:Haleem",
+  kebab: "https://commons.wikimedia.org/wiki/Category:Kebabs",
+  mandi: "https://commons.wikimedia.org/wiki/Category:Mandi_(food)",
+  dosa: "https://commons.wikimedia.org/wiki/Category:Dosa",
+  idli: "https://commons.wikimedia.org/wiki/Category:Idli",
+  thali: "https://commons.wikimedia.org/wiki/Category:Thali",
+  coffee: "https://commons.wikimedia.org/wiki/Category:Filter_coffee",
+  chai: "https://commons.wikimedia.org/wiki/Category:Tea_in_India",
+  shawarma: "https://commons.wikimedia.org/wiki/Category:Shawarma",
+  chaat: "https://commons.wikimedia.org/wiki/Category:Chaat",
+  dessert: "https://commons.wikimedia.org/wiki/Category:Indian_sweets",
+  bakery: "https://commons.wikimedia.org/wiki/Category:Pastries",
+  pizza: "https://commons.wikimedia.org/wiki/Category:Pizza",
+  sushi: "https://commons.wikimedia.org/wiki/Category:Sushi",
+  buffet: "https://commons.wikimedia.org/wiki/Category:Buffets",
+  rooftop: "https://commons.wikimedia.org/wiki/Category:Dinners"
+};
+
+function menuItem(key: keyof typeof dishImages, name: string, description: string, price: number, tags: string[]): FoodMenuItem {
+  return {
+    name,
+    description,
+    price,
+    image: dishImages[key],
+    tags,
+    sourceName: "Open dish reference",
+    sourceUrl: openDishSources[key]
+  };
+}
+
+const categoryMenus: Record<FoodSpot["category"], FoodMenuItem[]> = {
+  Biryani: [
+    menuItem("biryani", "Hyderabadi Dum Biryani", "Layered basmati rice, saffron, fried onions, mint, and slow-cooked meat or veg.", 320, ["signature", "rice"]),
+    menuItem("haleem", "Hyderabadi Haleem", "Slow-pounded wheat, lentils, spices, and meat, popular during Ramzan and late evenings.", 260, ["seasonal", "rich"]),
+    menuItem("kebab", "Charcoal Kebab Platter", "Tandoor-style kebabs served with onions, mint chutney, and lemon.", 340, ["grill", "starter"]),
+    menuItem("mandi", "Mandi Rice Platter", "Fragrant Arabian-style rice with grilled meat, chutney, and soup.", 420, ["group", "rice"])
+  ],
+  "Street food": [
+    menuItem("chaat", "Hyderabad Chaat Plate", "Crisp puri, potatoes, chutneys, curd, sev, and masala.", 120, ["snack", "vegetarian"]),
+    menuItem("shawarma", "Chicken Shawarma Roll", "Spiced chicken, garlic sauce, salad, and fries wrapped in pita.", 160, ["roll", "late-night"]),
+    menuItem("dosa", "Butter Street Dosa", "Crisp dosa with butter, podi, chutney, and potato masala.", 140, ["tiffin", "vegetarian"]),
+    menuItem("chai", "Irani Chai", "Strong milk tea served with biscuits or small snacks.", 40, ["tea", "classic"])
+  ],
+  Cafe: [
+    menuItem("coffee", "Filter Coffee", "South Indian coffee with chicory, milk, and a strong roast profile.", 120, ["coffee", "classic"]),
+    menuItem("bakery", "Cafe Pastry Selection", "Fresh pastries, brownies, cakes, and small baked desserts.", 220, ["dessert", "bakery"]),
+    menuItem("pizza", "Cafe Pizza", "Thin crust pizza with vegetables, cheese, and herb seasoning.", 360, ["sharing", "continental"]),
+    menuItem("dessert", "Signature Dessert Bowl", "Sweet finish with ice cream, cake crumbs, fruit, or syrup.", 240, ["sweet", "popular"])
+  ],
+  Rooftop: [
+    menuItem("rooftop", "Rooftop Sharing Platter", "Finger food, dips, fries, and grilled bites built for groups.", 620, ["sharing", "nightlife"]),
+    menuItem("pizza", "Wood-Fired Pizza", "Crisp pizza with cheese, vegetables, herbs, and house sauce.", 520, ["sharing", "continental"]),
+    menuItem("kebab", "Tandoori Kebab Board", "Mixed kebabs with chutney, salad, and bread.", 680, ["grill", "starter"]),
+    menuItem("dessert", "Dessert Jar", "Layered cream, cake, chocolate, and fruit compote.", 280, ["sweet", "dessert"])
+  ],
+  Midnight: [
+    menuItem("shawarma", "Late-Night Shawarma", "Quick wrap with spiced meat, garlic sauce, and crisp fries.", 180, ["late-night", "roll"]),
+    menuItem("dosa", "Midnight Dosa", "Hot dosa with chutney and podi for late-night tiffin runs.", 140, ["tiffin", "vegetarian"]),
+    menuItem("chai", "Cutting Chai", "Small strong tea for late-night food streets.", 35, ["tea", "budget"]),
+    menuItem("mandi", "Mandi Box", "Rice, grilled meat, chutney, and soup packed for groups.", 420, ["group", "rice"])
+  ],
+  "Fine dining": [
+    menuItem("thali", "Regional Tasting Thali", "Curated curries, breads, rice, pickles, and dessert in a premium format.", 850, ["tasting", "regional"]),
+    menuItem("kebab", "Chef's Kebab Course", "Refined kebabs with chutneys, salad, and plated accompaniments.", 780, ["starter", "grill"]),
+    menuItem("sushi", "Asian Small Plates", "Sushi, dim sum, noodles, or Asian-inspired plates where available.", 950, ["asian", "premium"]),
+    menuItem("dessert", "House Dessert", "Plated dessert with Indian or continental flavors.", 420, ["sweet", "premium"])
+  ],
+  "South Indian": [
+    menuItem("dosa", "Ghee Karam Dosa", "Crisp dosa with ghee, podi, chutney, and potato masala.", 160, ["tiffin", "vegetarian"]),
+    menuItem("idli", "Idli Sambar", "Steamed idlis with hot sambar and coconut chutney.", 120, ["breakfast", "vegetarian"]),
+    menuItem("thali", "Andhra Meals", "Rice, dal, curries, rasam, sambar, curd, pickle, and papad.", 260, ["meals", "regional"]),
+    menuItem("coffee", "Filter Coffee", "Strong South Indian coffee served hot.", 80, ["coffee", "classic"])
+  ],
+  Bakery: [
+    menuItem("bakery", "Pastry Box", "Assorted pastries, puffs, brownies, and cakes.", 320, ["bakery", "sweet"]),
+    menuItem("dessert", "Ice Cream Dessert", "Ice cream with sauces, nuts, and toppings.", 220, ["dessert", "cold"]),
+    menuItem("chai", "Chai and Biscuit Combo", "Tea with local biscuits or bakery snacks.", 120, ["tea", "snack"]),
+    menuItem("coffee", "Coffee and Cake", "Cafe coffee paired with cake or brownie.", 260, ["coffee", "sweet"])
+  ]
+};
+
+const specialtyMenuMap: Array<{ match: string[]; item: FoodMenuItem }> = [
+  { match: ["haleem"], item: menuItem("haleem", "Haleem Bowl", "Slow-cooked wheat, lentils, spices, and meat finished with fried onions.", 260, ["seasonal", "rich"]) },
+  { match: ["mandi", "khabsa", "arabian"], item: menuItem("mandi", "Arabian Mandi Platter", "Long-grain rice with grilled meat, chutney, and soup.", 440, ["group", "rice"]) },
+  { match: ["shawarma", "roll"], item: menuItem("shawarma", "Shawarma Roll", "Warm wrap with spiced filling, garlic sauce, and salad.", 170, ["roll", "late-night"]) },
+  { match: ["dosa", "idli", "tiffin"], item: menuItem("dosa", "South Indian Tiffin Plate", "Dosa or idli served with sambar and chutneys.", 150, ["breakfast", "vegetarian"]) },
+  { match: ["coffee"], item: menuItem("coffee", "Specialty Coffee", "Hot or cold coffee built around the cafe's roast and milk style.", 180, ["coffee", "cafe"]) },
+  { match: ["chai", "irani"], item: menuItem("chai", "Irani Chai", "Strong milky tea commonly paired with biscuits.", 45, ["tea", "classic"]) },
+  { match: ["cake", "brownie", "pastr", "bakery"], item: menuItem("bakery", "Bakery Dessert", "Pastry, cake, brownie, or baked snack from the display counter.", 240, ["bakery", "sweet"]) },
+  { match: ["pizza"], item: menuItem("pizza", "Pizza", "Cheese, vegetables, sauce, and herbs on a baked crust.", 420, ["sharing", "continental"]) },
+  { match: ["sushi", "asian"], item: menuItem("sushi", "Sushi or Asian Plate", "Rice, vegetables, seafood or veg fillings, sauces, and pickles.", 780, ["asian", "premium"]) },
+  { match: ["buffet"], item: menuItem("buffet", "Buffet Plate", "Rotating spread of starters, mains, breads, rice, salads, and desserts.", 1100, ["buffet", "group"]) }
+];
+
+export function getRestaurantMenu(spot: FoodSpot): FoodMenuItem[] {
+  const menu = [...categoryMenus[spot.category]];
+  const text = `${spot.name} ${spot.area} ${spot.specialties.join(" ")}`.toLowerCase();
+  specialtyMenuMap.forEach(({ match, item }) => {
+    if (match.some((keyword) => text.includes(keyword)) && !menu.some((entry) => entry.name === item.name)) {
+      menu.push(item);
+    }
+  });
+  return menu.slice(0, 6).map((item, index) => ({
+    ...item,
+    price: Math.max(35, Math.round((item.price * (0.9 + index * 0.05) + spot.costForTwo / 16) / 10) * 10)
+  }));
+}
 
 export const events: EventItem[] = [
   { title: "Ramzan Food Streets", date: "Seasonal evenings", type: "Food festival", venue: "Charminar", price: "Pay per dish" },

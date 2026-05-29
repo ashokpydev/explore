@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" role="img" aria-label="Filter coffee">
+  <rect width="900" height="600" fill="#3b2418"/>
+  <path d="M310 230h260v170c0 70-58 120-130 120S310 470 310 400Z" fill="#fff8ed"/>
+  <path d="M570 270h60c55 0 55 92 0 92h-60" fill="none" stroke="#fff8ed" stroke-width="32"/>
+  <rect x="330" y="260" width="220" height="70" rx="20" fill="#8a4c28"/>
+  <path d="M352 170c-18-42 35-55 15-92m90 92c-18-42 35-55 15-92m90 92c-18-42 35-55 15-92" stroke="#f4b942" stroke-width="16" stroke-linecap="round" fill="none"/>
+  <text x="70" y="96" font-family="Arial, sans-serif" font-size="48" font-weight="700" fill="#fff8ed">Filter Coffee</text>
+</svg>

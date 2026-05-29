@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" role="img" aria-label="Rooftop dinner platter">
+  <rect width="900" height="600" fill="#111827"/>
+  <circle cx="715" cy="120" r="70" fill="#f4b942"/>
+  <path d="M0 310h120v-90h90v90h130v-135h110v135h120v-80h95v80h235v290H0Z" fill="#171717"/>
+  <ellipse cx="450" cy="415" rx="260" ry="90" fill="#fff8ed"/>
+  <circle cx="335" cy="400" r="42" fill="#a5243d"/>
+  <circle cx="450" cy="392" r="48" fill="#d78a2e"/>
+  <circle cx="560" cy="410" r="38" fill="#137c55"/>
+  <text x="70" y="96" font-family="Arial, sans-serif" font-size="48" font-weight="700" fill="#fff8ed">Rooftop Bites</text>
+</svg>

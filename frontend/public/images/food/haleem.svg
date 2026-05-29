@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" role="img" aria-label="Hyderabadi haleem bowl">
+  <rect width="900" height="600" fill="#2f1d17"/>
+  <circle cx="450" cy="320" r="205" fill="#fff8ed"/>
+  <circle cx="450" cy="300" r="165" fill="#9b5b34"/>
+  <path d="M315 280c76 35 164 37 270 0" fill="none" stroke="#d9a15f" stroke-width="24" stroke-linecap="round"/>
+  <path d="M330 230c86 40 164 42 240 0" fill="none" stroke="#f4b942" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="385" cy="300" r="18" fill="#7c1d36"/>
+  <circle cx="492" cy="330" r="14" fill="#137c55"/>
+  <text x="70" y="92" font-family="Arial, sans-serif" font-size="48" font-weight="700" fill="#fff8ed">Haleem</text>
+</svg>

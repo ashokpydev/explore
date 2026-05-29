@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" role="img" aria-label="Mandi rice platter">
+  <rect width="900" height="600" fill="#171717"/>
+  <ellipse cx="450" cy="340" rx="285" ry="150" fill="#fff8ed"/>
+  <ellipse cx="450" cy="320" rx="235" ry="112" fill="#f4d27a"/>
+  <path d="M330 295c78 48 168 48 240 0l35 88c-110 52-228 48-310-4Z" fill="#8a3f24"/>
+  <path d="M300 376c86 28 210 36 330 0" stroke="#fff8ed" stroke-width="18" stroke-linecap="round" opacity=".65"/>
+  <text x="72" y="96" font-family="Arial, sans-serif" font-size="48" font-weight="700" fill="#fff8ed">Mandi</text>
+</svg>

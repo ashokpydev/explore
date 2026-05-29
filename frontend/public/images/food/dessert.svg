@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" role="img" aria-label="Dessert bowl">
+  <rect width="900" height="600" fill="#fff8ed"/>
+  <ellipse cx="450" cy="400" rx="230" ry="95" fill="#a5243d"/>
+  <ellipse cx="450" cy="360" rx="205" ry="80" fill="#f4b942"/>
+  <circle cx="360" cy="300" r="58" fill="#fff"/>
+  <circle cx="455" cy="286" r="64" fill="#f7d7e5"/>
+  <circle cx="545" cy="310" r="54" fill="#8a4c28"/>
+  <path d="M332 260c96 46 180 46 260 0" stroke="#7c1d36" stroke-width="15" stroke-linecap="round" fill="none"/>
+  <text x="70" y="105" font-family="Arial, sans-serif" font-size="48" font-weight="700" fill="#7c1d36">Dessert</text>
+</svg>
