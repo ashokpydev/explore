@@ -30,6 +30,7 @@ const chipHref: Record<string, string> = {
   Mosques: "/explore?category=Mosques",
   Lakes: "/explore?category=Lakes",
   "Theme parks": "/explore?category=Theme Parks",
+  "Hidden gems": "/explore?category=Hidden Gems",
   "Weekend getaways": "/explore?category=Weekend"
 };
 
@@ -50,6 +51,7 @@ export default async function ExplorePage({ searchParams }: ExplorePageProps) {
     safe: firstParam(params.safe) === "true",
     focusSearch: firstParam(params.focus) === "search"
   };
+  const exploreStateKey = JSON.stringify(initialState);
 
   return (
     <main>
@@ -70,7 +72,7 @@ export default async function ExplorePage({ searchParams }: ExplorePageProps) {
             </Link>
           ))}
         </div>
-        <InteractiveExplore initialState={initialState} />
+        <InteractiveExplore key={exploreStateKey} initialState={initialState} />
       </Section>
     </main>
   );

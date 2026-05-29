@@ -213,7 +213,7 @@ export const places: Place[] = [
     safetyScore: 80,
     accessibility: "Trail terrain; not wheelchair friendly",
     bestTime: "Monsoon mornings",
-    tags: ["trekking", "weekend", "nature", "budget", "weather"]
+    tags: ["trekking", "weekend", "nature", "budget", "weather", "hidden gem"]
   },
   {
     slug: "ramoji-film-city",
@@ -293,7 +293,7 @@ export const places: Place[] = [
     safetyScore: 87,
     accessibility: "Garden paths are easier than inner tomb platforms.",
     bestTime: "Late afternoon",
-    tags: ["tombs", "history", "architecture", "golconda", "photography"]
+    tags: ["tombs", "history", "architecture", "golconda", "photography", "hidden gem"]
   },
   {
     slug: "chowmahalla-palace",
@@ -353,7 +353,7 @@ export const places: Place[] = [
     safetyScore: 88,
     accessibility: "Mostly open paths with some uneven craft-stall areas.",
     bestTime: "Evening",
-    tags: ["crafts", "market", "culture", "madhapur", "shopping", "events"]
+    tags: ["crafts", "market", "culture", "madhapur", "shopping", "events", "hidden gem"]
   },
   {
     slug: "inorbit-mall",
@@ -493,7 +493,7 @@ export const places: Place[] = [
     safetyScore: 85,
     accessibility: "Open park paths; some areas may have uneven ground.",
     bestTime: "Sunset",
-    tags: ["lake", "park", "gandipet", "sunset", "picnic", "family"]
+    tags: ["lake", "park", "gandipet", "sunset", "picnic", "family", "hidden gem"]
   },
   {
     slug: "taj-falaknuma-palace",

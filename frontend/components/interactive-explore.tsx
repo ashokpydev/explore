@@ -18,6 +18,7 @@ const filters = [
   "Mosques",
   "Malls",
   "Theaters",
+  "Hidden Gems",
   "Parks",
   "Resorts"
 ];
@@ -34,7 +35,12 @@ function initialExploreState(params: InitialExploreState) {
   const category = params.category;
   const placeSlug = params.place;
   const freeQuery = params.q;
-  const selected = places.find((item) => item.slug === placeSlug || item.name.toLowerCase() === placeSlug?.toLowerCase()) ?? places[0];
+  const selected =
+    places.find((item) => item.slug === placeSlug || item.name.toLowerCase() === placeSlug?.toLowerCase()) ??
+    (category === "Hidden Gems"
+      ? places.find((item) => item.tags.some((tag) => tag.includes("hidden")))
+      : places.find((item) => item.category === category)) ??
+    places[0];
   return {
     query: placeSlug ? selected.name : freeQuery ?? "",
     filter: category && filters.includes(category) ? category : "All",
@@ -127,7 +133,10 @@ export function InteractiveExplore({ initialState = {} }: { initialState?: Initi
 
   const filtered = useMemo(() => {
     return items.filter((place) => {
-      const matchesFilter = filter === "All" || place.category === filter;
+      const matchesFilter =
+        filter === "All" ||
+        place.category === filter ||
+        (filter === "Hidden Gems" && place.tags.some((tag) => tag.includes("hidden")));
       const matchesSafe = !safeOnly || place.safetyScore >= 85;
       const haystack = `${place.name} ${place.type} ${place.meta} ${place.tags.join(" ")}`.toLowerCase();
       return matchesFilter && matchesSafe && haystack.includes(query.toLowerCase());
@@ -172,6 +181,7 @@ export function InteractiveExplore({ initialState = {} }: { initialState?: Initi
           {filtered.map((place, index) => (
             <button
               key={place.name}
+              data-testid={`place-card-${place.slug}`}
               onClick={() => setSelected(place)}
               className={`overflow-hidden rounded-lg border bg-white text-left shadow-sm transition hover:-translate-y-1 hover:shadow-premium dark:bg-white/5 ${
                 selected.name === place.name ? "border-lac" : "border-black/10 dark:border-white/10"
