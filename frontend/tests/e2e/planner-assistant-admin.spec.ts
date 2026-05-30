@@ -9,15 +9,15 @@ test("planner generates itinerary, toggles QR guide, and downloads offline plan"
   await page.goto("/planner");
 
   await expect(page.getByRole("heading", { name: "Smart itinerary planner" })).toBeVisible();
+  await page.getByPlaceholder("Secunderabad, HITEC City, Airport...").fill("HITEC City");
+  await page.getByLabel("Destination").selectOption("charminar");
   await page.getByRole("button", { name: /Generate AI plan/ }).click();
-  await expect(page.getByRole("heading", { name: "2-Day Family Hyderabad Plan" })).toBeVisible();
-  await expect(page.getByText("Charminar -> Salar Jung Museum")).toBeVisible();
-  await expect(page.getByText("Balanced for heritage, food, family safety, and travel time.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "HITEC City to Charminar" })).toBeVisible();
+  await expect(page.getByText("Laad Bazaar -> Mecca Masjid -> Charminar")).toBeVisible();
+  await expect(page.getByText("Balanced for heritage, food, family safety, and travel time. Suggested order starts at HITEC City and ends at Charminar.")).toBeVisible();
   await expect(page.locator('iframe[title="Map for planned route"]')).toHaveAttribute("src", /openstreetmap\.org\/export\/embed\.html/);
   await expect(page.getByRole("link", { name: "Navigate full route" })).toHaveAttribute("href", /google\.com\/maps\/dir/);
   await expect(page.getByRole("link", { name: "Day route" }).first()).toHaveAttribute("href", /google\.com\/maps\/dir/);
-
-  await page.getByPlaceholder("Current location, Secunderabad, HITEC City...").fill("HITEC City");
   await expect(page.getByRole("link", { name: "Navigate full route" })).toHaveAttribute("href", /origin=HITEC\+City/);
 
   await page.getByRole("button", { name: "QR guide" }).click();
@@ -32,12 +32,18 @@ test("assistant quick prompts and submit use the API response", async ({ page })
   await page.goto("/assistant");
 
   await expect(page.getByRole("heading", { name: "Ask Hyderabad anything" })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Plan my Hyderabad trip/ })).toHaveAttribute("href", "/planner");
+  await expect(page.getByRole("link", { name: /Best biryani near me/ })).toHaveAttribute("href", "/food?query=biryani");
   await page.getByRole("button", { name: "Best biryani near me" }).click();
   await expect(page.getByText("Mock Hyderabad plan: start at Charminar")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Open food guide/ })).toHaveAttribute("href", "/food?query=biryani");
+  await expect(page.getByRole("button", { name: "Copy answer" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Read answer aloud" })).toBeVisible();
 
   await page.getByLabel("Assistant prompt").fill("Plan a museum trip");
   await page.getByLabel("Send").click();
-  await expect(page.getByText("Recent: Plan a museum trip")).toBeVisible();
+  await expect(page.getByText("Recent prompts")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Plan a museum trip" })).toBeVisible();
 });
 
 test("admin loads live analytics and approves moderation items", async ({ page }) => {
