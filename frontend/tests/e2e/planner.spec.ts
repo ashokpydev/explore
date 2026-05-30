@@ -27,6 +27,18 @@ test("planner hides estimates until start and destination are selected", async (
   await expect(page.getByRole("button", { name: "Generate AI plan" })).toBeEnabled();
 });
 
+test("planner accepts destination from query string without showing estimates early", async ({ page }) => {
+  await page.goto("/planner?destination=hussain-sagar");
+
+  await expect(page.getByLabel("Destination")).toHaveValue("hussain-sagar");
+  await expect(page.getByText("Add a starting location to unlock route recommendations.")).toBeVisible();
+  await expect(page.getByText("Estimated total")).toHaveCount(0);
+
+  await page.getByLabel("Start location").fill("HITEC City");
+  await expect(page.getByRole("heading", { name: "HITEC City to Hussain Sagar" })).toBeVisible();
+  await expect(page.getByText("Estimated total")).toBeVisible();
+});
+
 test("planner recommendations are based on selected start and destination", async ({ page }) => {
   await page.goto("/planner");
 

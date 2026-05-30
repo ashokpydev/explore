@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Filter } from "lucide-react";
 import { InteractiveExplore } from "@/components/interactive-explore";
 import { Section } from "@/components/ui/section";
@@ -67,15 +66,15 @@ export default async function ExplorePage({ searchParams }: ExplorePageProps) {
             <p className="text-sm font-semibold uppercase tracking-[0.16em] text-lac dark:text-turmeric">Explore Hyderabad</p>
             <h1 className="mt-2 text-4xl font-bold">Places with history, timings, fees, reviews, and AI tips</h1>
           </div>
-          <Link href="/explore?focus=search" className="inline-flex items-center justify-center gap-2 rounded-md bg-charcoal px-4 py-3 text-white dark:bg-turmeric dark:text-charcoal">
+          <a href="/explore?focus=search" className="inline-flex items-center justify-center gap-2 rounded-md bg-charcoal px-4 py-3 text-white dark:bg-turmeric dark:text-charcoal">
             <Filter size={18} /> Filters
-          </Link>
+          </a>
         </div>
         <div className="mb-8 flex max-w-full gap-2 overflow-x-auto pb-2">
           {chips.map((chip) => (
-            <Link key={chip} href={chipHref[chip] ?? `/explore?focus=search&q=${encodeURIComponent(chip)}`} className="shrink-0 rounded-md border border-black/10 px-3 py-2 text-sm dark:border-white/10">
+            <a key={chip} href={chipHref[chip] ?? `/explore?focus=search&q=${encodeURIComponent(chip)}`} className="shrink-0 rounded-md border border-black/10 px-3 py-2 text-sm dark:border-white/10">
               {chip}
-            </Link>
+            </a>
           ))}
         </div>
         <InteractiveExplore key={exploreStateKey} initialState={initialState} />

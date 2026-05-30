@@ -69,6 +69,7 @@ export function InteractiveExplore({ initialState = {} }: { initialState?: Initi
   const [source, setSource] = useState<"api" | "local">("local");
   const [origin, setOrigin] = useState("Current location");
   const searchRef = useRef<HTMLInputElement>(null);
+  const plannerDestinationUrl = (slug: string) => `/planner?destination=${encodeURIComponent(slug)}`;
 
   useEffect(() => {
     let active = true;
@@ -188,10 +189,10 @@ export function InteractiveExplore({ initialState = {} }: { initialState?: Initi
 
         <div className="grid gap-5 md:grid-cols-2">
           {filtered.map((place, index) => (
-            <button
+            <a
               key={place.name}
               data-testid={`place-card-${place.slug}`}
-              onClick={() => setSelected(place)}
+              href={plannerDestinationUrl(place.slug)}
               className={`overflow-hidden rounded-lg border bg-white text-left shadow-sm transition hover:-translate-y-1 hover:shadow-premium dark:bg-white/5 ${
                 selected.name === place.name ? "border-lac" : "border-black/10 dark:border-white/10"
               }`}
@@ -223,8 +224,9 @@ export function InteractiveExplore({ initialState = {} }: { initialState?: Initi
                   <span className="rounded-md bg-pearl px-2 py-1 dark:bg-night">{place.distanceKm} km</span>
                   <span className="rounded-md bg-pearl px-2 py-1 dark:bg-night">{place.safetyScore}% safe</span>
                 </div>
+                <p className="text-sm font-semibold text-lac dark:text-turmeric">Plan trip to {place.name}</p>
               </div>
-            </button>
+            </a>
           ))}
           {!filtered.length ? (
             <div className="rounded-lg border border-dashed border-black/20 bg-white p-6 text-sm text-black/65 dark:border-white/20 dark:bg-white/5 dark:text-white/70 md:col-span-2">

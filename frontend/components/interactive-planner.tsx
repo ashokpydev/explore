@@ -119,7 +119,12 @@ function tripHours(stops: Array<(typeof places)[number]>, totalDistance: number)
   return activityHours + travelHours;
 }
 
-export function InteractivePlanner() {
+type InteractivePlannerProps = {
+  initialOrigin?: string;
+  initialDestination?: string;
+};
+
+export function InteractivePlanner({ initialOrigin = "", initialDestination = "" }: InteractivePlannerProps) {
   const [days, setDays] = useState(2);
   const [tripType, setTripType] = useState("family");
   const [budget, setBudget] = useState(12000);
@@ -129,8 +134,8 @@ export function InteractivePlanner() {
   const [plan, setPlan] = useState<GeneratedPlan | null>(null);
   const [loading, setLoading] = useState(false);
   const [showQr, setShowQr] = useState(false);
-  const [origin, setOrigin] = useState("");
-  const [destinationSlug, setDestinationSlug] = useState("");
+  const [origin, setOrigin] = useState(initialOrigin);
+  const [destinationSlug, setDestinationSlug] = useState(initialDestination);
 
   const destination = useMemo(() => places.find((place) => place.slug === destinationSlug), [destinationSlug]);
   const originPoint = useMemo(() => resolveLocation(origin), [origin]);

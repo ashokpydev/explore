@@ -14,10 +14,15 @@ const nav = [
 
 export function SiteHeader() {
   const { theme, setTheme } = useTheme();
+  const refreshNavigate = (href: string) => (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    window.location.assign(href);
+  };
+
   return (
     <header className="sticky top-0 z-50 border-b border-black/10 bg-pearl/88 backdrop-blur dark:border-white/10 dark:bg-night/88">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3">
-        <Link href="/" className="flex items-center gap-2 font-semibold tracking-wide">
+        <Link href="/" onClick={refreshNavigate("/")} className="flex items-center gap-2 font-semibold tracking-wide">
           <span className="grid h-9 w-9 place-items-center rounded-md bg-lac text-white">
             <Bot size={19} />
           </span>
@@ -25,13 +30,13 @@ export function SiteHeader() {
         </Link>
         <nav className="hidden items-center gap-6 text-sm font-medium text-black/70 dark:text-white/75 md:flex">
           {nav.map(([label, href]) => (
-            <Link key={href} href={href} className="hover:text-lac dark:hover:text-turmeric">
+            <Link key={href} href={href} onClick={refreshNavigate(href)} className="hover:text-lac dark:hover:text-turmeric">
               {label}
             </Link>
           ))}
         </nav>
         <div className="flex items-center gap-2">
-          <Link href="/explore?focus=search" className="grid h-9 w-9 place-items-center rounded-md border border-black/10 dark:border-white/10" aria-label="Search places">
+          <Link href="/explore?focus=search" onClick={refreshNavigate("/explore?focus=search")} className="grid h-9 w-9 place-items-center rounded-md border border-black/10 dark:border-white/10" aria-label="Search places">
             <Search size={17} />
           </Link>
           <button
