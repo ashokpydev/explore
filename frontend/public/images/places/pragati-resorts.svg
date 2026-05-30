@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Pragati Resorts">
-  <rect width="800" height="520" fill="#dcfce7"/>
-  <path d="M0 330h800v190H0z" fill="#86efac"/>
-  <path d="M220 395h360v45H220z" fill="#166534"/>
-  <path d="M265 395V250h270v145" fill="#fefce8"/>
-  <path d="M245 250h310L400 145z" fill="#22c55e"/>
-  <path d="M120 390c28-105 112-105 140 0m280 0c28-105 112-105 140 0" fill="none" stroke="#15803d" stroke-width="28" stroke-linecap="round"/>
-  <text x="400" y="470" text-anchor="middle" font-family="Arial, sans-serif" font-size="44" font-weight="700" fill="#0f172a">Pragati Resorts</text>
-</svg>

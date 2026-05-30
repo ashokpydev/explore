@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Palm Exotica Boutique Resort">
-  <rect width="800" height="520" fill="#ecfeff"/>
-  <path d="M0 340h800v180H0z" fill="#67e8f9"/>
-  <path d="M250 390h300v50H250z" fill="#f97316"/>
-  <path d="M282 390V285h236v105" fill="#fff7ed"/>
-  <path d="M314 285l86-82 86 82z" fill="#fb923c"/>
-  <path d="M610 370c-45-86 15-180 15-180s60 94 15 180" fill="#15803d"/>
-  <text x="400" y="470" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" font-weight="700" fill="#0f172a">Palm Exotica Boutique Resort</text>
-</svg>

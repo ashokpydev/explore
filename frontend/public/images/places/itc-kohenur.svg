@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="ITC Kohenur">
-  <rect width="800" height="520" fill="#ecfeff"/>
-  <path d="M150 405h500v40H150z" fill="#0f766e"/>
-  <path d="M260 405V150h280v255" fill="#fefce8"/>
-  <path d="M300 188h48v46h-48zm76 0h48v46h-48zm76 0h48v46h-48zm-152 82h48v46h-48zm76 0h48v46h-48zm76 0h48v46h-48z" fill="#14b8a6"/>
-  <text x="400" y="470" text-anchor="middle" font-family="Arial, sans-serif" font-size="44" font-weight="700" fill="#0f172a">ITC Kohenur</text>
-</svg>

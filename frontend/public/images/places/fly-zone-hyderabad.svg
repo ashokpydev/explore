@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Fly Zone Hyderabad">
-  <rect width="800" height="520" fill="#e0f2fe"/>
-  <path d="M0 385h800v135H0z" fill="#bae6fd"/>
-  <path d="M170 250c95-95 365-95 460 0" fill="none" stroke="#0284c7" stroke-width="20" stroke-linecap="round"/>
-  <path d="M250 280l150-78 150 78-150 70z" fill="#f97316"/>
-  <path d="M400 350v75" stroke="#0f172a" stroke-width="20" stroke-linecap="round"/>
-  <text x="400" y="468" text-anchor="middle" font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="#0f172a">Fly Zone Hyderabad</text>
-</svg>

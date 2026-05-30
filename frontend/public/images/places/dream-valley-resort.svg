@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Dream Valley Resort">
-  <rect width="800" height="520" fill="#e0f2fe"/>
-  <path d="M0 350h800v170H0z" fill="#bbf7d0"/>
-  <path d="M125 405c115-85 205-85 320 0s170 85 230 0v50H125z" fill="#38bdf8"/>
-  <path d="M240 352h250v80H240z" fill="#fef3c7"/>
-  <path d="M220 352l145-105 145 105z" fill="#16a34a"/>
-  <text x="400" y="470" text-anchor="middle" font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="#0f172a">Dream Valley Resort</text>
-</svg>

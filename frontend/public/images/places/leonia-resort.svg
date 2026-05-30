@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Leonia Holistic Destination">
-  <rect width="800" height="520" fill="#dff7ff"/>
-  <path d="M0 325h800v195H0z" fill="#99f6e4"/>
-  <path d="M125 360h220v80H125z" fill="#f8fafc"/>
-  <path d="M455 360h220v80H455z" fill="#f8fafc"/>
-  <path d="M180 360l55-88 55 88m220 0 55-88 55 88" fill="#0f766e"/>
-  <circle cx="400" cy="260" r="54" fill="#22c55e"/>
-  <text x="400" y="470" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" font-weight="700" fill="#0f172a">Leonia Holistic Destination</text>
-</svg>

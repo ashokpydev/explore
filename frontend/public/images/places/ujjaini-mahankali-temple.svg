@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Ujjaini Mahankali Temple">
-  <rect width="800" height="520" fill="#fef2f2"/>
-  <path d="M130 390h540v42H130z" fill="#991b1b"/>
-  <path d="M260 390V235h280v155" fill="#fff7ed"/>
-  <path d="M230 238h340L400 102z" fill="#ef4444"/>
-  <path d="M352 390v-95h96v95" fill="#7f1d1d"/>
-  <circle cx="400" cy="155" r="34" fill="#fbbf24"/>
-  <text x="400" y="464" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="700" fill="#0f172a">Ujjaini Mahankali Temple</text>
-</svg>
