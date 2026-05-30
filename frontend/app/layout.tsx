@@ -7,14 +7,27 @@ import { SiteHeader } from "@/components/site-header";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: "Explore Hyderabad | AI Tourism and City Guide",
   description:
     "Discover Hyderabad and Telangana with AI itineraries, maps, food guides, events, safety, metro, weather, and local experiences.",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/images/explore-hyderabad-logo.png",
+    apple: "/images/explore-hyderabad-logo.png"
+  },
   openGraph: {
     title: "Explore Hyderabad",
     description: "AI-powered tourism and city exploration for Hyderabad and Telangana.",
-    type: "website"
+    type: "website",
+    images: [
+      {
+        url: "/images/explore-hyderabad-logo.png",
+        width: 1024,
+        height: 1024,
+        alt: "Explore Hyderabad logo"
+      }
+    ]
   }
 };
 
@@ -36,4 +49,3 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
-

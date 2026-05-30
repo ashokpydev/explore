@@ -1,8 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import { Bot, Moon, Search, Sun } from "lucide-react";
+import { Moon, Search, Sun } from "lucide-react";
 
 const nav = [
   ["Explore", "/explore"],
@@ -23,8 +24,15 @@ export function SiteHeader() {
     <header className="sticky top-0 z-50 border-b border-black/10 bg-pearl/88 backdrop-blur dark:border-white/10 dark:bg-night/88">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3">
         <Link href="/" onClick={refreshNavigate("/")} className="flex items-center gap-2 font-semibold tracking-wide">
-          <span className="grid h-9 w-9 place-items-center rounded-md bg-lac text-white">
-            <Bot size={19} />
+          <span className="relative h-11 w-11 overflow-hidden rounded-md border border-white/70 bg-lake shadow-sm">
+            <Image
+              src="/images/explore-hyderabad-logo.png"
+              alt="Explore Hyderabad logo"
+              fill
+              sizes="44px"
+              className="object-cover"
+              priority
+            />
           </span>
           <span>Explore Hyderabad</span>
         </Link>
