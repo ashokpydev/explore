@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { CalendarPlus, Download, IndianRupee, Languages, Map, Navigation, QrCode, Route, ShieldCheck, Sparkles, type LucideIcon } from "lucide-react";
 import { createItinerary } from "@/lib/api";
-import { emergencyContacts, metroRoutes, places } from "@/lib/data";
+import { emergencyContacts, places } from "@/lib/data";
 import { googleMapsMultiStopUrl, openStreetMapRouteEmbedUrl } from "@/lib/maps";
 
 type RouteDay = {
@@ -19,8 +19,95 @@ type PlannerResult = {
   ai_reasoning: string;
 };
 
+type GeneratedPlan = PlannerResult & {
+  routeKey: string;
+};
+
 const tripTypes = ["family", "solo", "couple", "budget", "luxury", "weekend"];
 const interestOptions = ["monuments", "biryani", "lakes", "markets", "cafes", "trekking", "nightlife", "culture"];
+const startLocations = [
+  { name: "Secunderabad Railway Station", lat: 17.4337, lng: 78.5016 },
+  { name: "Hyderabad Deccan Nampally", lat: 17.3924, lng: 78.4675 },
+  { name: "HITEC City", lat: 17.4483, lng: 78.3915 },
+  { name: "Gachibowli", lat: 17.4401, lng: 78.3489 },
+  { name: "Madhapur", lat: 17.4486, lng: 78.3908 },
+  { name: "Jubilee Hills", lat: 17.4326, lng: 78.4071 },
+  { name: "Banjara Hills", lat: 17.4126, lng: 78.4482 },
+  { name: "Kukatpally", lat: 17.4948, lng: 78.3996 },
+  { name: "LB Nagar", lat: 17.3457, lng: 78.5522 },
+  { name: "Rajiv Gandhi International Airport", lat: 17.2403, lng: 78.4294 }
+];
+
+type Coordinate = {
+  name: string;
+  lat: number;
+  lng: number;
+};
+
+function normalize(value: string) {
+  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ");
+}
+
+function resolveLocation(value: string): Coordinate | undefined {
+  const query = normalize(value);
+  if (!query) return undefined;
+  return [...startLocations, ...places].find((item) => {
+    const name = normalize(item.name);
+    return name === query || name.includes(query) || query.includes(name);
+  });
+}
+
+function distanceKm(from: Pick<Coordinate, "lat" | "lng">, to: Pick<Coordinate, "lat" | "lng">) {
+  const radiusKm = 6371;
+  const toRad = (value: number) => (value * Math.PI) / 180;
+  const dLat = toRad(to.lat - from.lat);
+  const dLng = toRad(to.lng - from.lng);
+  const lat1 = toRad(from.lat);
+  const lat2 = toRad(to.lat);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+  return radiusKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function routeDistanceKm(origin: Coordinate, stops: Array<Coordinate>) {
+  return stops.reduce(
+    (total, stop, index) => total + distanceKm(index === 0 ? origin : stops[index - 1], stop),
+    0
+  );
+}
+
+function buildRouteStops(origin: Coordinate, destination: (typeof places)[number], selectedInterests: string[], dayCount: number) {
+  const maxSuggestedStops = Math.max(0, Math.min(dayCount * 2, 5));
+  const directDistance = Math.max(1, distanceKm(origin, destination));
+  const candidates = places
+    .filter((place) => place.slug !== destination.slug)
+    .map((place) => {
+      const interestMatch = selectedInterests.some((interest) => place.tags.includes(interest) || place.category.toLowerCase().includes(interest));
+      const detour = distanceKm(origin, place) + distanceKm(place, destination) - directDistance;
+      const destinationNearness = distanceKm(place, destination);
+      return { place, score: detour + destinationNearness * 0.18 - (interestMatch ? 4 : 0) };
+    })
+    .sort((left, right) => left.score - right.score)
+    .slice(0, maxSuggestedStops)
+    .map(({ place }) => place)
+    .sort((left, right) => distanceKm(origin, left) - distanceKm(origin, right));
+
+  return [...candidates, destination];
+}
+
+function buildRouteDays(stops: Array<(typeof places)[number]>, dayCount: number, totalDistance: number): RouteDay[] {
+  return Array.from({ length: dayCount }, (_, index) => {
+    const start = Math.floor((index * stops.length) / dayCount);
+    const end = Math.floor(((index + 1) * stops.length) / dayCount);
+    const dayStops = stops.slice(start, Math.max(start + 1, end));
+    return {
+      day: index + 1,
+      stops: dayStops.map((place) => place.name),
+      transport: index === 0
+        ? `Start with the closest stop first; full route is about ${Math.round(totalDistance)} km.`
+        : "Continue in route order to reduce backtracking."
+    };
+  });
+}
 
 export function InteractivePlanner() {
   const [days, setDays] = useState(2);
@@ -28,44 +115,58 @@ export function InteractivePlanner() {
   const [budget, setBudget] = useState(9000);
   const [language, setLanguage] = useState("English");
   const [interests, setInterests] = useState(["monuments", "biryani", "lakes"]);
-  const [plan, setPlan] = useState<PlannerResult | null>(null);
+  const [plan, setPlan] = useState<GeneratedPlan | null>(null);
   const [loading, setLoading] = useState(false);
   const [showQr, setShowQr] = useState(false);
-  const [origin, setOrigin] = useState("Current location");
+  const [origin, setOrigin] = useState("");
+  const [destinationSlug, setDestinationSlug] = useState("");
 
-  const pickedPlaces = useMemo(() => {
-    return places
-      .filter((place) => interests.some((interest) => place.tags.includes(interest) || place.category.toLowerCase().includes(interest)))
-      .slice(0, Math.max(3, days + 1));
-  }, [days, interests]);
+  const destination = useMemo(() => places.find((place) => place.slug === destinationSlug), [destinationSlug]);
+  const originPoint = useMemo(() => resolveLocation(origin), [origin]);
+  const routeReady = Boolean(originPoint && destination);
+  const routeKey = `${originPoint?.name ?? ""}|${destination?.slug ?? ""}|${days}|${tripType}|${interests.join(",")}`;
+  const activePlan = plan?.routeKey === routeKey ? plan : null;
+
+  const routeDetails = useMemo(() => {
+    if (!originPoint || !destination) return null;
+    const stops = buildRouteStops(originPoint, destination, interests, days);
+    const distance = routeDistanceKm(originPoint, stops);
+    const route = buildRouteDays(stops, days, distance);
+    return { stops, distance, route };
+  }, [days, destination, interests, originPoint]);
 
   const expense = useMemo(() => {
+    if (!routeDetails) return null;
     const food = days * (tripType === "luxury" ? 2600 : tripType === "budget" ? 700 : 1400);
-    const transport = Math.round(pickedPlaces.reduce((sum, place) => sum + place.distanceKm, 0) * 28 + days * 250);
-    const entries = pickedPlaces.reduce((sum, place) => sum + place.fee, 0);
+    const transport = Math.round(routeDetails.distance * 32 + days * 180);
+    const entries = routeDetails.stops.reduce((sum, place) => sum + place.fee, 0);
     const stay = days > 1 ? (days - 1) * (tripType === "luxury" ? 9000 : tripType === "budget" ? 1500 : 3600) : 0;
     return { food, transport, entries, stay, total: food + transport + entries + stay };
-  }, [days, pickedPlaces, tripType]);
+  }, [days, routeDetails, tripType]);
 
-  const previewRoute: RouteDay[] = Array.from({ length: days }, (_, index) => ({
-    day: index + 1,
-    stops: pickedPlaces.slice(index, index + 3).map((place) => place.name),
-    transport: metroRoutes[index % metroRoutes.length]?.duration ?? "Cab loop"
-  }));
-  const visibleRoute = plan?.route ?? previewRoute;
+  const visibleRoute = useMemo(() => activePlan?.route ?? routeDetails?.route ?? [], [activePlan, routeDetails]);
   const routeStops = useMemo(() => {
     return visibleRoute
       .flatMap((day) => day.stops)
       .map((stop) => places.find((place) => place.name === stop))
       .filter((place): place is (typeof places)[number] => Boolean(place));
   }, [visibleRoute]);
-  const routeOrigin = origin === "Current location" ? undefined : origin;
+  const routeOrigin = originPoint?.name ?? origin;
+  const safetyAverage = routeDetails ? Math.round(routeDetails.stops.reduce((sum, place) => sum + place.safetyScore, 0) / routeDetails.stops.length) : 0;
+  const routeStatus = !origin.trim()
+    ? "Add a starting location to unlock route recommendations."
+    : !destination
+      ? "Choose a destination to unlock route recommendations."
+      : !originPoint
+        ? "Select a recognized starting point from the suggestions so route estimates stay accurate."
+        : "";
 
   function toggleInterest(item: string) {
     setInterests((current) => (current.includes(item) ? current.filter((value) => value !== item) : [...current, item]));
   }
 
   async function generate() {
+    if (!routeDetails || !destination || !originPoint) return;
     setLoading(true);
     try {
       const data = await createItinerary({
@@ -73,19 +174,25 @@ export function InteractivePlanner() {
         trip_type: tripType,
         budget_inr: budget,
         interests,
-        language: language.toLowerCase().slice(0, 2)
+        language: language.toLowerCase().slice(0, 2),
+        origin: originPoint.name,
+        destination: destination.name
       });
-      setPlan(data);
+      setPlan({
+        ...data,
+        routeKey,
+        route: routeDetails.route,
+        ai_reasoning: `${data.ai_reasoning ?? "Route optimized from your selected start and destination."} Suggested order starts at ${originPoint.name} and ends at ${destination.name}.`
+      });
     } catch {
       setPlan({
-        title: `${days}-Day ${tripType} Hyderabad Plan`,
-        route: Array.from({ length: days }, (_, index) => ({
-          day: index + 1,
-          stops: pickedPlaces.slice(index, index + 3).map((place) => place.name),
-          transport: index === 0 ? "Metro, cab, and short walks" : "Cab loop with traffic buffer",
-          budget_note: "Offline plan generated from local tourism intelligence."
+        routeKey,
+        title: `${days}-Day ${tripType} plan to ${destination.name}`,
+        route: routeDetails.route.map((day) => ({
+          ...day,
+          budget_note: `Route uses ${originPoint.name} as the start and ${destination.name} as the final stop.`
         })),
-        ai_reasoning: "Start early for heritage zones, keep lakefronts for evenings, and reserve 20-30% of the budget for food, shopping, and cab surge."
+        ai_reasoning: `The recommendation is ordered by actual coordinates from ${originPoint.name} to ${destination.name}, with nearby interest-matched stops inserted only when they reduce backtracking. Estimated route distance is ${Math.round(routeDetails.distance)} km.`
       });
     } finally {
       setLoading(false);
@@ -93,7 +200,12 @@ export function InteractivePlanner() {
   }
 
   function downloadPlan() {
-    const payload = plan ?? { title: "Preview Hyderabad Plan", route: previewRoute, ai_reasoning: "Generate a plan for full AI reasoning." };
+    if (!routeDetails || !destination || !originPoint) return;
+    const payload = activePlan ?? {
+      title: `Preview route from ${originPoint.name} to ${destination.name}`,
+      route: routeDetails.route,
+      ai_reasoning: "Generated from selected start and destination."
+    };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -109,7 +221,7 @@ export function InteractivePlanner() {
         <Sparkles className="mb-5 text-lac dark:text-turmeric" />
         <h1 className="text-3xl font-bold">Smart itinerary planner</h1>
         <p className="mt-3 text-sm leading-6 text-black/65 dark:text-white/65">
-          Tune trip type, budget, interests, language, and duration. The planner calculates spend, safety, metro hints, and AI routes.
+          Add a starting location and destination first. The planner only shows estimates after both points are selected.
         </p>
 
         <div className="mt-6 grid gap-4">
@@ -136,11 +248,32 @@ export function InteractivePlanner() {
           <label className="text-sm font-medium">
             Start location
             <input
+              list="planner-start-locations"
               value={origin}
               onChange={(event) => setOrigin(event.target.value)}
-              placeholder="Current location, Secunderabad, HITEC City..."
+              placeholder="Secunderabad, HITEC City, Airport..."
               className="mt-2 w-full rounded-md border border-black/10 bg-transparent px-3 py-2 outline-none focus:border-lac dark:border-white/10"
             />
+            <datalist id="planner-start-locations">
+              {[...startLocations, ...places].map((item) => (
+                <option key={item.name} value={item.name} />
+              ))}
+            </datalist>
+          </label>
+          <label className="text-sm font-medium">
+            Destination
+            <select
+              value={destinationSlug}
+              onChange={(event) => setDestinationSlug(event.target.value)}
+              className="mt-2 w-full rounded-md border border-black/10 bg-transparent px-3 py-2 dark:border-white/10"
+            >
+              <option value="">Choose ending point</option>
+              {places.map((place) => (
+                <option key={place.slug} value={place.slug}>
+                  {place.name}
+                </option>
+              ))}
+            </select>
           </label>
         </div>
 
@@ -161,31 +294,45 @@ export function InteractivePlanner() {
           </div>
         </div>
 
-        <button onClick={generate} className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-md bg-lac px-4 py-3 font-semibold text-white">
+        <button
+          onClick={generate}
+          disabled={!routeReady || loading}
+          className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-md bg-lac px-4 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:bg-black/25 disabled:text-black/50 dark:disabled:bg-white/10 dark:disabled:text-white/45"
+        >
           <Route size={18} /> {loading ? "Optimizing route..." : "Generate AI plan"}
         </button>
       </aside>
 
       <section className="space-y-5">
-        <div className="grid gap-4 md:grid-cols-4">
-          <Metric icon={IndianRupee} label="Estimated total" value={`INR ${expense.total.toLocaleString("en-IN")}`} tone={expense.total <= budget ? "good" : "warn"} />
-          <Metric icon={Navigation} label="Cab/metro" value={`INR ${expense.transport}`} />
-          <Metric icon={ShieldCheck} label="Safety avg" value={`${Math.round(pickedPlaces.reduce((sum, place) => sum + place.safetyScore, 0) / Math.max(1, pickedPlaces.length))}%`} />
-          <Metric icon={Languages} label="Narration" value={language} />
-        </div>
+        {routeReady && expense && routeDetails ? (
+          <div className="grid gap-4 md:grid-cols-4">
+            <Metric icon={IndianRupee} label="Estimated total" value={`INR ${expense.total.toLocaleString("en-IN")}`} tone={expense.total <= budget ? "good" : "warn"} />
+            <Metric icon={Navigation} label="Route distance" value={`${Math.round(routeDetails.distance)} km`} />
+            <Metric icon={ShieldCheck} label="Safety avg" value={`${safetyAverage}%`} />
+            <Metric icon={Languages} label="Narration" value={language} />
+          </div>
+        ) : null}
 
         <div className="rounded-lg bg-charcoal p-6 text-white">
           <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-2">
               <Map className="text-turmeric" />
-              <h2 className="text-2xl font-semibold">{plan?.title ?? "Your optimized route appears here"}</h2>
+              <h2 className="text-2xl font-semibold">{routeReady ? activePlan?.title ?? `Route to ${destination?.name}` : "Add start and destination"}</h2>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => setShowQr((current) => !current)} className="inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm"><QrCode size={16} /> QR guide</button>
-              <button onClick={downloadPlan} className="inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm"><Download size={16} /> Offline</button>
+              <button disabled={!routeReady} onClick={() => setShowQr((current) => !current)} className="inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-45"><QrCode size={16} /> QR guide</button>
+              <button disabled={!routeReady} onClick={downloadPlan} className="inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-45"><Download size={16} /> Offline</button>
             </div>
           </div>
-          {showQr ? (
+          {!routeReady ? (
+            <div className="rounded-md border border-white/12 bg-white/8 p-5">
+              <p className="font-semibold text-white">Route details are waiting for your inputs.</p>
+              <p className="mt-2 text-sm leading-6 text-white/70">{routeStatus}</p>
+              <p className="mt-2 text-sm leading-6 text-white/70">
+                No budget, travel time, distance, map, or route recommendation is shown until the start and destination are both selected.
+              </p>
+            </div>
+          ) : showQr ? (
             <div className="mb-5 grid gap-3 rounded-md border border-white/12 bg-white/8 p-4 text-sm md:grid-cols-[120px_1fr]">
               <div className="grid aspect-square grid-cols-5 gap-1 rounded bg-white p-2">
                 {Array.from({ length: 25 }, (_, index) => (
@@ -198,34 +345,36 @@ export function InteractivePlanner() {
               </div>
             </div>
           ) : null}
-          <div className="mb-5 overflow-hidden rounded-md border border-white/12">
-            <iframe
-              title="Map for planned route"
-              src={openStreetMapRouteEmbedUrl(routeStops)}
-              className="h-80 w-full"
-              loading="lazy"
-            />
-          </div>
-          <div className="mb-5 flex flex-col gap-2 sm:flex-row">
-            <a
-              href={googleMapsMultiStopUrl(routeStops, routeOrigin)}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-md bg-turmeric px-3 py-2 text-sm font-semibold text-charcoal"
-            >
-              <Navigation size={16} /> Navigate full route
-            </a>
-            <a
-              href={routeStops[0] ? `https://www.openstreetmap.org/?mlat=${routeStops[0].lat}&mlon=${routeStops[0].lng}#map=12/${routeStops[0].lat}/${routeStops[0].lng}` : "https://www.openstreetmap.org"}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm font-semibold"
-            >
-              <Map size={16} /> Open route map
-            </a>
-          </div>
-          <div className="grid gap-4">
-            {visibleRoute.map((day) => {
+          {routeReady ? (
+            <>
+              <div className="mb-5 overflow-hidden rounded-md border border-white/12">
+                <iframe
+                  title="Map for planned route"
+                  src={openStreetMapRouteEmbedUrl(routeStops)}
+                  className="h-80 w-full"
+                  loading="lazy"
+                />
+              </div>
+              <div className="mb-5 flex flex-col gap-2 sm:flex-row">
+                <a
+                  href={googleMapsMultiStopUrl(routeStops, routeOrigin)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center justify-center gap-2 rounded-md bg-turmeric px-3 py-2 text-sm font-semibold text-charcoal"
+                >
+                  <Navigation size={16} /> Navigate full route
+                </a>
+                <a
+                  href={routeStops[0] ? `https://www.openstreetmap.org/?mlat=${routeStops[0].lat}&mlon=${routeStops[0].lng}#map=12/${routeStops[0].lat}/${routeStops[0].lng}` : "https://www.openstreetmap.org"}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center justify-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm font-semibold"
+                >
+                  <Map size={16} /> Open route map
+                </a>
+              </div>
+              <div className="grid gap-4">
+                {visibleRoute.map((day) => {
               const dayStops = day.stops
                 .map((stop) => places.find((place) => place.name === stop))
                 .filter((place): place is (typeof places)[number] => Boolean(place));
@@ -251,22 +400,26 @@ export function InteractivePlanner() {
                 {day.budget_note ? <p className="mt-2 text-xs text-white/55">{day.budget_note}</p> : null}
               </div>
             )})}
-          </div>
-          <p className="mt-6 text-sm leading-6 text-white/72">
-            {plan?.ai_reasoning ?? "The planner estimates food, cab fares, metro segments, entry fees, stay cost, crowd risk, weather-sensitive stops, emergency contacts, and offline QR guide readiness."}
-          </p>
+              </div>
+              <p className="mt-6 text-sm leading-6 text-white/72">
+                {activePlan?.ai_reasoning ?? `Recommended from ${originPoint?.name} to ${destination?.name}, with nearby stops ordered by route distance, interest match, and backtracking reduction.`}
+              </p>
+            </>
+          ) : null}
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-lg border border-black/10 bg-white p-5 dark:border-white/10 dark:bg-white/5">
-            <h3 className="mb-4 flex items-center gap-2 font-semibold"><CalendarPlus className="text-lac dark:text-turmeric" /> Expense breakdown</h3>
-            {Object.entries(expense).filter(([key]) => key !== "total").map(([key, value]) => (
-              <div key={key} className="flex justify-between border-b border-black/5 py-2 text-sm last:border-b-0 dark:border-white/10">
-                <span className="capitalize">{key}</span>
-                <strong>INR {value.toLocaleString("en-IN")}</strong>
-              </div>
-            ))}
-          </div>
+          {routeReady && expense ? (
+            <div className="rounded-lg border border-black/10 bg-white p-5 dark:border-white/10 dark:bg-white/5">
+              <h3 className="mb-4 flex items-center gap-2 font-semibold"><CalendarPlus className="text-lac dark:text-turmeric" /> Expense breakdown</h3>
+              {Object.entries(expense).filter(([key]) => key !== "total").map(([key, value]) => (
+                <div key={key} className="flex justify-between border-b border-black/5 py-2 text-sm last:border-b-0 dark:border-white/10">
+                  <span className="capitalize">{key}</span>
+                  <strong>INR {value.toLocaleString("en-IN")}</strong>
+                </div>
+              ))}
+            </div>
+          ) : null}
           <div className="rounded-lg border border-black/10 bg-white p-5 dark:border-white/10 dark:bg-white/5">
             <h3 className="mb-4 flex items-center gap-2 font-semibold"><ShieldCheck className="text-lac dark:text-turmeric" /> Emergency pack</h3>
             <div className="grid grid-cols-2 gap-2">
