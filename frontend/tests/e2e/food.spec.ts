@@ -14,6 +14,8 @@ test("food page filters by search, budget, category, and late-night availability
   await expect(page.getByRole("heading", { name: "Jubilee Hills Cafe Trail" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Adaa" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Hotel Shadab" })).toBeVisible();
+  await expect(page.getByText("Budgets are calculated for 2 members.")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Directions" }).first()).toHaveAttribute("href", /google\.com\/maps\/dir/);
 
   await page.getByPlaceholder("Search biryani, chai, rooftops, shawarma...").fill("coffee");
   await expect(page.getByRole("heading", { name: "Jubilee Hills Cafe Trail" })).toBeVisible();
@@ -30,16 +32,22 @@ test("food page filters by search, budget, category, and late-night availability
   await expect(page.getByRole("heading", { name: "Jubilee Hills Cafe Trail" })).toHaveCount(0);
 });
 
-test("restaurant cards open dish menus with images and source links", async ({ page }) => {
+test("restaurant cards open dish menus, budgets, and navigation", async ({ page }) => {
   await page.goto("/food");
 
+  await page.getByLabel("Number of members visiting").fill("4");
+  await page.getByPlaceholder("Starting location for restaurant navigation").fill("HITEC City");
   await page.getByLabel("View menu for Paradise Biryani").click();
   const dialog = page.getByRole("dialog");
   await expect(dialog.getByRole("heading", { name: "Paradise Biryani" })).toBeVisible();
+  await expect(dialog.getByText("Members")).toBeVisible();
+  await expect(dialog.getByText("Estimated total")).toBeVisible();
   await expect(dialog.getByRole("heading", { name: "Hyderabadi Dum Biryani" })).toBeVisible();
   await expect(dialog.getByRole("heading", { name: "Charcoal Kebab Platter" })).toBeVisible();
   await expect(dialog.locator("img")).toHaveCount(4);
   await expect(dialog.getByRole("link", { name: /Open dish reference/ })).toHaveCount(4);
+  await expect(dialog.getByRole("link", { name: "Navigate to restaurant" })).toHaveAttribute("href", /origin=HITEC\+City/);
+  await expect(dialog.getByRole("link", { name: "Open in maps" })).toHaveAttribute("href", /google\.com\/maps\/search/);
 
   await page.getByLabel("Close restaurant menu").click();
   await expect(dialog).toHaveCount(0);

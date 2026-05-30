@@ -29,6 +29,26 @@ export function googleMapsDirectionsUrl(destination: Pick<Place, "lat" | "lng" |
   return `https://www.google.com/maps/dir/?${params.toString()}`;
 }
 
+export function googleMapsTextDirectionsUrl(destination: string, origin?: string) {
+  const params = new URLSearchParams({
+    api: "1",
+    destination,
+    travelmode: "driving"
+  });
+  if (origin?.trim()) {
+    params.set("origin", origin.trim());
+  }
+  return `https://www.google.com/maps/dir/?${params.toString()}`;
+}
+
+export function googleMapsSearchUrl(query: string) {
+  const params = new URLSearchParams({
+    api: "1",
+    query
+  });
+  return `https://www.google.com/maps/search/?${params.toString()}`;
+}
+
 export function openStreetMapDirectionsUrl(destination: Pick<Place, "lat" | "lng">, origin?: Pick<Place, "lat" | "lng">) {
   if (origin) {
     return `https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=${origin.lat},${origin.lng};${destination.lat},${destination.lng}`;
