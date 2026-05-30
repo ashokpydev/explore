@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CalendarPlus, Download, IndianRupee, Languages, Map, Navigation, QrCode, Route, ShieldCheck, Sparkles, type LucideIcon } from "lucide-react";
+import { CalendarPlus, Download, IndianRupee, Map, Navigation, QrCode, Route, ShieldCheck, Sparkles, type LucideIcon } from "lucide-react";
 import { createItinerary } from "@/lib/api";
 import { emergencyContacts, places } from "@/lib/data";
 import { googleMapsMultiStopUrl, openStreetMapRouteEmbedUrl } from "@/lib/maps";
@@ -109,10 +109,21 @@ function buildRouteDays(stops: Array<(typeof places)[number]>, dayCount: number,
   });
 }
 
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function tripHours(stops: Array<(typeof places)[number]>, totalDistance: number) {
+  const activityHours = stops.reduce((sum, place) => sum + place.durationHours, 0);
+  const travelHours = totalDistance / 22;
+  return activityHours + travelHours;
+}
+
 export function InteractivePlanner() {
   const [days, setDays] = useState(2);
   const [tripType, setTripType] = useState("family");
-  const [budget, setBudget] = useState(9000);
+  const [budget, setBudget] = useState(12000);
+  const [travelers, setTravelers] = useState(2);
   const [language, setLanguage] = useState("English");
   const [interests, setInterests] = useState(["monuments", "biryani", "lakes"]);
   const [plan, setPlan] = useState<GeneratedPlan | null>(null);
@@ -124,7 +135,7 @@ export function InteractivePlanner() {
   const destination = useMemo(() => places.find((place) => place.slug === destinationSlug), [destinationSlug]);
   const originPoint = useMemo(() => resolveLocation(origin), [origin]);
   const routeReady = Boolean(originPoint && destination);
-  const routeKey = `${originPoint?.name ?? ""}|${destination?.slug ?? ""}|${days}|${tripType}|${interests.join(",")}`;
+  const routeKey = `${originPoint?.name ?? ""}|${destination?.slug ?? ""}|${days}|${tripType}|${travelers}|${budget}|${interests.join(",")}`;
   const activePlan = plan?.routeKey === routeKey ? plan : null;
 
   const routeDetails = useMemo(() => {
@@ -132,17 +143,24 @@ export function InteractivePlanner() {
     const stops = buildRouteStops(originPoint, destination, interests, days);
     const distance = routeDistanceKm(originPoint, stops);
     const route = buildRouteDays(stops, days, distance);
-    return { stops, distance, route };
+    const hours = tripHours(stops, distance);
+    const recommendedDays = clamp(Math.ceil(hours / 8), 1, 5);
+    return { stops, distance, route, hours, recommendedDays };
   }, [days, destination, interests, originPoint]);
 
   const expense = useMemo(() => {
     if (!routeDetails) return null;
-    const food = days * (tripType === "luxury" ? 2600 : tripType === "budget" ? 700 : 1400);
-    const transport = Math.round(routeDetails.distance * 32 + days * 180);
-    const entries = routeDetails.stops.reduce((sum, place) => sum + place.fee, 0);
-    const stay = days > 1 ? (days - 1) * (tripType === "luxury" ? 9000 : tripType === "budget" ? 1500 : 3600) : 0;
-    return { food, transport, entries, stay, total: food + transport + entries + stay };
-  }, [days, routeDetails, tripType]);
+    const perPersonFood = tripType === "luxury" ? 2200 : tripType === "budget" ? 550 : tripType === "solo" ? 700 : tripType === "couple" ? 1200 : 900;
+    const perKm = tripType === "luxury" ? 52 : tripType === "budget" ? 18 : 30;
+    const rooms = tripType === "family" ? Math.ceil(travelers / 3) : tripType === "couple" ? Math.ceil(travelers / 2) : travelers;
+    const stayRate = tripType === "luxury" ? 12000 : tripType === "budget" ? 1800 : tripType === "solo" ? 2200 : tripType === "couple" ? 4200 : 4500;
+    const food = days * travelers * perPersonFood;
+    const transport = Math.round(routeDetails.distance * perKm + routeDetails.stops.length * 80);
+    const entries = routeDetails.stops.reduce((sum, place) => sum + place.fee * travelers, 0);
+    const stay = Math.max(0, days - 1) * rooms * stayRate;
+    const buffer = Math.round((food + transport + entries + stay) * 0.08);
+    return { food, transport, entries, stay, buffer, total: food + transport + entries + stay + buffer };
+  }, [days, routeDetails, travelers, tripType]);
 
   const visibleRoute = useMemo(() => activePlan?.route ?? routeDetails?.route ?? [], [activePlan, routeDetails]);
   const routeStops = useMemo(() => {
@@ -153,6 +171,8 @@ export function InteractivePlanner() {
   }, [visibleRoute]);
   const routeOrigin = originPoint?.name ?? origin;
   const safetyAverage = routeDetails ? Math.round(routeDetails.stops.reduce((sum, place) => sum + place.safetyScore, 0) / routeDetails.stops.length) : 0;
+  const budgetGap = expense ? budget - expense.total : 0;
+  const budgetFit = expense ? (budgetGap >= 0 ? `${Math.round((expense.total / budget) * 100)}% used` : `INR ${Math.abs(budgetGap).toLocaleString("en-IN")} over`) : "";
   const routeStatus = !origin.trim()
     ? "Add a starting location to unlock route recommendations."
     : !destination
@@ -176,18 +196,20 @@ export function InteractivePlanner() {
         interests,
         language: language.toLowerCase().slice(0, 2),
         origin: originPoint.name,
-        destination: destination.name
+        destination: destination.name,
+        travelers
       });
       setPlan({
         ...data,
         routeKey,
+        title: `${originPoint.name} to ${destination.name}`,
         route: routeDetails.route,
         ai_reasoning: `${data.ai_reasoning ?? "Route optimized from your selected start and destination."} Suggested order starts at ${originPoint.name} and ends at ${destination.name}.`
       });
     } catch {
       setPlan({
         routeKey,
-        title: `${days}-Day ${tripType} plan to ${destination.name}`,
+        title: `${originPoint.name} to ${destination.name}`,
         route: routeDetails.route.map((day) => ({
           ...day,
           budget_note: `Route uses ${originPoint.name} as the start and ${destination.name} as the final stop.`
@@ -225,13 +247,44 @@ export function InteractivePlanner() {
         </p>
 
         <div className="mt-6 grid gap-4">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="text-sm font-medium">
+              Available days
+              <input
+                type="number"
+                min={1}
+                max={5}
+                value={days}
+                onChange={(event) => setDays(clamp(Number(event.target.value) || 1, 1, 5))}
+                className="mt-2 w-full rounded-md border border-black/10 bg-transparent px-3 py-2 outline-none focus:border-lac dark:border-white/10"
+              />
+            </label>
+            <label className="text-sm font-medium">
+              Travelers
+              <input
+                type="number"
+                min={1}
+                max={8}
+                value={travelers}
+                onChange={(event) => setTravelers(clamp(Number(event.target.value) || 1, 1, 8))}
+                className="mt-2 w-full rounded-md border border-black/10 bg-transparent px-3 py-2 outline-none focus:border-lac dark:border-white/10"
+              />
+            </label>
+          </div>
           <label className="text-sm font-medium">
-            Days: {days}
-            <input type="range" min={1} max={5} value={days} onChange={(event) => setDays(Number(event.target.value))} className="mt-2 w-full accent-lac" />
-          </label>
-          <label className="text-sm font-medium">
-            Budget: INR {budget.toLocaleString("en-IN")}
-            <input type="range" min={1500} max={50000} step={500} value={budget} onChange={(event) => setBudget(Number(event.target.value))} className="mt-2 w-full accent-neem" />
+            Max budget
+            <div className="mt-2 flex items-center gap-2 rounded-md border border-black/10 px-3 py-2 focus-within:border-lac dark:border-white/10">
+              <span className="text-black/55 dark:text-white/55">INR</span>
+              <input
+                type="number"
+                min={1000}
+                max={200000}
+                step={500}
+                value={budget}
+                onChange={(event) => setBudget(clamp(Number(event.target.value) || 1000, 1000, 200000))}
+                className="w-full bg-transparent outline-none"
+              />
+            </div>
           </label>
           <label className="text-sm font-medium">
             Trip type
@@ -308,8 +361,8 @@ export function InteractivePlanner() {
           <div className="grid gap-4 md:grid-cols-4">
             <Metric icon={IndianRupee} label="Estimated total" value={`INR ${expense.total.toLocaleString("en-IN")}`} tone={expense.total <= budget ? "good" : "warn"} />
             <Metric icon={Navigation} label="Route distance" value={`${Math.round(routeDetails.distance)} km`} />
-            <Metric icon={ShieldCheck} label="Safety avg" value={`${safetyAverage}%`} />
-            <Metric icon={Languages} label="Narration" value={language} />
+            <Metric icon={CalendarPlus} label="Recommended days" value={`${routeDetails.recommendedDays} day${routeDetails.recommendedDays === 1 ? "" : "s"}`} tone={days >= routeDetails.recommendedDays ? "good" : "warn"} />
+            <Metric icon={ShieldCheck} label="Budget fit" value={budgetFit} tone={budgetGap >= 0 ? "good" : "warn"} />
           </div>
         ) : null}
 
@@ -317,7 +370,7 @@ export function InteractivePlanner() {
           <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-2">
               <Map className="text-turmeric" />
-              <h2 className="text-2xl font-semibold">{routeReady ? activePlan?.title ?? `Route to ${destination?.name}` : "Add start and destination"}</h2>
+              <h2 className="text-2xl font-semibold">{routeReady ? activePlan?.title ?? `${originPoint?.name} to ${destination?.name}` : "Add start and destination"}</h2>
             </div>
             <div className="flex gap-2">
               <button disabled={!routeReady} onClick={() => setShowQr((current) => !current)} className="inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-45"><QrCode size={16} /> QR guide</button>
@@ -345,7 +398,7 @@ export function InteractivePlanner() {
               </div>
             </div>
           ) : null}
-          {routeReady ? (
+          {routeReady && routeDetails ? (
             <>
               <div className="mb-5 overflow-hidden rounded-md border border-white/12">
                 <iframe
@@ -402,14 +455,14 @@ export function InteractivePlanner() {
             )})}
               </div>
               <p className="mt-6 text-sm leading-6 text-white/72">
-                {activePlan?.ai_reasoning ?? `Recommended from ${originPoint?.name} to ${destination?.name}, with nearby stops ordered by route distance, interest match, and backtracking reduction.`}
+                {activePlan?.ai_reasoning ?? `Recommended from ${originPoint?.name} to ${destination?.name}. The route uses ${Math.round(routeDetails.hours)} total hours, ${travelers} traveler${travelers === 1 ? "" : "s"}, actual place fees, route distance, stay nights, and an 8% buffer.`}
               </p>
             </>
           ) : null}
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          {routeReady && expense ? (
+          {routeReady && expense && routeDetails ? (
             <div className="rounded-lg border border-black/10 bg-white p-5 dark:border-white/10 dark:bg-white/5">
               <h3 className="mb-4 flex items-center gap-2 font-semibold"><CalendarPlus className="text-lac dark:text-turmeric" /> Expense breakdown</h3>
               {Object.entries(expense).filter(([key]) => key !== "total").map(([key, value]) => (
@@ -418,10 +471,21 @@ export function InteractivePlanner() {
                   <strong>INR {value.toLocaleString("en-IN")}</strong>
                 </div>
               ))}
+              <div className="mt-3 rounded-md bg-pearl p-3 text-sm dark:bg-night">
+                {days < routeDetails.recommendedDays
+                  ? `This route needs about ${routeDetails.recommendedDays} days for a comfortable pace. Add a day or remove interests to avoid rushing.`
+                  : `Your ${days}-day plan has enough time for the selected route at a comfortable pace.`}
+              </div>
             </div>
           ) : null}
           <div className="rounded-lg border border-black/10 bg-white p-5 dark:border-white/10 dark:bg-white/5">
-            <h3 className="mb-4 flex items-center gap-2 font-semibold"><ShieldCheck className="text-lac dark:text-turmeric" /> Emergency pack</h3>
+            <h3 className="mb-4 flex items-center gap-2 font-semibold"><ShieldCheck className="text-lac dark:text-turmeric" /> Trip support</h3>
+            {routeReady ? (
+              <div className="mb-4 grid gap-2 text-sm">
+                <div className="flex justify-between"><span>Safety average</span><strong>{safetyAverage}%</strong></div>
+                <div className="flex justify-between"><span>Narration</span><strong>{language}</strong></div>
+              </div>
+            ) : null}
             <div className="grid grid-cols-2 gap-2">
               {emergencyContacts.map((item) => (
                 <a key={item.label} href={`tel:${item.value}`} className="rounded-md bg-pearl px-3 py-2 text-sm font-semibold dark:bg-night">

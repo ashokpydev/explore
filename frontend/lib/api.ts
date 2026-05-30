@@ -96,6 +96,7 @@ export async function createItinerary(payload: {
   language?: string;
   origin?: string;
   destination?: string;
+  travelers?: number;
 }) {
   const response = await fetch(`${API_URL}/ai/itinerary`, {
     method: "POST",

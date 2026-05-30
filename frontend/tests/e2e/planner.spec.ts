@@ -21,6 +21,8 @@ test("planner hides estimates until start and destination are selected", async (
   await page.getByLabel("Destination").selectOption("charminar");
   await expect(page.getByText("Estimated total")).toBeVisible();
   await expect(page.getByText("Route distance", { exact: true })).toBeVisible();
+  await expect(page.getByText("Recommended days", { exact: true })).toBeVisible();
+  await expect(page.getByText("Budget fit", { exact: true })).toBeVisible();
   await expect(page.locator('iframe[title="Map for planned route"]')).toBeVisible();
   await expect(page.getByRole("button", { name: "Generate AI plan" })).toBeEnabled();
 });
@@ -31,11 +33,12 @@ test("planner recommendations are based on selected start and destination", asyn
   await page.getByLabel("Start location").fill("Secunderabad Railway Station");
   await page.getByLabel("Destination").selectOption("ramoji-film-city");
 
-  await expect(page.getByRole("heading", { name: "Route to Ramoji Film City" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Secunderabad Railway Station to Ramoji Film City" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Navigate full route" })).toHaveAttribute("href", /origin=Secunderabad\+Railway\+Station/);
   await expect(page.locator("p", { hasText: /Ramoji Film City$/ })).toBeVisible();
 
   await page.getByRole("button", { name: "Generate AI plan" }).click();
   await expect(page.getByText("starts at Secunderabad Railway Station and ends at Ramoji Film City")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Secunderabad Railway Station to Ramoji Film City" })).toBeVisible();
   await expect(page.locator("p", { hasText: /Ramoji Film City$/ })).toBeVisible();
 });
