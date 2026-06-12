@@ -24,7 +24,7 @@ def upgrade() -> None:
         DO $$ BEGIN
           CREATE TYPE placekind AS ENUM (
             'monument', 'lake', 'temple', 'mosque', 'market', 'mall', 'resort',
-            'trekking', 'weekend_getaway', 'hidden_gem', 'local_experience'
+            'trekking', 'getaway', 'hidden_gem', 'experience'
           );
         EXCEPTION WHEN duplicate_object THEN null; END $$;
         """
@@ -204,4 +204,3 @@ def downgrade() -> None:
         DROP TYPE IF EXISTS userrole;
         """
     )
-

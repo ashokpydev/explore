@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BarChart3, CheckCircle2, ImagePlus, KeyRound, Search, Shield, Users } from "lucide-react";
-import { getAdminAnalytics } from "@/lib/api";
+import { BarChart3, CheckCircle2, ImagePlus, KeyRound, RefreshCw, Search, Shield, Sparkles, Users } from "lucide-react";
+import { getAdminAnalytics, reindexKnowledge, searchKnowledge, type AIContextSource } from "@/lib/api";
 import { events, food, places } from "@/lib/data";
 
 export function AdminConsole() {
@@ -11,6 +11,8 @@ export function AdminConsole() {
   const [token, setToken] = useState("");
   const [analytics, setAnalytics] = useState<Record<string, number> | null>(null);
   const [analyticsStatus, setAnalyticsStatus] = useState("Local content metrics");
+  const [aiStatus, setAiStatus] = useState("AI knowledge index is ready for inspection");
+  const [aiResults, setAiResults] = useState<AIContextSource[]>([]);
 
   const content = useMemo(() => {
     return places
@@ -38,6 +40,34 @@ export function AdminConsole() {
       setAnalyticsStatus("Live backend analytics loaded");
     } catch {
       setAnalyticsStatus("Could not load admin analytics with that token");
+    }
+  }
+
+  async function runAIReindex() {
+    if (!token.trim()) {
+      setAiStatus("Paste an admin bearer token to reindex AI knowledge");
+      return;
+    }
+    setAiStatus("Reindexing places, restaurants, and events...");
+    try {
+      const data = await reindexKnowledge(token.trim());
+      setAiStatus(`Indexed ${data.indexed} sources; generated ${data.embedded} embeddings`);
+    } catch {
+      setAiStatus("Could not reindex AI knowledge with that token");
+    }
+  }
+
+  async function runAISearch() {
+    if (!query.trim()) {
+      setAiStatus("Search for content to inspect retrieved AI context");
+      return;
+    }
+    try {
+      const data = await searchKnowledge(query.trim(), token.trim() || undefined);
+      setAiResults(data);
+      setAiStatus(data.length ? "Retrieved AI context from backend index" : "No indexed AI context matched");
+    } catch {
+      setAiStatus("Could not search AI knowledge yet. Run reindex after migrations.");
     }
   }
 
@@ -70,6 +100,37 @@ export function AdminConsole() {
         <div className="rounded-lg bg-charcoal p-6 text-white"><BarChart3 className="mb-5 text-turmeric" /><h2 className="text-xl font-semibold">Analytics</h2><p className="mt-3 text-sm text-white/72">Live operational counts are now driven by the local content model.</p></div>
         <div className="rounded-lg bg-neem p-6 text-white"><Users className="mb-5 text-turmeric" /><h2 className="text-xl font-semibold">Users and guides</h2><p className="mt-3 text-sm text-white/72">RBAC endpoints are wired in FastAPI; guide verification can attach here.</p></div>
         <div className="rounded-lg bg-lac p-6 text-white"><Shield className="mb-5 text-turmeric" /><h2 className="text-xl font-semibold">Moderation</h2><p className="mt-3 text-sm text-white/72">Review sentiment, image tagging, and safety reports have action states.</p></div>
+      </div>
+
+      <div className="mt-8 rounded-lg border border-black/10 bg-white p-5 dark:border-white/10 dark:bg-white/5">
+        <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 className="flex items-center gap-2 text-2xl font-bold"><Sparkles size={22} className="text-lac dark:text-turmeric" /> AI knowledge operations</h2>
+            <p className="mt-2 text-sm text-black/60 dark:text-white/60">{aiStatus}</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={runAISearch} className="inline-flex items-center gap-2 rounded-md bg-pearl px-4 py-2 font-semibold dark:bg-night">
+              <Search size={16} /> Inspect retrieval
+            </button>
+            <button onClick={runAIReindex} className="inline-flex items-center gap-2 rounded-md bg-lac px-4 py-2 font-semibold text-white">
+              <RefreshCw size={16} /> Reindex AI
+            </button>
+          </div>
+        </div>
+        {aiResults.length ? (
+          <div className="grid gap-3">
+            {aiResults.map((result) => (
+              <div key={`${result.source_kind}-${result.title}`} className="rounded-md bg-pearl p-3 text-sm dark:bg-night">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="font-semibold">{result.title}</p>
+                  <span className="rounded-md bg-white px-2 py-1 text-xs dark:bg-white/10">{result.source_kind} score {result.score.toFixed(2)}</span>
+                </div>
+                <p className="mt-2 line-clamp-2 text-black/65 dark:text-white/65">{result.content}</p>
+                <p className="mt-2 text-xs text-black/50 dark:text-white/50">{result.citation}</p>
+              </div>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       <div className="mt-8 rounded-lg border border-black/10 bg-white p-5 dark:border-white/10 dark:bg-white/5">

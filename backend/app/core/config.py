@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     refresh_token_expire_days: int = 14
     openai_api_key: str | None = None
     openai_model: str = "gpt-4.1-mini"
+    openai_embedding_model: str = "text-embedding-3-small"
+    ai_max_context_chunks: int = 5
+    ai_memory_messages: int = 8
+    ai_estimated_cost_per_1k_tokens: float = 0.00015
     google_maps_api_key: str | None = None
     seed_demo_data: bool = True
     seed_admin_email: str = "admin@explorehyderabad.local"

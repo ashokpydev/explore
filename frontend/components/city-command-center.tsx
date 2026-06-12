@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { CalendarDays, IndianRupee, MapPinned, Navigation, ShieldCheck, Sparkles, Train, type LucideIcon } from "lucide-react";
 import { emergencyContacts, events, metroRoutes, places } from "@/lib/data";
 import { googleMapsMultiStopUrl, openStreetMapRouteEmbedUrl } from "@/lib/maps";
+import { findMetroJourney } from "@/lib/metro";
 
 type Coordinate = {
   name: string;
@@ -93,6 +94,7 @@ export function CityCommandCenter() {
   const budgetStatus = expense <= budget ? "Inside budget" : `INR ${(expense - budget).toLocaleString("en-IN")} over`;
   const plannerHref = `/planner?origin=${encodeURIComponent(origin.name)}&destination=${encodeURIComponent(destination.slug)}`;
   const routeStops = suggested;
+  const sampleMetroJourney = findMetroJourney(metroRoutes[0].from, metroRoutes[0].to);
 
   function selectMood(nextMood: string) {
     setInterest(nextMood);
@@ -254,7 +256,11 @@ export function CityCommandCenter() {
           <div className="space-y-4 text-sm text-white/78">
             <div>
               <p className="mb-1 font-semibold text-white">{metroRoutes[0].from} to {metroRoutes[0].to}</p>
-              <p>{metroRoutes[0].line} | {metroRoutes[0].duration} | {metroRoutes[0].fare}</p>
+              <p>
+                {sampleMetroJourney
+                  ? `INR ${sampleMetroJourney.fare} | ${sampleMetroJourney.distanceKm} km | ${sampleMetroJourney.durationMins} min`
+                  : "Open planner for current metro journey charges"}
+              </p>
             </div>
             <div>
               <p className="mb-1 flex items-center gap-2 font-semibold text-white"><CalendarDays size={16} /> Seasonal now</p>

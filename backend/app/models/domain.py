@@ -19,8 +19,19 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.types import UserDefinedType
 from geoalchemy2 import Geography
 from app.db.base import Base
+
+
+class Vector(UserDefinedType):
+    cache_ok = True
+
+    def __init__(self, dimensions: int = 1536) -> None:
+        self.dimensions = dimensions
+
+    def get_col_spec(self, **kw: object) -> str:
+        return f"VECTOR({self.dimensions})"
 
 
 class UserRole(str, enum.Enum):
@@ -72,6 +83,7 @@ class User(Base, TimestampMixin):
 
     reviews: Mapped[list["Review"]] = relationship(back_populates="user")
     favorites: Mapped[list["Favorite"]] = relationship(back_populates="user")
+    ai_conversations: Mapped[list["AIConversation"]] = relationship(back_populates="user")
 
 
 class Category(Base):
@@ -203,3 +215,93 @@ class AIRecommendation(Base, TimestampMixin):
     prompt: Mapped[str] = mapped_column(Text)
     response: Mapped[dict] = mapped_column(JSON)
     model: Mapped[str] = mapped_column(String(80))
+
+
+class AIKnowledgeSource(Base, TimestampMixin):
+    __tablename__ = "ai_knowledge_sources"
+    __table_args__ = (UniqueConstraint("source_kind", "source_id", name="one_ai_source_per_entity"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    source_kind: Mapped[str] = mapped_column(String(40), index=True)
+    source_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), index=True)
+    title: Mapped[str] = mapped_column(String(220), index=True)
+    content: Mapped[str] = mapped_column(Text)
+    citation: Mapped[str] = mapped_column(String(600))
+    language: Mapped[str] = mapped_column(String(16), default="en", index=True)
+    trust_level: Mapped[float] = mapped_column(Float, default=0.8)
+    freshness_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    source_metadata: Mapped[dict] = mapped_column(JSON, default=dict)
+    embedding = mapped_column(Vector(1536), nullable=True)
+
+
+class AIConversation(Base, TimestampMixin):
+    __tablename__ = "ai_conversations"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    title: Mapped[str] = mapped_column(String(180), default="Hyderabad trip chat")
+    language: Mapped[str] = mapped_column(String(16), default="en", index=True)
+    summary: Mapped[str | None] = mapped_column(Text)
+    memory: Mapped[dict] = mapped_column(JSON, default=dict)
+    user: Mapped[User | None] = relationship(back_populates="ai_conversations")
+    messages: Mapped[list["AIConversationMessage"]] = relationship(
+        back_populates="conversation", cascade="all, delete-orphan"
+    )
+
+
+class AIConversationMessage(Base, TimestampMixin):
+    __tablename__ = "ai_conversation_messages"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    conversation_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("ai_conversations.id", ondelete="CASCADE"), index=True
+    )
+    role: Mapped[str] = mapped_column(String(24))
+    content: Mapped[str] = mapped_column(Text)
+    citations: Mapped[list[str]] = mapped_column(JSON, default=list)
+    message_metadata: Mapped[dict] = mapped_column(JSON, default=dict)
+    conversation: Mapped[AIConversation] = relationship(back_populates="messages")
+
+
+class AIRequestLog(Base, TimestampMixin):
+    __tablename__ = "ai_request_logs"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    conversation_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("ai_conversations.id", ondelete="SET NULL"), index=True
+    )
+    operation: Mapped[str] = mapped_column(String(80), index=True)
+    model: Mapped[str] = mapped_column(String(120))
+    status: Mapped[str] = mapped_column(String(40), default="ok", index=True)
+    prompt_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    completion_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    total_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    latency_ms: Mapped[int] = mapped_column(Integer, default=0)
+    estimated_cost_usd: Mapped[float] = mapped_column(Float, default=0)
+    retrieved_count: Mapped[int] = mapped_column(Integer, default=0)
+    request_metadata: Mapped[dict] = mapped_column(JSON, default=dict)
+
+
+class AIIngestionRun(Base, TimestampMixin):
+    __tablename__ = "ai_ingestion_runs"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    source_kind: Mapped[str] = mapped_column(String(60), index=True)
+    status: Mapped[str] = mapped_column(String(40), default="completed", index=True)
+    documents_seen: Mapped[int] = mapped_column(Integer, default=0)
+    chunks_indexed: Mapped[int] = mapped_column(Integer, default=0)
+    embedded: Mapped[int] = mapped_column(Integer, default=0)
+    errors: Mapped[list[str]] = mapped_column(JSON, default=list)
+    run_metadata: Mapped[dict] = mapped_column(JSON, default=dict)
+
+
+class RAGEvaluationRun(Base, TimestampMixin):
+    __tablename__ = "rag_evaluation_runs"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String(180))
+    total_cases: Mapped[int] = mapped_column(Integer, default=0)
+    average_score: Mapped[float] = mapped_column(Float, default=0)
+    pass_rate: Mapped[float] = mapped_column(Float, default=0)
+    results: Mapped[list[dict]] = mapped_column(JSON, default=list)
+    run_metadata: Mapped[dict] = mapped_column(JSON, default=dict)

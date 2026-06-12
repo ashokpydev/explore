@@ -1,4 +1,4 @@
-import { Landmark, Map, ShieldCheck, Sparkles, Train, Utensils } from "lucide-react";
+import { Baby, CalendarDays, HeartPulse, Hotel, Landmark, Map, Route, ShieldCheck, Sparkles, Train, Utensils } from "lucide-react";
 
 export type Place = {
   slug: string;
@@ -24,6 +24,7 @@ export type Place = {
 export type FoodSpot = {
   name: string;
   category: "Biryani" | "Street food" | "Cafe" | "Rooftop" | "Midnight" | "Fine dining" | "South Indian" | "Bakery";
+  image?: string;
   area: string;
   costForTwo: number;
   rating: number;
@@ -55,10 +56,11 @@ export type EventItem = {
 export type MetroRoute = {
   from: string;
   to: string;
-  line: string;
-  interchange: string;
-  duration: string;
-  fare: string;
+  line: "Red Line" | "Blue Line" | "Green Line";
+  color: string;
+  lengthKm: number;
+  source: string;
+  stops: string[];
 };
 
 export const categories = [
@@ -67,7 +69,12 @@ export const categories = [
   { label: "Metro", icon: Train, color: "bg-lake", href: "/planner?mode=metro" },
   { label: "AI Trips", icon: Sparkles, color: "bg-neem", href: "/planner" },
   { label: "Safety", icon: ShieldCheck, color: "bg-charcoal", href: "/explore?safe=true" },
-  { label: "Nearby", icon: Map, color: "bg-lac", href: "/explore?nearby=true" }
+  { label: "Nearby", icon: Map, color: "bg-lac", href: "/explore?nearby=true" },
+  { label: "Stays", icon: Hotel, color: "bg-lake", href: "/explore?category=Stays" },
+  { label: "Kids", icon: Baby, color: "bg-turmeric text-charcoal", href: "/explore?category=Kids" },
+  { label: "Events", icon: CalendarDays, color: "bg-neem", href: "/assistant?q=events" },
+  { label: "Routes", icon: Route, color: "bg-charcoal", href: "/planner?mode=routes" },
+  { label: "Emergency", icon: HeartPulse, color: "bg-lac", href: "/assistant?q=emergency" }
 ];
 
 const imageFor = {
@@ -115,6 +122,15 @@ const imageFor = {
   flyZoneHyderabad: "/images/places/fly-zone-hyderabad.jpg",
   pitstopGoKarting: "/images/places/pitstop-go-karting.jpg",
   indiraPark: "/images/places/indira-park.jpg",
+  durgamCheruvu: "/images/park.svg",
+  osmanSagar: "/images/park.svg",
+  kbrPark: "/images/park.svg",
+  mrugavaniPark: "/images/park.svg",
+  paigahTombs: "/images/temple.svg",
+  taramatiBaradari: "/images/temple.svg",
+  puraniHaveli: "/images/temple.svg",
+  moulaAliDargah: "/images/mosque.svg",
+  lotusPond: "/images/park.svg",
   temple: "/images/temple.svg",
   mosque: "/images/mosque.svg",
   resort: "/images/resort.svg",
@@ -1003,8 +1019,566 @@ export const places: Place[] = [
     accessibility: "Broad park paths; some zones may be uneven.",
     bestTime: "Morning",
     tags: ["kids", "park", "family", "budget", "outdoor"]
+  },
+  {
+    slug: "durgam-cheruvu",
+    name: "Durgam Cheruvu",
+    type: "Lakefront and Cable Bridge",
+    category: "Lakes",
+    image: imageFor.durgamCheruvu,
+    rating: "4.4",
+    meta: "Madhapur | Cable bridge | Cafes | Evening walks",
+    tip: "Go at sunset, combine with HITEC City dining, and plan pickup away from the bridge rush.",
+    lat: 17.4307,
+    lng: 78.3896,
+    distanceKm: 12.9,
+    durationHours: 2,
+    fee: 0,
+    crowd: "High",
+    safetyScore: 88,
+    accessibility: "Lakefront paths are accessible in many sections; traffic crossings need care.",
+    bestTime: "Sunset",
+    tags: ["lake", "cable bridge", "madhapur", "cafes", "night view", "date night"]
+  },
+  {
+    slug: "osman-sagar",
+    name: "Osman Sagar",
+    type: "Reservoir and Picnic Drive",
+    category: "Lakes",
+    image: imageFor.osmanSagar,
+    rating: "4.3",
+    meta: "Gandipet | Reservoir | Picnic loop | Resort corridor",
+    tip: "Pair with Chilkur or Gandipet Park and return before late rural-road hours.",
+    lat: 17.3833,
+    lng: 78.2989,
+    distanceKm: 22,
+    durationHours: 2.5,
+    fee: 0,
+    crowd: "Moderate",
+    safetyScore: 84,
+    accessibility: "Viewpoints vary by access point; park zones are easier for families.",
+    bestTime: "Late afternoon",
+    tags: ["lake", "gandipet", "picnic", "weekend", "family", "sunset"]
+  },
+  {
+    slug: "kbr-national-park",
+    name: "KBR National Park",
+    type: "Urban Nature Trail",
+    category: "Parks",
+    image: imageFor.kbrPark,
+    rating: "4.5",
+    meta: "Jubilee Hills | Walking track | Urban forest",
+    tip: "Best before 8 AM; carry a water bottle and keep to marked walking routes.",
+    lat: 17.4239,
+    lng: 78.4214,
+    distanceKm: 7.8,
+    durationHours: 1.5,
+    fee: 40,
+    crowd: "Moderate",
+    safetyScore: 91,
+    accessibility: "Outer walking track is easier than inner trail sections.",
+    bestTime: "Early morning",
+    tags: ["park", "walking", "nature", "fitness", "jubilee hills", "safe"]
+  },
+  {
+    slug: "mrugavani-national-park",
+    name: "Mrugavani National Park",
+    type: "Wildlife and Nature Park",
+    category: "Parks",
+    image: imageFor.mrugavaniPark,
+    rating: "4.1",
+    meta: "Chilkur road | Nature trails | Family outing",
+    tip: "Combine with Chilkur Balaji Temple and check safari or nature center timings before leaving.",
+    lat: 17.3594,
+    lng: 78.3291,
+    distanceKm: 21,
+    durationHours: 3,
+    fee: 50,
+    crowd: "Moderate",
+    safetyScore: 84,
+    accessibility: "Outdoor terrain with mixed paths; easier near the visitor areas.",
+    bestTime: "Morning",
+    tags: ["park", "wildlife", "family", "nature", "chilkur", "kids"]
+  },
+  {
+    slug: "paigah-tombs",
+    name: "Paigah Tombs",
+    type: "Hidden Heritage Complex",
+    category: "Monuments",
+    image: imageFor.paigahTombs,
+    rating: "4.4",
+    meta: "Santoshnagar | Stucco work | Quiet heritage stop",
+    tip: "Great for architecture lovers; go in daylight and pair with Old City heritage stops.",
+    lat: 17.3424,
+    lng: 78.5006,
+    distanceKm: 6.2,
+    durationHours: 1.5,
+    fee: 0,
+    crowd: "Low",
+    safetyScore: 84,
+    accessibility: "Uneven heritage paths; visit with comfortable footwear.",
+    bestTime: "Morning",
+    tags: ["hidden gem", "heritage", "architecture", "photography", "quiet"]
+  },
+  {
+    slug: "taramati-baradari",
+    name: "Taramati Baradari",
+    type: "Heritage Pavilion and Cultural Venue",
+    category: "Monuments",
+    image: imageFor.taramatiBaradari,
+    rating: "4.2",
+    meta: "Ibrahim Bagh | Performance venue | Golconda circuit",
+    tip: "Add it to a Golconda and Qutb Shahi Tombs route, especially for sunset views.",
+    lat: 17.3773,
+    lng: 78.3789,
+    distanceKm: 10.8,
+    durationHours: 1.5,
+    fee: 0,
+    crowd: "Low",
+    safetyScore: 84,
+    accessibility: "Open heritage campus with steps in some sections.",
+    bestTime: "Late afternoon",
+    tags: ["hidden gem", "heritage", "golconda", "culture", "sunset"]
+  },
+  {
+    slug: "purani-haveli",
+    name: "Purani Haveli",
+    type: "Nizam Heritage Museum",
+    category: "Museums",
+    image: imageFor.puraniHaveli,
+    rating: "4.3",
+    meta: "Pathergatti | Nizam museum | Old City heritage",
+    tip: "Pair with Chowmahalla Palace and Salar Jung Museum for a compact heritage day.",
+    lat: 17.3692,
+    lng: 78.4854,
+    distanceKm: 3.8,
+    durationHours: 1.5,
+    fee: 100,
+    crowd: "Moderate",
+    safetyScore: 85,
+    accessibility: "Heritage building access varies by room; courtyards are easier.",
+    bestTime: "Late morning",
+    tags: ["museum", "nizam", "old city", "heritage", "family"]
+  },
+  {
+    slug: "moula-ali-dargah",
+    name: "Moula Ali Dargah",
+    type: "Hilltop Shrine and Viewpoint",
+    category: "Mosques",
+    image: imageFor.moulaAliDargah,
+    rating: "4.5",
+    meta: "Moula Ali | Hill climb | City views",
+    tip: "Start early, wear comfortable footwear, and avoid the climb in peak afternoon heat.",
+    lat: 17.4664,
+    lng: 78.5604,
+    distanceKm: 14.2,
+    durationHours: 2,
+    fee: 0,
+    crowd: "Moderate",
+    safetyScore: 84,
+    accessibility: "Steep steps and hill terrain; not suitable for limited mobility.",
+    bestTime: "Early morning",
+    tags: ["mosque", "dargah", "viewpoint", "heritage", "hilltop"]
+  },
+  {
+    slug: "lotus-pond",
+    name: "Lotus Pond",
+    type: "Neighborhood Nature Walk",
+    category: "Parks",
+    image: imageFor.lotusPond,
+    rating: "4.2",
+    meta: "Jubilee Hills | Short walk | Birding",
+    tip: "Use it as a quiet morning stop before cafes or KBR Park.",
+    lat: 17.4217,
+    lng: 78.4091,
+    distanceKm: 8.5,
+    durationHours: 1,
+    fee: 0,
+    crowd: "Low",
+    safetyScore: 88,
+    accessibility: "Compact walking trail with uneven natural sections.",
+    bestTime: "Morning",
+    tags: ["hidden gem", "park", "birding", "walking", "quiet", "jubilee hills"]
+  },
+  {
+    slug: "sanjeevaiah-park",
+    name: "Sanjeevaiah Park",
+    type: "Lakefront Park",
+    category: "Parks",
+    image: imageFor.indiraPark,
+    rating: "4.3",
+    meta: "Necklace Road | Green lawns | Family walks",
+    tip: "Pair with Necklace Road or Hussain Sagar and go before sunset for easier exits.",
+    lat: 17.4322,
+    lng: 78.4731,
+    distanceKm: 5.9,
+    durationHours: 2,
+    fee: 20,
+    crowd: "Moderate",
+    safetyScore: 88,
+    accessibility: "Broad park paths with lakefront sections and seating.",
+    bestTime: "Evening",
+    tags: ["park", "lake", "family", "walking", "kids", "budget"]
+  },
+  {
+    slug: "kotla-vijaya-bhaskara-reddy-botanical-garden",
+    name: "Botanical Garden",
+    type: "Urban Botanical Park",
+    category: "Parks",
+    image: imageFor.gandipetPark,
+    rating: "4.3",
+    meta: "Kondapur | Nature trails | Morning walks",
+    tip: "Good for kids and walkers; go early because west-side traffic builds after office hours.",
+    lat: 17.4572,
+    lng: 78.3614,
+    distanceKm: 15.7,
+    durationHours: 2,
+    fee: 30,
+    crowd: "Moderate",
+    safetyScore: 89,
+    accessibility: "Wide paths in many zones, with some natural uneven stretches.",
+    bestTime: "Morning",
+    tags: ["park", "botanical", "kondapur", "nature", "kids", "walking"]
+  },
+  {
+    slug: "lumbini-park",
+    name: "Lumbini Park",
+    type: "Lake Park and Boating Hub",
+    category: "Parks",
+    image: imageFor.hussainSagar,
+    rating: "4.2",
+    meta: "Tank Bund | Boats | Laser show access",
+    tip: "Book boat rides early during weekends and keep buffer time for Tank Bund traffic.",
+    lat: 17.4107,
+    lng: 78.4725,
+    distanceKm: 4.2,
+    durationHours: 2,
+    fee: 20,
+    crowd: "High",
+    safetyScore: 86,
+    accessibility: "Park entry is manageable; boat access may vary by crowd and weather.",
+    bestTime: "Evening",
+    tags: ["park", "lake", "boating", "kids", "family", "tourist"]
+  },
+  {
+    slug: "ntr-gardens",
+    name: "NTR Gardens",
+    type: "Family Garden and Kids Ride Zone",
+    category: "Kids",
+    image: imageFor.indiraPark,
+    rating: "4.2",
+    meta: "Necklace Road | Kids rides | Garden walk",
+    tip: "Works well with Lumbini Park and Hussain Sagar; avoid late weekend exit rush.",
+    lat: 17.4128,
+    lng: 78.4697,
+    distanceKm: 4.3,
+    durationHours: 2,
+    fee: 20,
+    crowd: "High",
+    safetyScore: 86,
+    accessibility: "Garden paths and family areas are easier than ride sections.",
+    bestTime: "Evening",
+    tags: ["kids", "park", "family", "rides", "garden", "budget"]
+  },
+  {
+    slug: "ocean-park-hyderabad",
+    name: "Ocean Park",
+    type: "Water Park and Family Rides",
+    category: "Kids",
+    image: imageFor.jalavihar,
+    rating: "4.0",
+    meta: "Gandipet road | Water rides | Family outing",
+    tip: "Carry swimwear, check ride rules, and plan the return before rural-road traffic gets quiet.",
+    lat: 17.3854,
+    lng: 78.3217,
+    distanceKm: 20.5,
+    durationHours: 5,
+    fee: 650,
+    crowd: "High",
+    safetyScore: 84,
+    accessibility: "Ride access varies; water zones require close child supervision.",
+    bestTime: "Morning",
+    tags: ["kids", "water park", "family", "rides", "gandipet", "tourist"]
+  },
+  {
+    slug: "escape-water-park",
+    name: "Escape Water Park",
+    type: "Airport-Side Water Park",
+    category: "Kids",
+    image: imageFor.wonderlaHyderabad,
+    rating: "4.1",
+    meta: "Shamshabad | Water rides | Family day trip",
+    tip: "Best for airport-side groups; check current timings and cab availability before booking.",
+    lat: 17.2421,
+    lng: 78.3989,
+    distanceKm: 29,
+    durationHours: 5,
+    fee: 750,
+    crowd: "High",
+    safetyScore: 84,
+    accessibility: "Managed water park access; ride rules vary by height and age.",
+    bestTime: "Morning",
+    tags: ["kids", "water park", "family", "airport", "rides"]
+  },
+  {
+    slug: "kidihou-hyderabad",
+    name: "Kidihou",
+    type: "Indoor Kids Play Zone",
+    category: "Kids",
+    image: imageFor.flyZoneHyderabad,
+    rating: "4.2",
+    meta: "Kondapur | Indoor play | Toddlers and kids",
+    tip: "Good for hot afternoons and birthday groups; check slot rules and socks requirements.",
+    lat: 17.4629,
+    lng: 78.3577,
+    distanceKm: 16,
+    durationHours: 2,
+    fee: 600,
+    crowd: "Moderate",
+    safetyScore: 86,
+    accessibility: "Indoor play-zone access with activity-specific supervision.",
+    bestTime: "Afternoon",
+    tags: ["kids", "indoor", "play zone", "toddlers", "family", "kondapur"]
+  },
+  {
+    slug: "karmanghat-hanuman-temple",
+    name: "Karmanghat Hanuman Temple",
+    type: "Historic Devotional Temple",
+    category: "Devotional",
+    image: imageFor.birlaMandir,
+    rating: "4.7",
+    meta: "Karmanghat | Hanuman temple | Local pilgrimage",
+    tip: "Go early on Tuesdays and Saturdays; parking gets tight near peak darshan hours.",
+    lat: 17.3396,
+    lng: 78.5322,
+    distanceKm: 8.7,
+    durationHours: 1.5,
+    fee: 0,
+    crowd: "Very high",
+    safetyScore: 86,
+    accessibility: "Temple queues can be dense; senior visitors should avoid peak days.",
+    bestTime: "Early morning",
+    tags: ["devotional", "temple", "hanuman", "family", "local", "free"]
+  },
+  {
+    slug: "balkampet-yellamma-temple",
+    name: "Balkampet Yellamma Temple",
+    type: "Popular City Temple",
+    category: "Devotional",
+    image: imageFor.peddammaTemple,
+    rating: "4.6",
+    meta: "Balkampet | Local temple | Festival crowds",
+    tip: "Use metro/cab during festival days because lanes around the temple get crowded.",
+    lat: 17.4461,
+    lng: 78.4482,
+    distanceKm: 7.9,
+    durationHours: 1,
+    fee: 0,
+    crowd: "High",
+    safetyScore: 86,
+    accessibility: "Busy temple lanes; easier outside festival rush.",
+    bestTime: "Morning",
+    tags: ["devotional", "temple", "balkampet", "festival", "family"]
+  },
+  {
+    slug: "ashtalakshmi-temple-hyderabad",
+    name: "Ashtalakshmi Temple",
+    type: "Devotional Temple",
+    category: "Devotional",
+    image: imageFor.jagannathTempleHyderabad,
+    rating: "4.6",
+    meta: "Kothapet | Lakshmi temple | Family visit",
+    tip: "Visit during weekday mornings for a calmer darshan and easier parking.",
+    lat: 17.3683,
+    lng: 78.5491,
+    distanceKm: 8.6,
+    durationHours: 1,
+    fee: 0,
+    crowd: "High",
+    safetyScore: 87,
+    accessibility: "Temple access is manageable outside peak prayer slots.",
+    bestTime: "Morning",
+    tags: ["devotional", "temple", "lakshmi", "family", "free"]
+  },
+  {
+    slug: "sri-ranganatha-swamy-temple",
+    name: "Sri Ranganatha Swamy Temple",
+    type: "Old City Temple",
+    category: "Devotional",
+    image: imageFor.chilkurBalajiTemple,
+    rating: "4.5",
+    meta: "Jiyaguda | Historic temple | Musi river side",
+    tip: "Pair with Old City heritage, and use a cab because nearby lanes can be confusing.",
+    lat: 17.3698,
+    lng: 78.4562,
+    distanceKm: 4.9,
+    durationHours: 1,
+    fee: 0,
+    crowd: "Moderate",
+    safetyScore: 84,
+    accessibility: "Older temple approach with lane traffic and steps.",
+    bestTime: "Morning",
+    tags: ["devotional", "temple", "old city", "heritage", "free"]
+  },
+  {
+    slug: "telangana-state-archaeology-museum",
+    name: "Telangana State Archaeology Museum",
+    type: "Museum and Heritage Gallery",
+    category: "Museums",
+    image: imageFor.salarJungMuseum,
+    rating: "4.3",
+    meta: "Public Gardens | Artifacts | Indoor tourist stop",
+    tip: "Good for hot or rainy days; pair with Birla Mandir and Public Gardens.",
+    lat: 17.3994,
+    lng: 78.4693,
+    distanceKm: 2.7,
+    durationHours: 1.5,
+    fee: 20,
+    crowd: "Moderate",
+    safetyScore: 89,
+    accessibility: "Indoor museum access with some older-building constraints.",
+    bestTime: "Late morning",
+    tags: ["museum", "tourist", "history", "indoor", "family", "rain safe"]
+  },
+  {
+    slug: "spanish-mosque",
+    name: "Spanish Mosque",
+    type: "Heritage Mosque",
+    category: "Mosques",
+    image: imageFor.meccaMasjid,
+    rating: "4.5",
+    meta: "Begumpet | Moorish architecture | Heritage stop",
+    tip: "Visit respectfully outside prayer rush and combine with Secunderabad or Begumpet food stops.",
+    lat: 17.4435,
+    lng: 78.4669,
+    distanceKm: 7.0,
+    durationHours: 1,
+    fee: 0,
+    crowd: "Moderate",
+    safetyScore: 87,
+    accessibility: "Urban mosque access; check prayer timings and dress modestly.",
+    bestTime: "Morning",
+    tags: ["mosque", "heritage", "architecture", "begumpet", "culture"]
+  },
+  {
+    slug: "pochampally",
+    name: "Pochampally",
+    type: "Ikat Weaving Village Day Trip",
+    category: "Weekend",
+    image: imageFor.shilparamam,
+    rating: "4.4",
+    meta: "Yadadri district | Ikat textiles | Craft shopping",
+    tip: "Start early, visit weaving stores directly, and combine with Yadadri if time allows.",
+    lat: 17.3473,
+    lng: 78.8242,
+    distanceKm: 45,
+    durationHours: 6,
+    fee: 0,
+    crowd: "Moderate",
+    safetyScore: 84,
+    accessibility: "Village lanes and shops vary; travel light and use a cab loop.",
+    bestTime: "Morning",
+    tags: ["weekend", "crafts", "shopping", "ikat", "day trip", "tourist"]
+  },
+  {
+    slug: "bhongir-fort",
+    name: "Bhongir Fort",
+    type: "Hill Fort Trek",
+    category: "Weekend",
+    image: imageFor.golcondaFort,
+    rating: "4.4",
+    meta: "Bhuvanagiri | Rock fort | Trekking day trip",
+    tip: "Start early, wear grip shoes, and avoid the climb during rain or peak heat.",
+    lat: 17.5153,
+    lng: 78.8859,
+    distanceKm: 49,
+    durationHours: 5,
+    fee: 20,
+    crowd: "Moderate",
+    safetyScore: 80,
+    accessibility: "Rocky climb; not suitable for limited mobility or very young children.",
+    bestTime: "Winter morning",
+    tags: ["weekend", "fort", "trekking", "tourist", "adventure", "history"]
+  },
+  {
+    slug: "koheda-gutta",
+    name: "Koheda Gutta",
+    type: "Sunrise Hill Viewpoint",
+    category: "Hidden Gems",
+    image: imageFor.ananthagiriHills,
+    rating: "4.2",
+    meta: "Hayathnagar side | Short hike | Sunrise views",
+    tip: "Go with a group, carry water, and avoid isolated trails after dark.",
+    lat: 17.3157,
+    lng: 78.6471,
+    distanceKm: 27,
+    durationHours: 3,
+    fee: 0,
+    crowd: "Low",
+    safetyScore: 78,
+    accessibility: "Outdoor hill terrain; not wheelchair friendly.",
+    bestTime: "Sunrise",
+    tags: ["hidden gem", "viewpoint", "hike", "sunrise", "weekend", "nature"]
   }
 ];
+
+const commonsImage = (fileName: string, width = 960) =>
+  `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fileName)}?width=${width}`;
+
+const unsplashImage = (photoId: string) => `https://images.unsplash.com/${photoId}?auto=format&fit=crop&w=1200&q=80`;
+
+const unsplashFoodImages = [
+  unsplashImage("photo-1540189549336-e6e99c3679fe"),
+  unsplashImage("photo-1476224203421-9ac39bcb3327"),
+  unsplashImage("photo-1504754524776-8f4f37790ca0"),
+  unsplashImage("photo-1512621776951-a57141f2eefd"),
+  unsplashImage("photo-1529042410759-befb1204b468"),
+  unsplashImage("photo-1533777324565-a040eb52fac1"),
+  unsplashImage("photo-1546069901-ba9599a7e63c"),
+  unsplashImage("photo-1551782450-a2132b4ba21d"),
+  unsplashImage("photo-1555939594-58d7cb561ad1"),
+  unsplashImage("photo-1565299624946-b28f40a0ae38"),
+  unsplashImage("photo-1565958011703-44f9829ba187"),
+  unsplashImage("photo-1567620905732-2d1ec7ab7445"),
+  unsplashImage("photo-1568901346375-23c9450c58cd"),
+  unsplashImage("photo-1482049016688-2d3e1b311543"),
+  unsplashImage("photo-1493770348161-369560ae357d"),
+  unsplashImage("photo-1517248135467-4c7edcad34c4"),
+  unsplashImage("photo-1521017432531-fbd92d768814"),
+  unsplashImage("photo-1525351484163-7529414344d8"),
+  unsplashImage("photo-1543352634-a1c51d9f1fa7"),
+  unsplashImage("photo-1544025162-d76694265947"),
+  unsplashImage("photo-1550966871-3ed3cdb5ed0c"),
+  unsplashImage("photo-1552566626-52f8b828add9"),
+  unsplashImage("photo-1559339352-11d035aa65de"),
+  unsplashImage("photo-1578474846511-04ba529f0b88"),
+  unsplashImage("photo-1600891964599-f61ba0e24092"),
+  unsplashImage("photo-1600891964092-4316c288032e"),
+  unsplashImage("photo-1600891965050-6da6bad77c48"),
+  unsplashImage("photo-1606787366850-de6330128bfc"),
+  unsplashImage("photo-1617196034796-73dfa7b1fd56"),
+  unsplashImage("photo-1621996346565-e3dbc353d2e5")
+];
+
+const dishImages = {
+  biryani: commonsImage("Hyderabadi Chicken Biryani.jpg"),
+  haleem: "/images/food/haleem.svg",
+  kebab: "/images/food/kebab.jpg",
+  mandi: commonsImage("Mandi Biriyani Hyderabad.jpg"),
+  dosa: commonsImage("Masala Dosa with Sambar and Coconut Chutney.JPG"),
+  idli: commonsImage("Idli Sambar.JPG"),
+  thali: "/images/food/thali.jpg",
+  coffee: commonsImage("Irani chai and osmania biscuits.jpg"),
+  chai: "/images/food/chai.svg",
+  shawarma: "/images/food/shawarma.jpg",
+  chaat: "/images/food/chaat.jpg",
+  dessert: "/images/food/ice-cream.jpg",
+  bakery: commonsImage("Osmania biscuits from Hyderabad, India.jpg"),
+  pizza: "/images/food/pizza.jpg",
+  sushi: "/images/food/sushi.jpg",
+  buffet: "/images/food/buffet.jpg",
+  rooftop: unsplashImage("photo-1514933651103-005eec06c04b")
+};
 
 const featuredFood: FoodSpot[] = [
   {
@@ -1283,27 +1857,141 @@ const hyderabadRestaurantDirectory: FoodSpot[] = [
   { name: "10 Downing Street", category: "Rooftop", area: "Begumpet", costForTwo: 2200, rating: 4.1, crowd: "High", openLate: true, distanceKm: 6.1, specialties: ["pub food", "karaoke", "continental"], safetyNote: "Use cab pickup from the main road." }
 ];
 
-export const food: FoodSpot[] = [...featuredFood, ...hyderabadRestaurantDirectory];
+const expandedFoodServices: FoodSpot[] = [
+  { name: "KPHB Family Dinner Loop", category: "Fine dining", area: "Kukatpally", costForTwo: 1600, rating: 4.2, crowd: "High", openLate: true, distanceKm: 15.8, specialties: ["family dining", "buffet", "kids menu"], safetyNote: "Choose mall-side pickup points and reserve for weekend groups." },
+  { name: "Financial District Lunch Desk", category: "Cafe", area: "Financial District", costForTwo: 950, rating: 4.2, crowd: "High", openLate: false, distanceKm: 20.4, specialties: ["quick lunch", "coffee", "work meetings"], safetyNote: "Office exit traffic is heavy; schedule pickups outside peak shifts." },
+  { name: "Secunderabad Breakfast Circuit", category: "South Indian", area: "Secunderabad", costForTwo: 500, rating: 4.3, crowd: "High", openLate: false, distanceKm: 7.1, specialties: ["idli", "dosa", "filter coffee", "family breakfast"], safetyNote: "Use metro or main-road cab access for easier morning travel." },
+  { name: "Old City Dessert Walk", category: "Bakery", area: "Charminar", costForTwo: 450, rating: 4.3, crowd: "Very high", openLate: true, distanceKm: 4.4, specialties: ["double ka meetha", "falooda", "bakery sweets"], safetyNote: "Best in groups after dark; keep pickup near Charminar or Madina junction." },
+  { name: "Gachibowli Healthy Bowls", category: "Cafe", area: "Gachibowli", costForTwo: 1000, rating: 4.2, crowd: "Moderate", openLate: false, distanceKm: 18.1, specialties: ["salads", "smoothies", "protein bowls"], safetyNote: "Tech-corridor location with steady cab access." },
+  { name: "Madhapur Midnight Tea Stops", category: "Midnight", area: "Madhapur", costForTwo: 300, rating: 4.1, crowd: "High", openLate: true, distanceKm: 13.9, specialties: ["chai", "snacks", "late-night tiffins"], safetyNote: "Stay on active food streets and avoid isolated lanes late at night." },
+  { name: "Banjara Hills Veg Dining", category: "Fine dining", area: "Banjara Hills", costForTwo: 1800, rating: 4.3, crowd: "Moderate", openLate: false, distanceKm: 6.1, specialties: ["vegetarian", "regional thali", "desserts"], safetyNote: "Good family option; book ahead for festivals and weekends." },
+  { name: "Tank Bund Snack Promenade", category: "Street food", area: "Tank Bund", costForTwo: 350, rating: 4.0, crowd: "High", openLate: true, distanceKm: 5.0, specialties: ["corn", "chaat", "ice cream", "lake walk"], safetyNote: "Use busy promenade stretches and planned pickup points." },
+  { name: "Deccan Kitchen", category: "Fine dining", image: dishImages.thali, area: "Financial District", costForTwo: 2400, rating: 4.3, crowd: "High", openLate: true, distanceKm: 20.0, specialties: ["Hyderabadi tasting menu", "kebabs", "regional mains"], safetyNote: "Reserve for dinner and plan return transport from the far-west corridor." },
+  { name: "Aromas of Telangana", category: "South Indian", image: dishImages.thali, area: "Kondapur", costForTwo: 1300, rating: 4.2, crowd: "Moderate", openLate: false, distanceKm: 15.7, specialties: ["Telangana meals", "jonna roti", "country chicken"], safetyNote: "Family dining area with easier cab pickup before office-exit traffic." },
+  { name: "Begum Bazaar Snack Run", category: "Street food", image: dishImages.chaat, area: "Begum Bazaar", costForTwo: 300, rating: 4.1, crowd: "Very high", openLate: false, distanceKm: 3.2, specialties: ["chaat", "sweets", "namkeen"], safetyNote: "Market lanes are dense; visit in daylight and keep valuables secure." },
+  { name: "Madhapur Cloud Kitchen Lane", category: "Midnight", image: dishImages.shawarma, area: "Madhapur", costForTwo: 650, rating: 4.0, crowd: "High", openLate: true, distanceKm: 13.7, specialties: ["shawarma", "noodles", "late-night delivery"], safetyNote: "Prefer delivery or main-road pickup late at night." },
+  { name: "Koti Tiffin Trail", category: "South Indian", image: dishImages.dosa, area: "Koti", costForTwo: 300, rating: 4.2, crowd: "Very high", openLate: false, distanceKm: 2.2, specialties: ["dosa", "idli", "upma", "filter coffee"], safetyNote: "Crowded counters; travel light and use public transport where possible." },
+  { name: "Secunderabad Bakery Box", category: "Bakery", image: dishImages.bakery, area: "Secunderabad", costForTwo: 450, rating: 4.2, crowd: "Moderate", openLate: false, distanceKm: 7.3, specialties: ["puffs", "pastries", "plum cake"], safetyNote: "Good for takeaway; confirm parking before stopping." },
+  { name: "Jubilee Hills Dessert Cafes", category: "Cafe", image: dishImages.dessert, area: "Jubilee Hills", costForTwo: 1300, rating: 4.4, crowd: "High", openLate: true, distanceKm: 9.1, specialties: ["desserts", "coffee", "date-night seating"], safetyNote: "Late dessert crowd is steady; use valet or verified cabs." },
+  { name: "Necklace Road Rooftop View", category: "Rooftop", image: dishImages.rooftop, area: "Necklace Road", costForTwo: 2600, rating: 4.2, crowd: "High", openLate: true, distanceKm: 4.9, specialties: ["lake view", "mocktails", "sharing platters"], safetyNote: "Book ahead and expect traffic around Tank Bund at night." },
+  { name: "Kukatpally Biryani Belt", category: "Biryani", image: dishImages.biryani, area: "Kukatpally", costForTwo: 850, rating: 4.1, crowd: "High", openLate: true, distanceKm: 16.1, specialties: ["fry piece biryani", "kebabs", "family packs"], safetyNote: "Use clear pickup points around KPHB traffic junctions." },
+  { name: "Gandipet Resort Dining", category: "Fine dining", image: dishImages.buffet, area: "Gandipet", costForTwo: 2200, rating: 4.1, crowd: "Moderate", openLate: false, distanceKm: 21.0, specialties: ["buffet", "outdoor seating", "family lunch"], safetyNote: "Return before late rural-road hours and confirm reservation access." },
+  { name: "Old City Kebab Crawl", category: "Street food", image: dishImages.kebab, area: "Old City", costForTwo: 600, rating: 4.3, crowd: "Very high", openLate: true, distanceKm: 4.5, specialties: ["kebabs", "pathar ka gosht", "rumali rolls"], safetyNote: "Best with a group and planned pickup near main roads." },
+  { name: "Airport Transit Cafe", category: "Cafe", image: dishImages.coffee, area: "Shamshabad", costForTwo: 900, rating: 4.0, crowd: "Moderate", openLate: true, distanceKm: 28.5, specialties: ["coffee", "sandwiches", "quick meals"], safetyNote: "Good for airport runs; keep travel buffer for security and traffic." }
+];
 
-const dishImages = {
-  biryani: "/images/food/biryani.jpg",
-  haleem: "/images/food/haleem.svg",
-  kebab: "/images/food/kebab.jpg",
-  mandi: "/images/food/mandi.svg",
-  dosa: "/images/food/dosa.svg",
-  idli: "/images/food/idli.jpg",
-  thali: "/images/food/thali.jpg",
-  coffee: "/images/food/filter-coffee.svg",
-  chai: "/images/food/chai.svg",
-  shawarma: "/images/food/shawarma.jpg",
-  chaat: "/images/food/chaat.jpg",
-  dessert: "/images/food/dessert.svg",
-  bakery: "/images/food/pastry.svg",
-  pizza: "/images/food/pizza.jpg",
-  sushi: "/images/food/sushi.jpg",
-  buffet: "/images/food/buffet.jpg",
-  rooftop: "/images/food/rooftop.svg"
+function uniqueFoodSpots(spots: FoodSpot[]) {
+  return Array.from(new globalThis.Map<string, FoodSpot>(spots.map((spot) => [spot.name, spot])).values());
+}
+
+export const food: FoodSpot[] = uniqueFoodSpots([...featuredFood, ...hyderabadRestaurantDirectory, ...expandedFoodServices]);
+
+const foodCategoryImages: Record<FoodSpot["category"], string> = {
+  Biryani: dishImages.biryani,
+  "Street food": dishImages.chaat,
+  Cafe: dishImages.coffee,
+  Rooftop: dishImages.rooftop,
+  Midnight: dishImages.shawarma,
+  "Fine dining": dishImages.buffet,
+  "South Indian": dishImages.dosa,
+  Bakery: dishImages.bakery
 };
+
+const foodCategoryImagePools: Record<FoodSpot["category"], string[]> = {
+  Biryani: [
+    dishImages.biryani,
+    commonsImage("Hyderabadi Biryani with Raita, Mirchi Ka Salan and Salad.JPG"),
+    commonsImage("Biryani chutney from Paradise restaurant Hyderabad 3984.JPG"),
+    commonsImage("Hyderabadi Veg Biryani.jpg"),
+    dishImages.mandi
+  ],
+  "Street food": [dishImages.chaat, dishImages.kebab, dishImages.shawarma, dishImages.coffee, dishImages.dosa],
+  Cafe: [
+    dishImages.coffee,
+    dishImages.bakery,
+    unsplashImage("photo-1509042239860-f550ce710b93"),
+    unsplashImage("photo-1495474472287-4d71bcdd2085"),
+    unsplashImage("photo-1525351484163-7529414344d8"),
+    ...unsplashFoodImages.slice(14, 20)
+  ],
+  Rooftop: [
+    dishImages.rooftop,
+    unsplashImage("photo-1552566626-52f8b828add9"),
+    unsplashImage("photo-1559339352-11d035aa65de"),
+    unsplashImage("photo-1578474846511-04ba529f0b88"),
+    ...unsplashFoodImages.slice(20, 25)
+  ],
+  Midnight: [dishImages.shawarma, dishImages.mandi, dishImages.dosa, dishImages.coffee, dishImages.kebab],
+  "Fine dining": [
+    dishImages.buffet,
+    dishImages.thali,
+    dishImages.kebab,
+    dishImages.sushi,
+    unsplashImage("photo-1504674900247-0877df9cc836"),
+    unsplashImage("photo-1551218808-94e220e084d2"),
+    ...unsplashFoodImages.slice(0, 8)
+  ],
+  "South Indian": [
+    dishImages.dosa,
+    dishImages.idli,
+    dishImages.thali,
+    commonsImage("Masala Dosa with Aloo masala.jpg"),
+    commonsImage("Masala dosa with ghee and chutney.jpg")
+  ],
+  Bakery: [dishImages.bakery, dishImages.dessert, dishImages.coffee, "/images/food/pastry.svg"]
+};
+
+const specialtyImagePools: Array<{ match: string[]; images: string[] }> = [
+  { match: ["biryani", "dum", "haleem"], images: [dishImages.biryani, dishImages.haleem, dishImages.kebab, dishImages.mandi] },
+  { match: ["mandi", "khabsa", "arabian", "shawaya"], images: [dishImages.mandi, dishImages.kebab, dishImages.biryani, dishImages.shawarma] },
+  { match: ["kebab", "grill", "tandoori", "pathar"], images: [dishImages.kebab, dishImages.biryani, dishImages.shawarma, dishImages.mandi] },
+  { match: ["shawarma", "roll"], images: [dishImages.shawarma, dishImages.kebab, dishImages.mandi, dishImages.chaat] },
+  { match: ["dosa", "idli", "tiffin", "vada", "upma"], images: foodCategoryImagePools["South Indian"] },
+  { match: ["chai", "irani", "osmania", "biscuit", "coffee"], images: [dishImages.chai, dishImages.coffee, dishImages.bakery, "/images/food/filter-coffee.svg"] },
+  { match: ["pastr", "bakery", "cake", "brownie", "dessert", "ice cream", "falooda", "sweet"], images: foodCategoryImagePools.Bakery },
+  { match: ["buffet", "barbecue", "barbeque"], images: foodCategoryImagePools["Fine dining"] },
+  { match: ["rooftop", "lounge", "pub", "bar"], images: foodCategoryImagePools.Rooftop }
+];
+
+const allFoodImagePool = Array.from(
+  new Set([
+    ...Object.values(dishImages),
+    ...Object.values(foodCategoryImages),
+    ...Object.values(foodCategoryImagePools).flat(),
+    ...unsplashFoodImages
+  ])
+);
+
+function stableFoodImage(images: string[], spot: FoodSpot) {
+  const key = `${spot.name}|${spot.area}|${spot.specialties.join("|")}`;
+  let hash = 0;
+  for (let index = 0; index < key.length; index += 1) {
+    hash = (hash * 31 + key.charCodeAt(index)) >>> 0;
+  }
+  return images[hash % images.length];
+}
+
+function stableFoodImageFromPool(images: string[], spot: FoodSpot, usedImages?: Set<string>) {
+  const uniqueImages = Array.from(new Set(images)).filter(Boolean);
+  if (!uniqueImages.length) return foodCategoryImages[spot.category];
+
+  const preferred = stableFoodImage(uniqueImages, spot);
+  if (!usedImages || !usedImages.has(preferred)) {
+    usedImages?.add(preferred);
+    return preferred;
+  }
+
+  const startIndex = uniqueImages.indexOf(preferred);
+  for (let offset = 1; offset < uniqueImages.length; offset += 1) {
+    const candidate = uniqueImages[(startIndex + offset) % uniqueImages.length];
+    if (!usedImages.has(candidate)) {
+      usedImages.add(candidate);
+      return candidate;
+    }
+  }
+
+  return preferred;
+}
 
 const openDishSources = {
   biryani: "https://commons.wikimedia.org/wiki/Category:Hyderabadi_biryani",
@@ -1415,17 +2103,127 @@ export function getRestaurantMenu(spot: FoodSpot): FoodMenuItem[] {
   }));
 }
 
+export function getFoodSpotImage(spot: FoodSpot, usedImages?: Set<string>) {
+  if (spot.image && !usedImages?.has(spot.image)) {
+    usedImages?.add(spot.image);
+    return spot.image;
+  }
+  const text = `${spot.name} ${spot.area} ${spot.specialties.join(" ")}`.toLowerCase();
+  const specialtyPool = specialtyImagePools.find(({ match }) => match.some((keyword) => text.includes(keyword)));
+  if (specialtyPool) {
+    return stableFoodImageFromPool(
+      [...specialtyPool.images, ...(foodCategoryImagePools[spot.category] ?? []), ...allFoodImagePool],
+      spot,
+      usedImages
+    );
+  }
+  const categoryPool = [...(foodCategoryImagePools[spot.category] ?? []), ...allFoodImagePool];
+  if (categoryPool.length) return stableFoodImageFromPool(categoryPool, spot, usedImages);
+  return foodCategoryImages[spot.category];
+}
+
 export const events: EventItem[] = [
   { title: "Ramzan Food Streets", date: "Seasonal evenings", type: "Food festival", venue: "Charminar", price: "Pay per dish" },
   { title: "Bonalu Processions", date: "Ashada season", type: "Festival", venue: "Old City temples", price: "Free" },
   { title: "Bathukamma Celebrations", date: "Sep-Oct", type: "Culture", venue: "Tank Bund", price: "Free" },
-  { title: "Shilparamam Craft Bazaar", date: "Weekly", type: "Exhibition", venue: "Madhapur", price: "INR 60" }
+  { title: "Shilparamam Craft Bazaar", date: "Weekly", type: "Exhibition", venue: "Madhapur", price: "INR 60" },
+  { title: "Tank Bund Sunday Funday", date: "Select Sundays", type: "Family street event", venue: "Tank Bund", price: "Free" },
+  { title: "Hyderabad Literary Weekend", date: "Winter season", type: "Talks and books", venue: "HITEC City", price: "Free to INR 999" },
+  { title: "Golconda Sound and Light Show", date: "Daily except schedule changes", type: "Heritage show", venue: "Golconda Fort", price: "INR 80-140" },
+  { title: "Ravindra Bharathi Culture Nights", date: "Weekly", type: "Classical and theater", venue: "Saifabad", price: "INR 100-800" },
+  { title: "Necklace Road Fitness Mornings", date: "Weekend mornings", type: "Community wellness", venue: "Necklace Road", price: "Free" }
 ];
 
 export const metroRoutes: MetroRoute[] = [
-  { from: "HITEC City", to: "Charminar", line: "Blue + Green", interchange: "Ameerpet, MG Bus Station", duration: "55-70 min", fare: "INR 60" },
-  { from: "Secunderabad", to: "Hussain Sagar", line: "Blue", interchange: "None", duration: "15-25 min", fare: "INR 20-35" },
-  { from: "Jubilee Hills", to: "Golconda", line: "Blue + cab", interchange: "Peddamma Gudi", duration: "35-50 min", fare: "INR 120-240" }
+  {
+    from: "Miyapur",
+    to: "L B Nagar",
+    line: "Red Line",
+    color: "#d71920",
+    lengthKm: 29.21,
+    source: "L&T Metro: Red Line - Miyapur to L B Nagar",
+    stops: [
+      "Miyapur",
+      "JNTU College",
+      "KPHB Colony",
+      "Kukatpally",
+      "Dr. B. R. Ambedkar Balanagar",
+      "Moosapet",
+      "Bharath Nagar",
+      "Erragadda",
+      "ESI Hospital",
+      "S.R.Nagar",
+      "Ameerpet",
+      "Punjagutta",
+      "Irrum Manzil",
+      "Khairatabad",
+      "Lakdi-ka-pul",
+      "Assembly",
+      "Nampally",
+      "Gandhi Bhavan",
+      "Osmania Medical College",
+      "MG Bus Station",
+      "Malakpet",
+      "New Market",
+      "Musarambagh",
+      "Dilshuknagar",
+      "Chaitanyapuri",
+      "Victoria Memorial",
+      "L B Nagar"
+    ]
+  },
+  {
+    from: "Nagole",
+    to: "Raidurg",
+    line: "Blue Line",
+    color: "#0072bc",
+    lengthKm: 27,
+    source: "L&T Metro: Blue Line - Nagole to Raidurg",
+    stops: [
+      "Nagole",
+      "Uppal",
+      "Stadium",
+      "NGRI",
+      "Habsiguda",
+      "Tarnaka",
+      "Mettuguda",
+      "Secunderabad East",
+      "Parade Ground",
+      "Paradise",
+      "Rasoolpura",
+      "Prakash Nagar",
+      "Begumpet",
+      "Ameerpet",
+      "Madhura Nagar",
+      "Yusufguda",
+      "Road No. 5 Jubilee Hills",
+      "Jubilee Hills Check Post",
+      "Peddamma Gudi",
+      "Madhapur",
+      "Durgam Cheruvu",
+      "HITEC City",
+      "Raidurg"
+    ]
+  },
+  {
+    from: "JBS Parade Ground",
+    to: "MG Bus Station",
+    line: "Green Line",
+    color: "#009f4d",
+    lengthKm: 11,
+    source: "L&T Metro: Green Line - JBS Parade Ground to MG Bus Station",
+    stops: [
+      "JBS Parade Ground",
+      "Secunderabad West",
+      "Gandhi Hospital",
+      "Musheerabad",
+      "RTC X Roads",
+      "Chikkadapally",
+      "Narayanguda",
+      "Sultan Bazaar",
+      "MG Bus Station"
+    ]
+  }
 ];
 
 export const emergencyContacts = [
@@ -1443,5 +2241,13 @@ export const highlights = [
   "Offline PWA mode",
   "AI crowd prediction",
   "Cab fare estimates",
-  "Weather intelligence"
+  "Weather intelligence",
+  "Hotel and resort discovery",
+  "Kids and family outing filters",
+  "Late-night food safety notes",
+  "Emergency contact shortcuts",
+  "Event and festival planner",
+  "Metro plus cab route hints",
+  "Budget planner for groups",
+  "Hidden-gem recommendations"
 ];

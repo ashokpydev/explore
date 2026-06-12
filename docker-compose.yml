@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgis/postgis:16-3.4
+    build: ./infrastructure/postgres
     environment:
       POSTGRES_DB: explore_hyderabad
       POSTGRES_USER: explore

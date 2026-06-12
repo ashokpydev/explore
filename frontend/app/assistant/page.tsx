@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { ArrowRight, MapPinned, Utensils } from "lucide-react";
 import { AssistantPanel } from "@/components/assistant-panel";
+import { GenAIStudio } from "@/components/gen-ai-studio";
 import { Section } from "@/components/ui/section";
 import { emergencyContacts, metroRoutes } from "@/lib/data";
+import { metroFareSlabs } from "@/lib/metro";
 
 const assistantActions = [
   { label: "Plan my Hyderabad trip", href: "/planner", helper: "Build a timed route with budget." },
@@ -10,7 +12,7 @@ const assistantActions = [
   { label: "Budget weekend plan", href: "/planner?trip=budget", helper: "Keep spend low and route short." },
   { label: "Romantic places", href: "/explore?focus=search&q=romantic", helper: "Evening-safe lake and dining ideas." },
   { label: "Family-friendly spots", href: "/explore?focus=search&q=family", helper: "Kids, parks, museums, and resorts." },
-  { label: "Metro route to Charminar", href: "/planner?mode=metro&destination=charminar", helper: "Use metro plus last-mile options." }
+  { label: "Metro route to L B Nagar", href: "/planner?mode=metro&origin=Miyapur&destination=L%20B%20Nagar", helper: "See map and journey fare." }
 ];
 
 export default function AssistantPage() {
@@ -41,7 +43,9 @@ export default function AssistantPage() {
           <div className="mt-8 grid gap-4 md:grid-cols-2">
             <div className="rounded-lg bg-charcoal p-5 text-white">
               <h2 className="flex items-center gap-2 font-semibold"><MapPinned size={18} className="text-turmeric" /> Metro intelligence</h2>
-              <p className="mt-3 text-sm text-white/72">{metroRoutes[0].from} to {metroRoutes[0].to}: {metroRoutes[0].duration}, {metroRoutes[0].interchange}.</p>
+              <p className="mt-3 text-sm text-white/72">
+                {metroRoutes[0].from} to {metroRoutes[0].to}: INR {metroFareSlabs[0].fare}-{metroFareSlabs[metroFareSlabs.length - 1].fare} by fare zone.
+              </p>
               <Link href="/planner?mode=metro" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-turmeric">
                 Open route planner <ArrowRight size={15} />
               </Link>
@@ -57,6 +61,9 @@ export default function AssistantPage() {
           </div>
         </div>
         <AssistantPanel />
+      </Section>
+      <Section>
+        <GenAIStudio />
       </Section>
     </main>
   );

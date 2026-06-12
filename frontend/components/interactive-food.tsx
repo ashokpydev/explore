@@ -2,22 +2,29 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
-import { Calculator, Coffee, ExternalLink, IndianRupee, MapPinned, Moon, Navigation, Search, ShieldCheck, Star, Users, Utensils, X } from "lucide-react";
-import { listRestaurants } from "@/lib/api";
-import { food, getRestaurantMenu, type FoodSpot } from "@/lib/data";
+import { BrainCircuit, Calculator, Coffee, ExternalLink, IndianRupee, Loader2, MapPinned, Moon, Navigation, Search, ShieldCheck, Sparkles, Star, Users, Utensils, X } from "lucide-react";
+import { getFoodAIRecommendations, listRestaurants, type FoodAIResponse } from "@/lib/api";
+import { food, getFoodSpotImage, getRestaurantMenu, type FoodSpot } from "@/lib/data";
 import { googleMapsSearchUrl, googleMapsTextDirectionsUrl } from "@/lib/maps";
 
 const foodFilters = ["All", "Biryani", "Street food", "Cafe", "Rooftop", "Midnight", "Fine dining", "South Indian", "Bakery"];
 
-export function InteractiveFood() {
+export function InteractiveFood({ initialQuery = "" }: { initialQuery?: string }) {
   const [items, setItems] = useState(food);
   const [filter, setFilter] = useState("All");
   const [maxBudget, setMaxBudget] = useState(10000);
   const [members, setMembers] = useState(2);
   const [openLate, setOpenLate] = useState(false);
   const [startLocation, setStartLocation] = useState("");
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
+  const [foodPrompt, setFoodPrompt] = useState(
+    initialQuery || "Best biryani and chai plan under budget with safe pickup points"
+  );
+  const [dietaryPreference, setDietaryPreference] = useState("");
+  const [aiFood, setAiFood] = useState<FoodAIResponse | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState<FoodSpot | null>(null);
+  const [visibleCount, setVisibleCount] = useState(36);
 
   useEffect(() => {
     let active = true;
@@ -71,17 +78,132 @@ export function InteractiveFood() {
     });
   }, [filter, items, maxBudget, members, openLate, query]);
 
+  const visibleRestaurants = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
+
+  const visibleImages = useMemo(() => {
+    const usedImages = new Set<string>();
+    return new Map(visibleRestaurants.map((spot) => [spot.name, getFoodSpotImage(spot, usedImages)]));
+  }, [visibleRestaurants]);
+
   const selectedMenu = selectedRestaurant ? getRestaurantMenu(selectedRestaurant) : [];
   const selectedBudget = selectedRestaurant ? estimateRestaurantBudget(selectedRestaurant.costForTwo, members) : null;
 
+  async function runFoodAI() {
+    const prompt = foodPrompt.trim() || query.trim() || "Recommend Hyderabad food";
+    setAiLoading(true);
+    try {
+      setAiFood(
+        await getFoodAIRecommendations({
+          query: prompt,
+          members,
+          budget_inr: maxBudget,
+          dietary_preference: dietaryPreference || undefined,
+          open_late: openLate || undefined,
+          area_hint: startLocation || undefined,
+          limit: 5
+        })
+      );
+    } finally {
+      setAiLoading(false);
+    }
+  }
+
   return (
     <>
+      <div className="mt-8 rounded-lg border border-lac/20 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-lac dark:text-turmeric">
+              <BrainCircuit size={16} /> GenAI food planner
+            </p>
+            <h2 className="mt-2 text-2xl font-bold">Ask for food, and RAG ranks real restaurants</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-black/65 dark:text-white/65">
+              Uses restaurant records, RAG context, budget fit, dietary notes, late-night safety, citations, and usage tracking.
+            </p>
+          </div>
+          {aiFood?.usage ? (
+            <div className="flex flex-wrap gap-2 text-xs text-black/60 dark:text-white/60">
+              <span className="rounded-md bg-pearl px-2 py-1 dark:bg-night">Tokens {aiFood.usage.total_tokens}</span>
+              <span className="rounded-md bg-pearl px-2 py-1 dark:bg-night">{aiFood.usage.latency_ms} ms</span>
+              <span className="rounded-md bg-pearl px-2 py-1 dark:bg-night">{aiFood.usage.model}</span>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="mt-4 grid gap-3 lg:grid-cols-[1fr_220px_auto]">
+          <input
+            value={foodPrompt}
+            onChange={(event) => setFoodPrompt(event.target.value)}
+            className="rounded-md border border-black/10 bg-transparent px-3 py-2 text-sm outline-none focus:border-lac dark:border-white/10"
+            placeholder="Ask: vegetarian breakfast near Koti, biryani for 6, safe midnight food..."
+          />
+          <select
+            value={dietaryPreference}
+            onChange={(event) => setDietaryPreference(event.target.value)}
+            className="rounded-md border border-black/10 bg-transparent px-3 py-2 text-sm outline-none focus:border-lac dark:border-white/10"
+            aria-label="Dietary preference"
+          >
+            <option value="">Flexible diet</option>
+            <option value="vegetarian">Vegetarian</option>
+            <option value="biryani">Biryani focus</option>
+            <option value="cafe">Cafe</option>
+            <option value="street food">Street food</option>
+          </select>
+          <button
+            type="button"
+            onClick={runFoodAI}
+            disabled={aiLoading}
+            className="inline-flex items-center justify-center gap-2 rounded-md bg-lac px-4 py-2 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-75"
+          >
+            {aiLoading ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+            Generate food plan
+          </button>
+        </div>
+
+        {aiFood ? (
+          <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_320px]">
+            <div className="rounded-md bg-pearl p-4 text-sm leading-6 dark:bg-night">
+              <p>{aiFood.answer}</p>
+              <div className="mt-4 grid gap-3">
+                {aiFood.recommendations.map((item) => (
+                  <div key={item.name} className="rounded-md border border-black/10 bg-white p-3 dark:border-white/10 dark:bg-white/5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-semibold">{item.name}</p>
+                        <p className="mt-1 text-xs text-black/60 dark:text-white/60">{item.area} | {item.cuisine.join(", ")}</p>
+                      </div>
+                      <span className="rounded-md bg-turmeric px-2 py-1 text-xs font-bold text-charcoal">
+                        {Math.round(item.match_score)}%
+                      </span>
+                    </div>
+                    <p className="mt-2 text-xs leading-5 text-black/68 dark:text-white/68">{item.reasoning}</p>
+                    <p className="mt-2 text-xs font-semibold">Estimated total: INR {item.estimated_total.toLocaleString("en-IN")}</p>
+                    <p className="mt-2 text-xs text-neem dark:text-turmeric">{item.safety_note}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <aside className="rounded-md border border-black/10 p-4 text-xs leading-5 dark:border-white/10">
+              <p className="mb-2 font-semibold">Budget strategy</p>
+              {aiFood.budget_strategy.map((item) => <p key={item}>- {item}</p>)}
+              <p className="mb-2 mt-4 font-semibold">Dietary notes</p>
+              {aiFood.dietary_notes.map((item) => <p key={item}>- {item}</p>)}
+              <p className="mb-2 mt-4 font-semibold">RAG citations</p>
+              {(aiFood.citations.length ? aiFood.citations : ["Restaurant knowledge index"]).slice(0, 4).map((item) => <p key={item}>- {item}</p>)}
+            </aside>
+          </div>
+        ) : null}
+      </div>
+
       <div className="mt-8 grid gap-4 rounded-lg border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-white/5 lg:grid-cols-[1fr_180px_260px_180px]">
         <label className="relative block">
           <Search className="absolute left-3 top-3 text-black/45 dark:text-white/45" size={18} />
           <input
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setVisibleCount(36);
+            }}
             placeholder="Search biryani, chai, rooftops, shawarma..."
             className="w-full rounded-md border border-black/10 bg-transparent py-2 pl-10 pr-3 outline-none focus:border-lac dark:border-white/10"
           />
@@ -94,7 +216,10 @@ export function InteractiveFood() {
             max={12}
             step={1}
             value={members}
-            onChange={(event) => setMembers(Number(event.target.value))}
+            onChange={(event) => {
+              setMembers(Number(event.target.value));
+              setVisibleCount(36);
+            }}
             className="mt-2 w-full accent-neem"
             aria-label="Number of members visiting"
           />
@@ -107,13 +232,23 @@ export function InteractiveFood() {
             max={30000}
             step={250}
             value={maxBudget}
-            onChange={(event) => setMaxBudget(Number(event.target.value))}
+            onChange={(event) => {
+              setMaxBudget(Number(event.target.value));
+              setVisibleCount(36);
+            }}
             className="mt-2 w-full accent-lac"
             aria-label="Maximum meal budget"
           />
         </label>
         <label className="inline-flex items-center gap-2 rounded-md bg-pearl px-3 py-2 text-sm font-medium dark:bg-night">
-          <input type="checkbox" checked={openLate} onChange={(event) => setOpenLate(event.target.checked)} />
+          <input
+            type="checkbox"
+            checked={openLate}
+            onChange={(event) => {
+              setOpenLate(event.target.checked);
+              setVisibleCount(36);
+            }}
+          />
           Open late
         </label>
       </div>
@@ -138,7 +273,10 @@ export function InteractiveFood() {
         {foodFilters.map((item) => (
           <button
             key={item}
-            onClick={() => setFilter(item)}
+            onClick={() => {
+              setFilter(item);
+              setVisibleCount(36);
+            }}
             className={`shrink-0 rounded-md border px-3 py-2 text-sm font-medium ${
               filter === item ? "border-lac bg-lac text-white" : "border-black/10 dark:border-white/10"
             }`}
@@ -149,22 +287,34 @@ export function InteractiveFood() {
       </div>
 
       <p className="mt-3 text-sm font-medium text-black/60 dark:text-white/65">
-        Showing {filtered.length} of {items.length} restaurants across Hyderabad.
+        Showing {visibleRestaurants.length} of {filtered.length} matching restaurants across Hyderabad.
       </p>
 
       <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {filtered.map((item) => {
+        {visibleRestaurants.map((item) => {
           const budget = estimateRestaurantBudget(item.costForTwo, members);
           const destination = restaurantMapQuery(item);
+          const image = visibleImages.get(item.name) ?? getFoodSpotImage(item);
           return (
           <article key={item.name} className="rounded-lg border border-black/10 bg-white dark:border-white/10 dark:bg-white/5">
             <button
               type="button"
               onClick={() => setSelectedRestaurant(item)}
-              className="block h-full w-full rounded-lg p-5 text-left transition hover:-translate-y-0.5 hover:shadow-premium focus:outline-none focus:ring-2 focus:ring-lac focus:ring-offset-2 dark:focus:ring-turmeric"
+              className="block h-full w-full overflow-hidden rounded-lg text-left transition hover:-translate-y-0.5 hover:shadow-premium focus:outline-none focus:ring-2 focus:ring-lac focus:ring-offset-2 dark:focus:ring-turmeric"
               aria-label={`View menu for ${item.name}`}
             >
-            <Utensils className="mb-5 text-lac dark:text-turmeric" />
+            <div className="relative aspect-[16/10] bg-pearl dark:bg-night">
+              <Image
+                src={image}
+                alt={`${item.name} food photo`}
+                fill
+                sizes="(max-width: 768px) 100vw, 33vw"
+                className="object-cover"
+                unoptimized={image.endsWith(".svg")}
+              />
+            </div>
+            <div className="p-5">
+            <Utensils className="mb-4 text-lac dark:text-turmeric" />
             <div className="flex items-start justify-between gap-3">
               <div>
                 <h2 className="text-xl font-semibold">{item.name}</h2>
@@ -194,6 +344,7 @@ export function InteractiveFood() {
             <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-lac dark:text-turmeric">
               View dishes and menu <ExternalLink size={15} />
             </span>
+            </div>
             </button>
             <div className="grid grid-cols-2 gap-2 border-t border-black/10 p-3 dark:border-white/10">
               <a
@@ -222,6 +373,18 @@ export function InteractiveFood() {
           </div>
         ) : null}
       </div>
+
+      {visibleRestaurants.length < filtered.length ? (
+        <div className="mt-6 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setVisibleCount((count) => count + 36)}
+            className="rounded-md border border-lac/30 px-4 py-2 text-sm font-semibold text-lac transition hover:bg-lac hover:text-white dark:border-turmeric/40 dark:text-turmeric dark:hover:bg-turmeric dark:hover:text-charcoal"
+          >
+            Load more restaurants
+          </button>
+        </div>
+      ) : null}
 
       <div className="mt-8 grid gap-5 md:grid-cols-2">
         <div className="rounded-lg bg-neem p-6 text-white">

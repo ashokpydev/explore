@@ -2,16 +2,19 @@
 
 import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
-import { Bot, Check, Clipboard, ExternalLink, Loader2, MapPinned, MessageSquare, Send, Sparkles, Volume2 } from "lucide-react";
-import { aiChat } from "@/lib/api";
+import { Bot, Check, Clipboard, ExternalLink, Loader2, MapPinned, MessageSquare, Radio, Send, Sparkles, Volume2 } from "lucide-react";
+import { aiChat, aiChatStream, type AIUsage } from "@/lib/api";
 import { emergencyContacts, food, metroRoutes, places } from "@/lib/data";
 import { googleMapsSearchUrl } from "@/lib/maps";
+import { findMetroJourney } from "@/lib/metro";
 
 type AssistantResult = {
   answer: string;
   bullets: string[];
   actions: Array<{ label: string; href: string; external?: boolean }>;
   citations: string[];
+  sources?: Array<{ title: string; source_kind: string; score: number }>;
+  usage?: AIUsage;
 };
 
 const quickPrompts = [
@@ -35,7 +38,8 @@ const starterResult: AssistantResult = {
     { label: "Browse food", href: "/food" },
     { label: "Explore places", href: "/explore" }
   ],
-  citations: ["Local Hyderabad place, food, metro, and emergency datasets."]
+  citations: ["Local Hyderabad place, food, metro, and emergency datasets."],
+  sources: []
 };
 
 export function AssistantPanel({ compact = false }: { compact?: boolean }) {
@@ -44,6 +48,7 @@ export function AssistantPanel({ compact = false }: { compact?: boolean }) {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
+  const [conversationId, setConversationId] = useState<string | null>(null);
 
   const visibleHistory = useMemo(() => history.slice(0, compact ? 2 : 5), [compact, history]);
 
@@ -54,12 +59,19 @@ export function AssistantPanel({ compact = false }: { compact?: boolean }) {
     setCopied(false);
     const local = buildLocalResult(prompt);
     try {
-      const data = await aiChat(prompt);
+      const data = await aiChat(prompt, conversationId);
+      setConversationId(data.conversation_id ?? conversationId);
       setResult({
         answer: data.answer || local.answer,
         bullets: data.suggestions?.length ? data.suggestions.slice(0, 4) : local.bullets,
         actions: local.actions,
-        citations: data.citations?.length ? data.citations.slice(0, 3) : local.citations
+        citations: data.citations?.length ? data.citations.slice(0, 3) : local.citations,
+        sources: data.context_sources?.slice(0, 3).map((source) => ({
+          title: source.title,
+          source_kind: source.source_kind,
+          score: source.score
+        })),
+        usage: data.usage
       });
     } catch {
       setResult(local);
@@ -72,6 +84,44 @@ export function AssistantPanel({ compact = false }: { compact?: boolean }) {
   async function submit(event: FormEvent) {
     event.preventDefault();
     await ask(message);
+  }
+
+  async function streamAsk() {
+    const prompt = message.trim();
+    if (!prompt) return;
+    setLoading(true);
+    setCopied(false);
+    const local = buildLocalResult(prompt);
+    setResult({ ...local, answer: "" });
+    try {
+      const finalPayload = await aiChatStream(prompt, conversationId, (token) => {
+        setResult((current) => ({ ...current, answer: `${current.answer}${token} ` }));
+      });
+      if (finalPayload) {
+        setConversationId(finalPayload.conversation_id ?? conversationId);
+        setResult({
+          answer: finalPayload.answer || local.answer,
+          bullets: finalPayload.suggestions?.length
+            ? finalPayload.suggestions.slice(0, 4)
+            : local.bullets,
+          actions: local.actions,
+          citations: finalPayload.citations?.length
+            ? finalPayload.citations.slice(0, 3)
+            : local.citations,
+          sources: finalPayload.context_sources?.slice(0, 3).map((source) => ({
+            title: source.title,
+            source_kind: source.source_kind,
+            score: source.score
+          })),
+          usage: finalPayload.usage
+        });
+      }
+    } catch {
+      setResult(local);
+    } finally {
+      setHistory((current) => [prompt, ...current.filter((item) => item !== prompt)].slice(0, 6));
+      setLoading(false);
+    }
   }
 
   async function handlePrompt(prompt: string) {
@@ -167,6 +217,36 @@ export function AssistantPanel({ compact = false }: { compact?: boolean }) {
         ))}
       </div>
 
+      {result.sources?.length ? (
+        <div className="mt-4 rounded-md border border-black/10 p-3 text-xs dark:border-white/10">
+          <p className="mb-2 font-semibold text-black/65 dark:text-white/65">Retrieved AI context</p>
+          <div className="grid gap-2">
+            {result.sources.map((source) => (
+              <div key={`${source.source_kind}-${source.title}`} className="flex items-center justify-between gap-3">
+                <span className="truncate">{source.title}</span>
+                <span className="shrink-0 rounded-md bg-pearl px-2 py-1 dark:bg-night">
+                  {source.source_kind} {Math.round(source.score * 100)}%
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {result.usage ? (
+        <div className="mt-3 flex flex-wrap gap-2 text-xs text-black/60 dark:text-white/60">
+          <span className="rounded-md bg-pearl px-2 py-1 dark:bg-night">
+            Memory: {conversationId ? conversationId.slice(0, 8) : "new"}
+          </span>
+          <span className="rounded-md bg-pearl px-2 py-1 dark:bg-night">
+            Tokens: {result.usage.total_tokens}
+          </span>
+          <span className="rounded-md bg-pearl px-2 py-1 dark:bg-night">
+            Latency: {result.usage.latency_ms} ms
+          </span>
+        </div>
+      ) : null}
+
       {!compact ? (
         <div className="relative z-10 mt-4 flex flex-wrap gap-2 pb-1">
           {quickPrompts.map((prompt) => (
@@ -192,6 +272,14 @@ export function AssistantPanel({ compact = false }: { compact?: boolean }) {
         />
         <button className="grid h-10 w-10 place-items-center rounded-md bg-lac text-white" aria-label="Send">
           <Send size={17} />
+        </button>
+        <button
+          type="button"
+          onClick={streamAsk}
+          className="grid h-10 w-10 place-items-center rounded-md bg-neem text-white"
+          aria-label="Stream answer"
+        >
+          <Radio size={17} />
         </button>
       </form>
 
@@ -231,11 +319,16 @@ function buildLocalResult(prompt: string): AssistantResult {
 
   if (text.includes("metro") || text.includes("charminar")) {
     const route = metroRoutes[0];
+    const journey = findMetroJourney(route.from, route.to);
     return {
-      answer: `${route.from} to ${route.to} is usually best as ${route.line}, with interchange at ${route.interchange}.`,
-      bullets: [`Duration: ${route.duration}.`, `Fare: ${route.fare}.`, "Use the planner for last-mile cab or auto recommendations."],
+      answer: `${route.from} to ${route.to} metro route details: ${journey ? `INR ${journey.fare}` : "fare available in planner"}.`,
+      bullets: [
+        `Route: ${route.line}: ${route.from} to ${route.to}.`,
+        `Stops: ${route.stops.join(" -> ")}.`,
+        journey ? `Fare: INR ${journey.fare}, ${journey.distanceKm} km, about ${journey.durationMins} minutes.` : "Open the planner for journey charges."
+      ],
       actions: [
-        { label: "Open planner", href: "/planner?mode=metro&destination=charminar" },
+        { label: "Open planner", href: `/planner?mode=metro&origin=${encodeURIComponent(route.from)}&destination=${encodeURIComponent(route.to)}` },
         { label: "Open map search", href: googleMapsSearchUrl(`${route.from} to ${route.to}`), external: true }
       ],
       citations: ["Hyderabad metro route reference in local data."]

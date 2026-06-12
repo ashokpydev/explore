@@ -14,7 +14,7 @@ export default async function PlannerPage({ searchParams }: PlannerPageProps) {
   return (
     <main>
       <Section>
-        <InteractivePlanner initialOrigin={firstParam(params.origin)} initialDestination={firstParam(params.destination)} />
+        <InteractivePlanner initialOrigin={firstParam(params.origin)} initialDestination={firstParam(params.destination)} mode={firstParam(params.mode)} />
       </Section>
     </main>
   );

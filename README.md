@@ -1,15 +1,17 @@
 # Explore Hyderabad
 
-Explore Hyderabad is a production-ready full-stack application for an AI-powered tourism and city exploration platform for Hyderabad and Telangana.
+Explore Hyderabad is a production-ready full-stack GenAI application for tourism and city exploration across Hyderabad and Telangana.
 
-It includes a premium Next.js frontend, a modular FastAPI backend, PostgreSQL/PostGIS schema, Redis caching, Celery workers, JWT auth, AI assistant seams, itinerary generation, WebSocket support, Docker Compose, Nginx, CI, sample data, and AWS deployment guidance.
+It includes a premium Next.js frontend, a modular FastAPI backend, PostgreSQL/PostGIS schema, pgvector retrieval, Redis caching, Celery workers, JWT auth, RAG assistant APIs, structured itinerary generation, intent extraction, moderation, travel image metadata, trip critique, WebSocket support, Docker Compose, Nginx, CI, sample data, and AWS deployment guidance.
 
 ## Features
 
 - Tourist places, historical monuments, lakes, temples, mosques, resorts, trekking spots, weekend getaways, hidden gems, and local experiences.
 - Food discovery for biryani, street food, cafes, fine dining, rooftops, and midnight food spots.
 - Shopping and markets including Laad Bazaar, Begum Bazaar, IKEA, malls, parking, popular items, and negotiation tips.
-- AI travel assistant with RAG-ready knowledge retrieval, semantic-search seam, multilingual response support, and voice/OCR/image-tagging extension points.
+- AI travel assistant with RAG knowledge retrieval, pgvector semantic search, full-text fallback, multilingual response support, voice UI affordances, and explainable citations.
+- GenAI studio APIs for prompt intent extraction, entity detection, tool routing, review moderation, safe rewrite, image alt text/tag generation, route critique, ingestion, RAG evaluation, and usage observability.
+- Persistent AI conversation memory with conversation IDs, recent-message grounding, summaries, user preference extraction, and server-sent event streaming.
 - Smart itinerary planner optimized for budget, distance, timings, traffic, weather, crowd predictions, and trip type.
 - Geo features for nearby discovery, route estimates, cab fares, metro hints, and Google Maps integration.
 - Social features model support for reviews, favorites, travel stories, photo uploads, likes/comments extension.
@@ -100,9 +102,27 @@ npm run build
 npm run start:standalone
 ```
 
-## AI Integration
+## GenAI Architecture
 
-The backend uses `OPENAI_API_KEY` and `OPENAI_MODEL`. Without a key, the assistant falls back to bundled Hyderabad knowledge so local demos still work. For production RAG, connect `AIService._retrieve` to pgvector, OpenSearch, Pinecone, Weaviate, or another vector store.
+The backend uses `OPENAI_API_KEY`, `OPENAI_MODEL`, and `OPENAI_EMBEDDING_MODEL`. Without a key, all GenAI APIs fall back to deterministic local behavior so portfolio demos still work offline.
+
+Implemented GenAI concepts:
+
+- RAG ingestion from places, restaurants, and events into `ai_knowledge_sources`.
+- pgvector embeddings with cosine search, plus PostgreSQL full-text lexical fallback.
+- Grounded chat responses with citations, context source scores, trust levels, and freshness metadata.
+- Persistent conversation memory through `ai_conversations` and `ai_conversation_messages`, including summaries, extracted preferences, and recent-message grounding.
+- Server-sent event streaming endpoint for progressive assistant responses.
+- Structured itinerary generation for days, budget, interests, trip type, and language.
+- Intent extraction that returns entities, confidence, follow-up questions, and recommended internal tools.
+- AI moderation that returns approve/review/reject decisions, categories, severity, and safe rewrites.
+- Vision metadata endpoint for travel media alt text, tags, captions, and safety flags.
+- Trip critique endpoint that audits route density, budget pressure, timing, and safety risks.
+- Protected ingestion endpoint for manual documents and source URLs, with chunking, trust metadata, embedding, and ingestion run tracking.
+- RAG evaluation endpoint for golden-query smoke tests covering required terms, citation hits, scores, and pass rates.
+- AI observability through `ai_request_logs`: model, operation, status, token estimates, latency, estimated cost, retrieved context count, and recent request summaries.
+- Celery background jobs for RAG reindexing, knowledge ingestion, RAG evaluation, content moderation, media tagging, and crowd prediction refreshes.
+- WebSocket assistant endpoint for conversational UX.
 
 Recommended RAG flow:
 
@@ -111,6 +131,19 @@ Recommended RAG flow:
 3. Store embeddings with source URLs, freshness, and trust level.
 4. Retrieve by intent, location, language, and season.
 5. Generate grounded responses with citations and safety disclaimers.
+
+Open-source and open-data-friendly services used by the stack:
+
+- FastAPI, Pydantic, SQLAlchemy, Alembic, PostgreSQL, PostGIS, pgvector, Redis, Celery, Next.js, Tailwind CSS, and OpenStreetMap-compatible map embeds.
+- Optional model provider through the OpenAI-compatible SDK; the app is structured so another compatible LLM provider can be swapped at the service boundary.
+
+Useful CV framing:
+
+- Built a GenAI travel platform with RAG, vector search, structured output APIs, moderation, image metadata generation, and itinerary optimization.
+- Designed a production-ready FastAPI + Next.js architecture using PostgreSQL/PostGIS, pgvector, Redis, Celery, Docker, and Alembic.
+- Implemented retrieval explainability through citations, source kinds, similarity scores, trust levels, and freshness-aware knowledge chunks.
+- Added persistent conversation memory, SSE streaming, admin ingestion, RAG evaluation, token/latency logging, and usage analytics.
+- Added offline deterministic AI fallbacks so demos remain reliable without paid API keys.
 
 ## Security and Production Notes
 

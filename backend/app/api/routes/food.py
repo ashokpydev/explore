@@ -3,7 +3,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_session
 from app.models.domain import Restaurant
-from app.schemas.domain import RestaurantRead
+from app.schemas.domain import FoodAIRequest, FoodAIResponse, RestaurantRead
+from app.services.ai import ai_service
 
 router = APIRouter(prefix="/food", tags=["food"])
 
@@ -24,3 +25,10 @@ async def restaurants(
         items = [item for item in items if cuisine.lower() in [c.lower() for c in item.cuisine]]
     return items
 
+
+@router.post("/ai/recommendations", response_model=FoodAIResponse)
+async def ai_food_recommendations(
+    payload: FoodAIRequest,
+    session: AsyncSession = Depends(get_session),
+) -> dict:
+    return await ai_service.food_recommendations(payload.model_dump(), session)
