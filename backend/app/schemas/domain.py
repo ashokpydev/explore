@@ -86,6 +86,7 @@ class PlaceSearchParams(BaseModel):
 class RestaurantRead(BaseModel):
     id: UUID
     name: str
+    category: str | None = None
     cuisine: list[str]
     price_band: str
     rating: float
@@ -96,8 +97,17 @@ class RestaurantRead(BaseModel):
     crowd_level: str
     open_late: bool
     highlights: list[str]
+    distance_from_mgbs_km: float | None = None
+    image_key: str | None = None
 
     model_config = {"from_attributes": True}
+
+
+class RestaurantPhotoRead(BaseModel):
+    photo_url: str | None = None
+    source: str
+    configured: bool
+    attribution_html: list[str] = []
 
 
 class FoodAIRequest(BaseModel):
@@ -121,6 +131,8 @@ class FoodAIRecommendation(BaseModel):
     estimated_total: int
     open_late: bool
     crowd_level: str
+    distance_from_mgbs_km: float | None = None
+    image_key: str | None = None
     match_score: float
     reasoning: str
     safety_note: str

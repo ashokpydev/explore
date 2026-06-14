@@ -11,7 +11,8 @@ from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
-from app.models.domain import AIIngestionRun, Event, Place, RAGEvaluationRun, Restaurant
+from app.models.domain import AIIngestionRun, Event, Place, RAGEvaluationRun
+from app.services.food_catalog import FOOD_CATALOG
 
 logger = structlog.get_logger()
 
@@ -236,8 +237,7 @@ class RAGService:
                 )
             )
 
-        restaurants = await session.execute(select(Restaurant).order_by(Restaurant.rating.desc()))
-        for restaurant in restaurants.scalars():
+        for restaurant in sorted(FOOD_CATALOG, key=lambda item: item.rating, reverse=True):
             chunks.append(
                 KnowledgeChunk(
                     source_kind="restaurant",
@@ -250,15 +250,18 @@ class RAGService:
                         "rating": restaurant.rating,
                         "latitude": restaurant.latitude,
                         "longitude": restaurant.longitude,
+                        "distance_from_mgbs_km": restaurant.distance_from_mgbs_km,
+                        "image_key": restaurant.image_key,
                     },
                     content=(
                         f"{restaurant.name} serves {', '.join(restaurant.cuisine)} around "
                         f"{restaurant.address}. Price band: {restaurant.price_band}; cost for two: "
                         f"INR {restaurant.cost_for_two}. Highlights: {', '.join(restaurant.highlights)}. "
                         f"Crowd level: {restaurant.crowd_level}. Open late: {restaurant.open_late}. "
-                        f"Rating: {restaurant.rating}."
+                        f"Rating: {restaurant.rating}. Approx road distance from MGBS: "
+                        f"{restaurant.distance_from_mgbs_km} km."
                     ),
-                    freshness_at=restaurant.updated_at,
+                    freshness_at=datetime.now(UTC),
                 )
             )
 

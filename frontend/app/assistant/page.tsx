@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, MapPinned, Utensils } from "lucide-react";
 import { AssistantPanel } from "@/components/assistant-panel";
-import { GenAIStudio } from "@/components/gen-ai-studio";
 import { Section } from "@/components/ui/section";
 import { emergencyContacts, metroRoutes } from "@/lib/data";
 import { metroFareSlabs } from "@/lib/metro";
@@ -61,9 +60,6 @@ export default function AssistantPage() {
           </div>
         </div>
         <AssistantPanel />
-      </Section>
-      <Section>
-        <GenAIStudio />
       </Section>
     </main>
   );

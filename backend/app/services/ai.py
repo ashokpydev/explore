@@ -8,7 +8,8 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
-from app.models.domain import AIConversation, AIConversationMessage, AIRequestLog, Restaurant
+from app.models.domain import AIConversation, AIConversationMessage, AIRequestLog
+from app.services.food_catalog import FOOD_CATALOG, FoodCatalogRestaurant
 from app.services.rag import RetrievalResult, rag_service
 
 SYSTEM_PROMPT = """
@@ -242,8 +243,7 @@ class AIService:
         query = payload["query"]
         language = payload.get("language", "en")
         retrieved = await rag_service.retrieve(session, query, language, limit=5)
-        result = await session.execute(select(Restaurant).order_by(Restaurant.rating.desc()))
-        restaurants = list(result.scalars().all())
+        restaurants = FOOD_CATALOG
         ranked = sorted(
             (
                 (restaurant, _food_match_score(restaurant, payload, query))
@@ -820,7 +820,7 @@ class AIService:
     def _offline_food_plan(
         self,
         payload: dict,
-        ranked: list[tuple[Restaurant, float]],
+        ranked: list[tuple[FoodCatalogRestaurant, float]],
         retrieved: list[RetrievalResult],
     ) -> dict:
         recommendations = [
@@ -915,7 +915,7 @@ FOOD_INTENT_TERMS: dict[str, tuple[str, ...]] = {
 }
 
 
-def _food_match_score(restaurant: Restaurant, payload: dict, query: str) -> float:
+def _food_match_score(restaurant: FoodCatalogRestaurant, payload: dict, query: str) -> float:
     text = " ".join(
         [restaurant.name, restaurant.address, *restaurant.cuisine, *restaurant.highlights]
     ).lower()
@@ -969,7 +969,7 @@ def _food_match_score(restaurant: Restaurant, payload: dict, query: str) -> floa
 
 
 def _restaurant_context_results(
-    ranked: list[tuple[Restaurant, float]]
+    ranked: list[tuple[FoodCatalogRestaurant, float]]
 ) -> list[RetrievalResult]:
     return [
         RetrievalResult(
@@ -980,10 +980,11 @@ def _restaurant_context_results(
                 f"{', '.join(restaurant.highlights)}. Cost for two INR "
                 f"{restaurant.cost_for_two}. Rating {restaurant.rating}. "
                 f"Open late: {'yes' if restaurant.open_late else 'no'}. "
-                f"Crowd level: {restaurant.crowd_level}."
+                f"Crowd level: {restaurant.crowd_level}. Approx distance from MGBS: "
+                f"{restaurant.distance_from_mgbs_km} km."
             ),
             citation=f"Explore Hyderabad restaurant profile: {restaurant.name}",
-            source_kind="restaurant_db",
+            source_kind="restaurant_catalog",
             score=score,
         )
         for restaurant, score in ranked
@@ -1009,7 +1010,7 @@ def _restaurant_total(cost_for_two: int, members: int) -> int:
     return round(subtotal * 1.12)
 
 
-def _restaurant_dict(restaurant: Restaurant, score: float, payload: dict) -> dict:
+def _restaurant_dict(restaurant: FoodCatalogRestaurant, score: float, payload: dict) -> dict:
     members = max(1, int(payload.get("members") or 1))
     estimated_total = _restaurant_total(restaurant.cost_for_two, members)
     over_budget = estimated_total > int(payload.get("budget_inr") or estimated_total)
@@ -1023,6 +1024,8 @@ def _restaurant_dict(restaurant: Restaurant, score: float, payload: dict) -> dic
         "estimated_total": estimated_total,
         "open_late": restaurant.open_late,
         "crowd_level": restaurant.crowd_level,
+        "distance_from_mgbs_km": restaurant.distance_from_mgbs_km,
+        "image_key": restaurant.image_key,
         "match_score": score,
         "reasoning": (
             "Strong cuisine and rating match"

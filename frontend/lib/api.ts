@@ -26,6 +26,7 @@ export type ApiPlace = {
 export type ApiRestaurant = {
   id: string;
   name: string;
+  category?: FoodCategory;
   cuisine: string[];
   price_band: string;
   rating: number;
@@ -36,7 +37,11 @@ export type ApiRestaurant = {
   crowd_level: string;
   open_late: boolean;
   highlights: string[];
+  distance_from_mgbs_km?: number | null;
+  image_key?: string | null;
 };
+
+type FoodCategory = "Biryani" | "Street food" | "Cafe" | "Rooftop" | "Midnight" | "Fine dining" | "South Indian" | "Bakery";
 
 export type FoodAIRecommendation = {
   name: string;
@@ -48,9 +53,18 @@ export type FoodAIRecommendation = {
   estimated_total: number;
   open_late: boolean;
   crowd_level: string;
+  distance_from_mgbs_km?: number | null;
+  image_key?: string | null;
   match_score: number;
   reasoning: string;
   safety_note: string;
+};
+
+export type RestaurantPhoto = {
+  photo_url: string | null;
+  source: string;
+  configured: boolean;
+  attribution_html: string[];
 };
 
 export type FoodAIResponse = {
@@ -180,6 +194,15 @@ export function listRestaurants(params: { cuisine?: string; open_late?: boolean;
     if (value !== undefined && value !== "") search.set(key, String(value));
   });
   return request<ApiRestaurant[]>(`/food/restaurants${search.size ? `?${search}` : ""}`);
+}
+
+export function getRestaurantPhoto(params: { name: string; address: string; width?: number }) {
+  const search = new URLSearchParams({
+    name: params.name,
+    address: params.address,
+    width: String(params.width ?? 900)
+  });
+  return request<RestaurantPhoto>(`/food/restaurants/photo?${search}`);
 }
 
 export function getFoodAIRecommendations(payload: {

@@ -25,6 +25,7 @@ export type FoodSpot = {
   name: string;
   category: "Biryani" | "Street food" | "Cafe" | "Rooftop" | "Midnight" | "Fine dining" | "South Indian" | "Bakery";
   image?: string;
+  imageKey?: string;
   area: string;
   costForTwo: number;
   rating: number;
@@ -1580,7 +1581,7 @@ const dishImages = {
   rooftop: unsplashImage("photo-1514933651103-005eec06c04b")
 };
 
-const featuredFood: FoodSpot[] = [
+export const legacyFeaturedFood: FoodSpot[] = [
   {
     name: "Paradise Biryani",
     category: "Biryani",
@@ -1727,7 +1728,7 @@ const featuredFood: FoodSpot[] = [
   }
 ];
 
-const hyderabadRestaurantDirectory: FoodSpot[] = [
+export const legacyHyderabadRestaurantDirectory: FoodSpot[] = [
   { name: "Hotel Shadab", category: "Biryani", area: "Ghansi Bazaar", costForTwo: 900, rating: 4.4, crowd: "Very high", openLate: true, distanceKm: 4.1, specialties: ["mutton biryani", "haleem", "kebabs"], safetyNote: "Old City crowd; use main-road pickup points after dinner." },
   { name: "Cafe Bahar", category: "Biryani", area: "Basheerbagh", costForTwo: 800, rating: 4.4, crowd: "High", openLate: true, distanceKm: 2.9, specialties: ["Hyderabadi biryani", "Irani chai", "haleem"], safetyNote: "Central area with steady traffic and cab access." },
   { name: "Pista House", category: "Biryani", area: "Shalibanda", costForTwo: 850, rating: 4.3, crowd: "High", openLate: true, distanceKm: 4.8, specialties: ["haleem", "biryani", "bakery sweets"], safetyNote: "Busy landmark; confirm branch and pickup gate." },
@@ -1857,7 +1858,7 @@ const hyderabadRestaurantDirectory: FoodSpot[] = [
   { name: "10 Downing Street", category: "Rooftop", area: "Begumpet", costForTwo: 2200, rating: 4.1, crowd: "High", openLate: true, distanceKm: 6.1, specialties: ["pub food", "karaoke", "continental"], safetyNote: "Use cab pickup from the main road." }
 ];
 
-const expandedFoodServices: FoodSpot[] = [
+export const legacyExpandedFoodServices: FoodSpot[] = [
   { name: "KPHB Family Dinner Loop", category: "Fine dining", area: "Kukatpally", costForTwo: 1600, rating: 4.2, crowd: "High", openLate: true, distanceKm: 15.8, specialties: ["family dining", "buffet", "kids menu"], safetyNote: "Choose mall-side pickup points and reserve for weekend groups." },
   { name: "Financial District Lunch Desk", category: "Cafe", area: "Financial District", costForTwo: 950, rating: 4.2, crowd: "High", openLate: false, distanceKm: 20.4, specialties: ["quick lunch", "coffee", "work meetings"], safetyNote: "Office exit traffic is heavy; schedule pickups outside peak shifts." },
   { name: "Secunderabad Breakfast Circuit", category: "South Indian", area: "Secunderabad", costForTwo: 500, rating: 4.3, crowd: "High", openLate: false, distanceKm: 7.1, specialties: ["idli", "dosa", "filter coffee", "family breakfast"], safetyNote: "Use metro or main-road cab access for easier morning travel." },
@@ -1866,92 +1867,184 @@ const expandedFoodServices: FoodSpot[] = [
   { name: "Madhapur Midnight Tea Stops", category: "Midnight", area: "Madhapur", costForTwo: 300, rating: 4.1, crowd: "High", openLate: true, distanceKm: 13.9, specialties: ["chai", "snacks", "late-night tiffins"], safetyNote: "Stay on active food streets and avoid isolated lanes late at night." },
   { name: "Banjara Hills Veg Dining", category: "Fine dining", area: "Banjara Hills", costForTwo: 1800, rating: 4.3, crowd: "Moderate", openLate: false, distanceKm: 6.1, specialties: ["vegetarian", "regional thali", "desserts"], safetyNote: "Good family option; book ahead for festivals and weekends." },
   { name: "Tank Bund Snack Promenade", category: "Street food", area: "Tank Bund", costForTwo: 350, rating: 4.0, crowd: "High", openLate: true, distanceKm: 5.0, specialties: ["corn", "chaat", "ice cream", "lake walk"], safetyNote: "Use busy promenade stretches and planned pickup points." },
-  { name: "Deccan Kitchen", category: "Fine dining", image: dishImages.thali, area: "Financial District", costForTwo: 2400, rating: 4.3, crowd: "High", openLate: true, distanceKm: 20.0, specialties: ["Hyderabadi tasting menu", "kebabs", "regional mains"], safetyNote: "Reserve for dinner and plan return transport from the far-west corridor." },
-  { name: "Aromas of Telangana", category: "South Indian", image: dishImages.thali, area: "Kondapur", costForTwo: 1300, rating: 4.2, crowd: "Moderate", openLate: false, distanceKm: 15.7, specialties: ["Telangana meals", "jonna roti", "country chicken"], safetyNote: "Family dining area with easier cab pickup before office-exit traffic." },
-  { name: "Begum Bazaar Snack Run", category: "Street food", image: dishImages.chaat, area: "Begum Bazaar", costForTwo: 300, rating: 4.1, crowd: "Very high", openLate: false, distanceKm: 3.2, specialties: ["chaat", "sweets", "namkeen"], safetyNote: "Market lanes are dense; visit in daylight and keep valuables secure." },
-  { name: "Madhapur Cloud Kitchen Lane", category: "Midnight", image: dishImages.shawarma, area: "Madhapur", costForTwo: 650, rating: 4.0, crowd: "High", openLate: true, distanceKm: 13.7, specialties: ["shawarma", "noodles", "late-night delivery"], safetyNote: "Prefer delivery or main-road pickup late at night." },
-  { name: "Koti Tiffin Trail", category: "South Indian", image: dishImages.dosa, area: "Koti", costForTwo: 300, rating: 4.2, crowd: "Very high", openLate: false, distanceKm: 2.2, specialties: ["dosa", "idli", "upma", "filter coffee"], safetyNote: "Crowded counters; travel light and use public transport where possible." },
-  { name: "Secunderabad Bakery Box", category: "Bakery", image: dishImages.bakery, area: "Secunderabad", costForTwo: 450, rating: 4.2, crowd: "Moderate", openLate: false, distanceKm: 7.3, specialties: ["puffs", "pastries", "plum cake"], safetyNote: "Good for takeaway; confirm parking before stopping." },
-  { name: "Jubilee Hills Dessert Cafes", category: "Cafe", image: dishImages.dessert, area: "Jubilee Hills", costForTwo: 1300, rating: 4.4, crowd: "High", openLate: true, distanceKm: 9.1, specialties: ["desserts", "coffee", "date-night seating"], safetyNote: "Late dessert crowd is steady; use valet or verified cabs." },
-  { name: "Necklace Road Rooftop View", category: "Rooftop", image: dishImages.rooftop, area: "Necklace Road", costForTwo: 2600, rating: 4.2, crowd: "High", openLate: true, distanceKm: 4.9, specialties: ["lake view", "mocktails", "sharing platters"], safetyNote: "Book ahead and expect traffic around Tank Bund at night." },
-  { name: "Kukatpally Biryani Belt", category: "Biryani", image: dishImages.biryani, area: "Kukatpally", costForTwo: 850, rating: 4.1, crowd: "High", openLate: true, distanceKm: 16.1, specialties: ["fry piece biryani", "kebabs", "family packs"], safetyNote: "Use clear pickup points around KPHB traffic junctions." },
-  { name: "Gandipet Resort Dining", category: "Fine dining", image: dishImages.buffet, area: "Gandipet", costForTwo: 2200, rating: 4.1, crowd: "Moderate", openLate: false, distanceKm: 21.0, specialties: ["buffet", "outdoor seating", "family lunch"], safetyNote: "Return before late rural-road hours and confirm reservation access." },
-  { name: "Old City Kebab Crawl", category: "Street food", image: dishImages.kebab, area: "Old City", costForTwo: 600, rating: 4.3, crowd: "Very high", openLate: true, distanceKm: 4.5, specialties: ["kebabs", "pathar ka gosht", "rumali rolls"], safetyNote: "Best with a group and planned pickup near main roads." },
-  { name: "Airport Transit Cafe", category: "Cafe", image: dishImages.coffee, area: "Shamshabad", costForTwo: 900, rating: 4.0, crowd: "Moderate", openLate: true, distanceKm: 28.5, specialties: ["coffee", "sandwiches", "quick meals"], safetyNote: "Good for airport runs; keep travel buffer for security and traffic." }
+  { name: "Deccan Kitchen", category: "Fine dining", image: "/images/food/thali.jpg", area: "Financial District", costForTwo: 2400, rating: 4.3, crowd: "High", openLate: true, distanceKm: 20.0, specialties: ["Hyderabadi tasting menu", "kebabs", "regional mains"], safetyNote: "Reserve for dinner and plan return transport from the far-west corridor." },
+  { name: "Aromas of Telangana", category: "South Indian", image: "/images/food/thali.jpg", area: "Kondapur", costForTwo: 1300, rating: 4.2, crowd: "Moderate", openLate: false, distanceKm: 15.7, specialties: ["Telangana meals", "jonna roti", "country chicken"], safetyNote: "Family dining area with easier cab pickup before office-exit traffic." },
+  { name: "Begum Bazaar Snack Run", category: "Street food", image: "/images/food/chaat.jpg", area: "Begum Bazaar", costForTwo: 300, rating: 4.1, crowd: "Very high", openLate: false, distanceKm: 3.2, specialties: ["chaat", "sweets", "namkeen"], safetyNote: "Market lanes are dense; visit in daylight and keep valuables secure." },
+  { name: "Madhapur Cloud Kitchen Lane", category: "Midnight", image: "/images/food/shawarma.jpg", area: "Madhapur", costForTwo: 650, rating: 4.0, crowd: "High", openLate: true, distanceKm: 13.7, specialties: ["shawarma", "noodles", "late-night delivery"], safetyNote: "Prefer delivery or main-road pickup late at night." },
+  { name: "Koti Tiffin Trail", category: "South Indian", image: "/images/food/dosa.svg", area: "Koti", costForTwo: 300, rating: 4.2, crowd: "Very high", openLate: false, distanceKm: 2.2, specialties: ["dosa", "idli", "upma", "filter coffee"], safetyNote: "Crowded counters; travel light and use public transport where possible." },
+  { name: "Secunderabad Bakery Box", category: "Bakery", image: "/images/food/pastry.svg", area: "Secunderabad", costForTwo: 450, rating: 4.2, crowd: "Moderate", openLate: false, distanceKm: 7.3, specialties: ["puffs", "pastries", "plum cake"], safetyNote: "Good for takeaway; confirm parking before stopping." },
+  { name: "Jubilee Hills Dessert Cafes", category: "Cafe", image: "/images/food/dessert.svg", area: "Jubilee Hills", costForTwo: 1300, rating: 4.4, crowd: "High", openLate: true, distanceKm: 9.1, specialties: ["desserts", "coffee", "date-night seating"], safetyNote: "Late dessert crowd is steady; use valet or verified cabs." },
+  { name: "Necklace Road Rooftop View", category: "Rooftop", image: "/images/food/rooftop.svg", area: "Necklace Road", costForTwo: 2600, rating: 4.2, crowd: "High", openLate: true, distanceKm: 4.9, specialties: ["lake view", "mocktails", "sharing platters"], safetyNote: "Book ahead and expect traffic around Tank Bund at night." },
+  { name: "Kukatpally Biryani Belt", category: "Biryani", image: "/images/food/biryani.jpg", area: "Kukatpally", costForTwo: 850, rating: 4.1, crowd: "High", openLate: true, distanceKm: 16.1, specialties: ["fry piece biryani", "kebabs", "family packs"], safetyNote: "Use clear pickup points around KPHB traffic junctions." },
+  { name: "Gandipet Resort Dining", category: "Fine dining", image: "/images/food/buffet.jpg", area: "Gandipet", costForTwo: 2200, rating: 4.1, crowd: "Moderate", openLate: false, distanceKm: 21.0, specialties: ["buffet", "outdoor seating", "family lunch"], safetyNote: "Return before late rural-road hours and confirm reservation access." },
+  { name: "Old City Kebab Crawl", category: "Street food", image: "/images/food/kebab.jpg", area: "Old City", costForTwo: 600, rating: 4.3, crowd: "Very high", openLate: true, distanceKm: 4.5, specialties: ["kebabs", "pathar ka gosht", "rumali rolls"], safetyNote: "Best with a group and planned pickup near main roads." },
+  { name: "Airport Transit Cafe", category: "Cafe", image: "/images/food/filter-coffee.svg", area: "Shamshabad", costForTwo: 900, rating: 4.0, crowd: "Moderate", openLate: true, distanceKm: 28.5, specialties: ["coffee", "sandwiches", "quick meals"], safetyNote: "Good for airport runs; keep travel buffer for security and traffic." }
+];
+
+const curatedFoodDirectory: FoodSpot[] = [
+  { name: "Hotel Shadab", category: "Biryani", image: "/images/food/biryani.jpg", area: "Ghansi Bazaar", costForTwo: 900, rating: 4.4, crowd: "Very high", openLate: true, distanceKm: 3.1, specialties: ["mutton biryani", "haleem", "kebabs"], safetyNote: "Old City crowd; use main-road pickup points after dinner." },
+  { name: "Hotel Nayaab", category: "Biryani", image: "/images/food/biryani.jpg", area: "Chatta Bazaar", costForTwo: 700, rating: 4.3, crowd: "Very high", openLate: true, distanceKm: 2.8, specialties: ["nihari", "paya", "biryani"], safetyNote: "Best in groups for early breakfast or late dinner." },
+  { name: "Pista House", category: "Biryani", image: "/images/food/haleem.svg", area: "Shah Ali Banda", costForTwo: 850, rating: 4.3, crowd: "High", openLate: true, distanceKm: 4.2, specialties: ["haleem", "biryani", "bakery sweets"], safetyNote: "Busy landmark; confirm branch and pickup gate." },
+  { name: "Cafe Bahar", category: "Biryani", image: "/images/food/biryani.jpg", area: "Basheerbagh", costForTwo: 800, rating: 4.4, crowd: "High", openLate: true, distanceKm: 3.4, specialties: ["Hyderabadi biryani", "Irani chai", "haleem"], safetyNote: "Central area with steady traffic and cab access." },
+  { name: "Grand Hotel", category: "Biryani", image: "/images/food/biryani.jpg", area: "Abids", costForTwo: 750, rating: 4.1, crowd: "High", openLate: true, distanceKm: 2.4, specialties: ["biryani", "Irani cafe snacks", "bakery"], safetyNote: "Abids main-road location with regular cab access." },
+  { name: "Mehfil", category: "Biryani", image: "/images/food/biryani.jpg", area: "Narayanaguda", costForTwo: 700, rating: 4.2, crowd: "Very high", openLate: true, distanceKm: 3.8, specialties: ["biryani", "tandoori", "late-night meals"], safetyNote: "High-footfall stretch; share live location if visiting late." },
+  { name: "Bawarchi", category: "Biryani", image: "/images/food/biryani.jpg", area: "RTC X Roads", costForTwo: 850, rating: 4.2, crowd: "Very high", openLate: true, distanceKm: 5.1, specialties: ["Hyderabadi biryani", "grill", "takeaway"], safetyNote: "Crowded main road; choose a clear pickup point." },
+  { name: "Paradise Biryani", category: "Biryani", image: "/images/food/biryani.jpg", area: "Paradise Circle, Secunderabad", costForTwo: 900, rating: 4.2, crowd: "High", openLate: true, distanceKm: 7.2, specialties: ["Hyderabadi biryani", "kebabs", "family seating"], safetyNote: "High-footfall main road area with cab access." },
+  { name: "Meridian Restaurant", category: "Biryani", image: "/images/food/biryani.jpg", area: "Panjagutta", costForTwo: 800, rating: 4.2, crowd: "High", openLate: true, distanceKm: 6.4, specialties: ["mutton biryani", "grill", "takeaway"], safetyNote: "Main-road access; avoid stopping in traffic lanes." },
+  { name: "Sarvi Restaurant", category: "Biryani", image: "/images/food/haleem.svg", area: "Banjara Hills", costForTwo: 950, rating: 4.2, crowd: "High", openLate: true, distanceKm: 6.5, specialties: ["haleem", "biryani", "kebabs"], safetyNote: "Easy cab access; parking is tight at peak hours." },
+  { name: "Shah Ghouse", category: "Biryani", image: "/images/food/biryani.jpg", area: "Tolichowki", costForTwo: 800, rating: 4.3, crowd: "High", openLate: true, distanceKm: 9.4, specialties: ["biryani", "haleem", "kebabs", "late-night takeaway"], safetyNote: "Busy food stretch; prefer main-road pickup during late hours." },
+  { name: "Hotel Rumaan", category: "Biryani", image: "/images/food/biryani.jpg", area: "Tolichowki", costForTwo: 750, rating: 4.2, crowd: "High", openLate: true, distanceKm: 9.2, specialties: ["biryani", "grill chicken", "kebabs"], safetyNote: "Popular late-night zone; choose a visible pickup spot." },
+  { name: "4 Seasons", category: "Biryani", image: "/images/food/mandi.svg", area: "Tolichowki", costForTwo: 1200, rating: 4.2, crowd: "High", openLate: true, distanceKm: 9.2, specialties: ["mandi", "khabsa", "biryani"], safetyNote: "Busy food corridor with reliable cab availability." },
+  { name: "Shahi Dastarkhwan", category: "Biryani", image: "/images/food/biryani.jpg", area: "Lakdikapul", costForTwo: 850, rating: 4.1, crowd: "High", openLate: true, distanceKm: 4.1, specialties: ["biryani", "mutton dishes", "takeaway"], safetyNote: "Central traffic zone; use a clear pickup landmark." },
+  { name: "Biryaniwalla & Co", category: "Biryani", image: "/images/food/biryani.jpg", area: "Banjara Hills", costForTwo: 1100, rating: 4.1, crowd: "Moderate", openLate: true, distanceKm: 7.1, specialties: ["dum biryani", "kebabs", "family packs"], safetyNote: "Good for takeaway; confirm branch before travel." },
+  { name: "Kritunga", category: "Biryani", image: "/images/food/biryani.jpg", area: "Madhapur", costForTwo: 1000, rating: 4.2, crowd: "High", openLate: true, distanceKm: 14.6, specialties: ["Rayalaseema biryani", "spicy curries", "ragimudda"], safetyNote: "Spicy food and busy queues; hydrate well." },
+  { name: "Chaitanya Food Court", category: "Biryani", image: "/images/food/biryani.jpg", area: "Kukatpally", costForTwo: 900, rating: 4.1, crowd: "High", openLate: true, distanceKm: 17.5, specialties: ["fry piece biryani", "Andhra meals", "pulao"], safetyNote: "Mall-road traffic can be heavy; plan pickup outside the crowd." },
+  { name: "Sri Kanya Comfort", category: "Biryani", image: "/images/food/biryani.jpg", area: "Kondapur", costForTwo: 1000, rating: 4.2, crowd: "High", openLate: true, distanceKm: 17.8, specialties: ["Andhra biryani", "prawns fry", "meals"], safetyNote: "Family-friendly but crowded on weekends." },
+  { name: "The Nawaabs", category: "Biryani", image: "/images/food/biryani.jpg", area: "Gachibowli", costForTwo: 1200, rating: 4.2, crowd: "High", openLate: true, distanceKm: 19.0, specialties: ["biryani", "kebabs", "North Indian"], safetyNote: "Use cab pickup from the main approach road." },
+  { name: "Nimrah Cafe", category: "Cafe", image: "/images/food/chai.svg", area: "Charminar", costForTwo: 250, rating: 4.5, crowd: "Very high", openLate: true, distanceKm: 3.3, specialties: ["Irani chai", "Osmania biscuits", "Ramzan walk"], safetyNote: "Best with group travel at night; use marked pickup points." },
+  { name: "Cafe Niloufer", category: "Cafe", image: "/images/food/chai.svg", area: "Lakdikapul", costForTwo: 450, rating: 4.5, crowd: "Very high", openLate: true, distanceKm: 4.0, specialties: ["Irani chai", "Osmania biscuits", "bun maska"], safetyNote: "High-footfall central area; expect queues at peak tea time." },
+  { name: "Roastery Coffee House", category: "Cafe", image: "/images/food/filter-coffee.svg", area: "Banjara Hills", costForTwo: 1200, rating: 4.5, crowd: "Moderate", openLate: false, distanceKm: 7.2, specialties: ["specialty coffee", "desserts", "brunch"], safetyNote: "Quiet neighborhood access; use cab pickup after dark." },
+  { name: "Concu", category: "Cafe", image: "/images/food/dessert.svg", area: "Jubilee Hills", costForTwo: 1400, rating: 4.4, crowd: "High", openLate: true, distanceKm: 10.2, specialties: ["desserts", "coffee", "continental plates"], safetyNote: "Reserve for weekend evenings and use valet where available." },
+  { name: "Autumn Leaf Cafe", category: "Cafe", image: "/images/food/filter-coffee.svg", area: "Jubilee Hills", costForTwo: 1400, rating: 4.3, crowd: "Moderate", openLate: false, distanceKm: 10.0, specialties: ["garden cafe", "brunch", "coffee"], safetyNote: "Calmer daytime cafe; check parking before peak brunch." },
+  { name: "Aaromale", category: "Cafe", image: "/images/food/filter-coffee.svg", area: "Film Nagar", costForTwo: 1200, rating: 4.4, crowd: "Moderate", openLate: false, distanceKm: 11.0, specialties: ["coffee", "cultural space", "brunch"], safetyNote: "Good daytime stop; book rides before late evening." },
+  { name: "Karachi Bakery", category: "Bakery", image: "/images/food/pastry.svg", area: "Mozamjahi Market", costForTwo: 500, rating: 4.4, crowd: "High", openLate: false, distanceKm: 2.8, specialties: ["fruit biscuits", "plum cake", "souvenirs"], safetyNote: "Central market area; watch traffic while crossing." },
+  { name: "Subhan Bakery", category: "Bakery", image: "/images/food/pastry.svg", area: "Nampally", costForTwo: 350, rating: 4.4, crowd: "High", openLate: false, distanceKm: 2.6, specialties: ["Osmania biscuits", "puffs", "plum cake"], safetyNote: "Good takeaway stop near transit roads; expect queues." },
+  { name: "Taj Mahal Hotel", category: "South Indian", image: "/images/food/dosa.svg", area: "Abids", costForTwo: 600, rating: 4.2, crowd: "High", openLate: false, distanceKm: 2.3, specialties: ["tiffins", "meals", "filter coffee"], safetyNote: "Old commercial district; watch traffic crossings." },
+  { name: "Pragati Tiffins", category: "South Indian", image: "/images/food/dosa.svg", area: "Koti", costForTwo: 250, rating: 4.3, crowd: "Very high", openLate: false, distanceKm: 1.7, specialties: ["idli", "upma", "dosa"], safetyNote: "Very crowded counter; keep valuables secure." },
+  { name: "Ram Ki Bandi", category: "Street food", image: "/images/food/dosa.svg", area: "Nampally", costForTwo: 250, rating: 4.4, crowd: "Very high", openLate: true, distanceKm: 2.6, specialties: ["dosa", "cheese dosa", "late-night tiffins"], safetyNote: "Best with friends; expect street crowd late night." },
+  { name: "Govind Dosa", category: "Street food", image: "/images/food/dosa.svg", area: "Gulzar Houz", costForTwo: 250, rating: 4.3, crowd: "Very high", openLate: true, distanceKm: 3.4, specialties: ["butter dosa", "street tiffins", "idli"], safetyNote: "Old City lanes; travel light and use visible pickup points." },
+  { name: "Gokul Chaat", category: "Street food", image: "/images/food/chaat.jpg", area: "Koti", costForTwo: 250, rating: 4.2, crowd: "Very high", openLate: false, distanceKm: 1.8, specialties: ["chaat", "pani puri", "dahi puri"], safetyNote: "Very crowded; keep bags in front." },
+  { name: "Mayur Pan House", category: "Street food", image: "/images/food/dessert.svg", area: "Abids", costForTwo: 200, rating: 4.2, crowd: "High", openLate: true, distanceKm: 2.5, specialties: ["paan", "falooda", "street snacks"], safetyNote: "Busy late evening spot; use nearby pickup landmarks." },
+  { name: "Al Akbar Fast Food", category: "Midnight", image: "/images/food/shawarma.jpg", area: "Tolichowki", costForTwo: 500, rating: 4.1, crowd: "High", openLate: true, distanceKm: 9.4, specialties: ["shawarma", "grill chicken", "rolls"], safetyNote: "Popular late-night stretch with heavy traffic." },
+  { name: "Al Rabea Al Arabi Cafeteria", category: "Midnight", image: "/images/food/shawarma.jpg", area: "Tolichowki", costForTwo: 550, rating: 4.1, crowd: "High", openLate: true, distanceKm: 9.3, specialties: ["shawarma", "juices", "grill chicken"], safetyNote: "Busy late-night food corridor; stay on the main road." },
+  { name: "The Joint Al Mandi", category: "Midnight", image: "/images/food/mandi.svg", area: "Madhapur", costForTwo: 1000, rating: 4.1, crowd: "High", openLate: true, distanceKm: 14.8, specialties: ["mandi", "grills", "rice platters"], safetyNote: "Good group option; check current closing time." },
+  { name: "Chutneys", category: "South Indian", image: "/images/food/dosa.svg", area: "Banjara Hills", costForTwo: 700, rating: 4.3, crowd: "High", openLate: false, distanceKm: 6.5, specialties: ["dosa", "idli", "chutney platters", "family dining"], safetyNote: "Good family-friendly dining zone with cab access." },
+  { name: "Minerva Coffee Shop", category: "South Indian", image: "/images/food/dosa.svg", area: "Himayatnagar", costForTwo: 700, rating: 4.2, crowd: "High", openLate: false, distanceKm: 3.7, specialties: ["idli", "dosa", "filter coffee"], safetyNote: "Family-friendly and central." },
+  { name: "Taaza Kitchen", category: "South Indian", image: "/images/food/dosa.svg", area: "Madhapur", costForTwo: 450, rating: 4.3, crowd: "High", openLate: false, distanceKm: 15.0, specialties: ["dosa", "idli", "filter coffee"], safetyNote: "Good breakfast option; queues move fast." },
+  { name: "Panchakattu Dosa", category: "South Indian", image: "/images/food/dosa.svg", area: "KPHB", costForTwo: 400, rating: 4.2, crowd: "High", openLate: false, distanceKm: 17.2, specialties: ["ghee karam dosa", "idli", "filter coffee"], safetyNote: "Family crowd; weekends are busy." },
+  { name: "Ishtaa", category: "South Indian", image: "/images/food/dosa.svg", area: "HITEC City", costForTwo: 800, rating: 4.3, crowd: "Moderate", openLate: false, distanceKm: 15.8, specialties: ["modern tiffins", "filter coffee", "brunch"], safetyNote: "Calmer option for family breakfast." },
+  { name: "Rayalaseema Ruchulu", category: "South Indian", image: "/images/food/thali.jpg", area: "Lakdikapul", costForTwo: 1400, rating: 4.3, crowd: "High", openLate: false, distanceKm: 4.4, specialties: ["Rayalaseema meals", "ragi sangati", "natukodi"], safetyNote: "Spicy regional food; reserve for groups." },
+  { name: "Ulavacharu", category: "South Indian", image: "/images/food/thali.jpg", area: "Jubilee Hills", costForTwo: 1600, rating: 4.3, crowd: "High", openLate: false, distanceKm: 10.3, specialties: ["Andhra cuisine", "pulao", "regional curries"], safetyNote: "Good parking and cab access." },
+  { name: "The Spicy Venue", category: "South Indian", image: "/images/food/thali.jpg", area: "Jubilee Hills", costForTwo: 1500, rating: 4.3, crowd: "High", openLate: false, distanceKm: 9.9, specialties: ["apricot delight", "Andhra meals", "biryani"], safetyNote: "Reserve ahead for peak lunch and dinner." },
+  { name: "AnTeRa", category: "South Indian", image: "/images/food/thali.jpg", area: "Jubilee Hills", costForTwo: 1700, rating: 4.4, crowd: "High", openLate: true, distanceKm: 10.0, specialties: ["Telugu specials", "regional thalis", "cocktails"], safetyNote: "Busy nightlife road; pre-book cabs." },
+  { name: "Olive Bistro", category: "Fine dining", image: "/images/food/pizza.jpg", area: "Jubilee Hills", costForTwo: 3200, rating: 4.4, crowd: "Moderate", openLate: false, distanceKm: 11.2, specialties: ["Mediterranean", "lake view", "date night"], safetyNote: "Pre-book tables and confirm return cab availability." },
+  { name: "Jewel of Nizam", category: "Fine dining", image: "/images/food/kebab.jpg", area: "Masab Tank", costForTwo: 3500, rating: 4.5, crowd: "Moderate", openLate: false, distanceKm: 5.1, specialties: ["Hyderabadi tasting menu", "kebabs", "fine dining"], safetyNote: "Premium hotel dining; reserve ahead and use hotel pickup." },
+  { name: "Adaa", category: "Fine dining", image: "/images/food/thali.jpg", area: "Falaknuma", costForTwo: 6000, rating: 4.6, crowd: "Moderate", openLate: false, distanceKm: 5.6, specialties: ["royal Hyderabadi cuisine", "tasting menu", "palace dining"], safetyNote: "Reservation-led hotel experience; verify entry and dress code." },
+  { name: "Bidri", category: "Fine dining", image: "/images/food/thali.jpg", area: "Tank Bund", costForTwo: 3500, rating: 4.5, crowd: "Moderate", openLate: false, distanceKm: 6.0, specialties: ["Hyderabadi cuisine", "kebabs", "biryani"], safetyNote: "Secure hotel dining and easy cab pickup." },
+  { name: "Okra", category: "Fine dining", image: "/images/food/buffet.jpg", area: "Tank Bund", costForTwo: 3000, rating: 4.3, crowd: "Moderate", openLate: false, distanceKm: 6.0, specialties: ["buffet", "Indian", "continental"], safetyNote: "Hotel dining near Tank Bund traffic." },
+  { name: "Tansen", category: "Fine dining", image: "/images/food/kebab.jpg", area: "Financial District", costForTwo: 3000, rating: 4.4, crowd: "High", openLate: true, distanceKm: 21.0, specialties: ["Indian", "live music", "kebabs"], safetyNote: "Late-night return cabs can surge; plan early." },
+  { name: "Tatva", category: "Fine dining", image: "/images/food/thali.jpg", area: "Jubilee Hills", costForTwo: 2200, rating: 4.3, crowd: "Moderate", openLate: false, distanceKm: 10.1, specialties: ["vegetarian", "North Indian", "continental"], safetyNote: "Good family dining; reserve on weekends." },
+  { name: "Burma Burma", category: "Fine dining", image: "/images/food/sushi.jpg", area: "Knowledge City", costForTwo: 2000, rating: 4.4, crowd: "High", openLate: false, distanceKm: 15.8, specialties: ["Burmese", "vegetarian", "tea leaf salad"], safetyNote: "Crowded mall district; book ahead." },
+  { name: "Farzi Cafe", category: "Fine dining", image: "/images/food/thali.jpg", area: "Jubilee Hills", costForTwo: 2500, rating: 4.2, crowd: "High", openLate: true, distanceKm: 10.2, specialties: ["modern Indian", "small plates", "mocktails"], safetyNote: "Nightlife crowd; confirm table and pickup." },
+  { name: "Little Italy", category: "Fine dining", image: "/images/food/pizza.jpg", area: "Jubilee Hills", costForTwo: 1800, rating: 4.2, crowd: "Moderate", openLate: false, distanceKm: 9.8, specialties: ["Italian", "vegetarian", "pizza"], safetyNote: "Family-friendly; main-road cab access." },
+  { name: "Exotica", category: "Rooftop", image: "/images/food/rooftop.svg", area: "Banjara Hills", costForTwo: 2200, rating: 4.3, crowd: "High", openLate: true, distanceKm: 7.2, specialties: ["rooftop dining", "North Indian", "kebabs"], safetyNote: "Use valet and pre-book weekend tables." },
+  { name: "Altitude Lounge Bar", category: "Rooftop", image: "/images/food/rooftop.svg", area: "Tank Bund", costForTwo: 3000, rating: 4.3, crowd: "High", openLate: true, distanceKm: 6.0, specialties: ["lake view", "rooftop", "small plates"], safetyNote: "Book return cab before closing on weekends." },
+  { name: "Over The Moon", category: "Rooftop", image: "/images/food/rooftop.svg", area: "Jubilee Hills", costForTwo: 2800, rating: 4.2, crowd: "High", openLate: true, distanceKm: 10.3, specialties: ["rooftop", "continental", "nightlife"], safetyNote: "Nightlife area; use valet and cabs." },
+  { name: "Prost Brewpub", category: "Rooftop", image: "/images/food/rooftop.svg", area: "Jubilee Hills", costForTwo: 2300, rating: 4.2, crowd: "High", openLate: true, distanceKm: 10.0, specialties: ["brewpub", "pizza", "pub food"], safetyNote: "Use cab transport after nightlife hours." },
+  { name: "Broadway The Brewery", category: "Rooftop", image: "/images/food/rooftop.svg", area: "Jubilee Hills", costForTwo: 2500, rating: 4.2, crowd: "High", openLate: true, distanceKm: 10.5, specialties: ["brewery", "global plates", "live events"], safetyNote: "Weekend surge pricing is common." },
+  { name: "Hard Rock Cafe", category: "Rooftop", image: "/images/food/rooftop.svg", area: "Banjara Hills", costForTwo: 2500, rating: 4.2, crowd: "High", openLate: true, distanceKm: 6.7, specialties: ["burgers", "live music", "American"], safetyNote: "Nightlife crowd; use verified cabs." }
 ];
 
 function uniqueFoodSpots(spots: FoodSpot[]) {
-  return Array.from(new globalThis.Map<string, FoodSpot>(spots.map((spot) => [spot.name, spot])).values());
+  return Array.from(new globalThis.Map<string, FoodSpot>(spots.map((spot) => [spot.name.toLowerCase(), spot])).values());
 }
 
-export const food: FoodSpot[] = uniqueFoodSpots([...featuredFood, ...hyderabadRestaurantDirectory, ...expandedFoodServices]);
+export const food: FoodSpot[] = uniqueFoodSpots(curatedFoodDirectory);
 
 const foodCategoryImages: Record<FoodSpot["category"], string> = {
-  Biryani: dishImages.biryani,
-  "Street food": dishImages.chaat,
-  Cafe: dishImages.coffee,
-  Rooftop: dishImages.rooftop,
-  Midnight: dishImages.shawarma,
-  "Fine dining": dishImages.buffet,
-  "South Indian": dishImages.dosa,
-  Bakery: dishImages.bakery
+  Biryani: "/images/food/biryani.jpg",
+  "Street food": "/images/food/chaat.jpg",
+  Cafe: "/images/food/filter-coffee.svg",
+  Rooftop: "/images/food/rooftop.svg",
+  Midnight: "/images/food/shawarma.jpg",
+  "Fine dining": "/images/food/buffet.jpg",
+  "South Indian": "/images/food/dosa.svg",
+  Bakery: "/images/food/pastry.svg"
 };
 
 const foodCategoryImagePools: Record<FoodSpot["category"], string[]> = {
   Biryani: [
-    dishImages.biryani,
+    "/images/food/biryani.jpg",
     commonsImage("Hyderabadi Biryani with Raita, Mirchi Ka Salan and Salad.JPG"),
     commonsImage("Biryani chutney from Paradise restaurant Hyderabad 3984.JPG"),
     commonsImage("Hyderabadi Veg Biryani.jpg"),
-    dishImages.mandi
+    "/images/food/mandi.svg"
   ],
-  "Street food": [dishImages.chaat, dishImages.kebab, dishImages.shawarma, dishImages.coffee, dishImages.dosa],
+  "Street food": ["/images/food/chaat.jpg", "/images/food/kebab.jpg", "/images/food/shawarma.jpg", "/images/food/filter-coffee.svg", "/images/food/dosa.svg"],
   Cafe: [
-    dishImages.coffee,
-    dishImages.bakery,
+    "/images/food/filter-coffee.svg",
+    "/images/food/pastry.svg",
     unsplashImage("photo-1509042239860-f550ce710b93"),
     unsplashImage("photo-1495474472287-4d71bcdd2085"),
     unsplashImage("photo-1525351484163-7529414344d8"),
     ...unsplashFoodImages.slice(14, 20)
   ],
   Rooftop: [
-    dishImages.rooftop,
+    "/images/food/rooftop.svg",
     unsplashImage("photo-1552566626-52f8b828add9"),
     unsplashImage("photo-1559339352-11d035aa65de"),
     unsplashImage("photo-1578474846511-04ba529f0b88"),
     ...unsplashFoodImages.slice(20, 25)
   ],
-  Midnight: [dishImages.shawarma, dishImages.mandi, dishImages.dosa, dishImages.coffee, dishImages.kebab],
+  Midnight: ["/images/food/shawarma.jpg", "/images/food/mandi.svg", "/images/food/dosa.svg", "/images/food/filter-coffee.svg", "/images/food/kebab.jpg"],
   "Fine dining": [
-    dishImages.buffet,
-    dishImages.thali,
-    dishImages.kebab,
-    dishImages.sushi,
+    "/images/food/buffet.jpg",
+    "/images/food/thali.jpg",
+    "/images/food/kebab.jpg",
+    "/images/food/sushi.jpg",
     unsplashImage("photo-1504674900247-0877df9cc836"),
     unsplashImage("photo-1551218808-94e220e084d2"),
     ...unsplashFoodImages.slice(0, 8)
   ],
   "South Indian": [
-    dishImages.dosa,
-    dishImages.idli,
-    dishImages.thali,
+    "/images/food/dosa.svg",
+    "/images/food/idli.jpg",
+    "/images/food/thali.jpg",
     commonsImage("Masala Dosa with Aloo masala.jpg"),
     commonsImage("Masala dosa with ghee and chutney.jpg")
   ],
-  Bakery: [dishImages.bakery, dishImages.dessert, dishImages.coffee, "/images/food/pastry.svg"]
+  Bakery: ["/images/food/pastry.svg", "/images/food/dessert.svg", "/images/food/filter-coffee.svg", "/images/food/pastry.svg"]
 };
 
 const specialtyImagePools: Array<{ match: string[]; images: string[] }> = [
-  { match: ["biryani", "dum", "haleem"], images: [dishImages.biryani, dishImages.haleem, dishImages.kebab, dishImages.mandi] },
-  { match: ["mandi", "khabsa", "arabian", "shawaya"], images: [dishImages.mandi, dishImages.kebab, dishImages.biryani, dishImages.shawarma] },
-  { match: ["kebab", "grill", "tandoori", "pathar"], images: [dishImages.kebab, dishImages.biryani, dishImages.shawarma, dishImages.mandi] },
-  { match: ["shawarma", "roll"], images: [dishImages.shawarma, dishImages.kebab, dishImages.mandi, dishImages.chaat] },
+  { match: ["biryani", "dum", "haleem"], images: ["/images/food/biryani.jpg", "/images/food/haleem.svg", "/images/food/kebab.jpg", "/images/food/mandi.svg"] },
+  { match: ["mandi", "khabsa", "arabian", "shawaya"], images: ["/images/food/mandi.svg", "/images/food/kebab.jpg", "/images/food/biryani.jpg", "/images/food/shawarma.jpg"] },
+  { match: ["kebab", "grill", "tandoori", "pathar"], images: ["/images/food/kebab.jpg", "/images/food/biryani.jpg", "/images/food/shawarma.jpg", "/images/food/mandi.svg"] },
+  { match: ["shawarma", "roll"], images: ["/images/food/shawarma.jpg", "/images/food/kebab.jpg", "/images/food/mandi.svg", "/images/food/chaat.jpg"] },
   { match: ["dosa", "idli", "tiffin", "vada", "upma"], images: foodCategoryImagePools["South Indian"] },
-  { match: ["chai", "irani", "osmania", "biscuit", "coffee"], images: [dishImages.chai, dishImages.coffee, dishImages.bakery, "/images/food/filter-coffee.svg"] },
+  { match: ["chai", "irani", "osmania", "biscuit", "coffee"], images: ["/images/food/chai.svg", "/images/food/filter-coffee.svg", "/images/food/pastry.svg", "/images/food/filter-coffee.svg"] },
   { match: ["pastr", "bakery", "cake", "brownie", "dessert", "ice cream", "falooda", "sweet"], images: foodCategoryImagePools.Bakery },
   { match: ["buffet", "barbecue", "barbeque"], images: foodCategoryImagePools["Fine dining"] },
   { match: ["rooftop", "lounge", "pub", "bar"], images: foodCategoryImagePools.Rooftop }
 ];
+
+const foodImageKeyPools: Record<string, string[]> = {
+  biryani: [
+    "/images/food/biryani.jpg",
+    commonsImage("Hyderabadi Biryani with Raita, Mirchi Ka Salan and Salad.JPG"),
+    commonsImage("Hyderabadi Veg Biryani.jpg"),
+    commonsImage("Biryani chutney from Paradise restaurant Hyderabad 3984.JPG")
+  ],
+  haleem: ["/images/food/haleem.svg", "/images/food/biryani.jpg", "/images/food/kebab.jpg"],
+  nihari: ["/images/food/thali.jpg", "/images/food/kebab.jpg", "/images/food/biryani.jpg"],
+  grill: ["/images/food/kebab.jpg", "/images/food/shawarma.jpg", "/images/food/mandi.svg"],
+  kebab: ["/images/food/kebab.jpg", "/images/food/mandi.svg", "/images/food/biryani.jpg"],
+  mandi: ["/images/food/mandi.svg", "/images/food/kebab.jpg", "/images/food/biryani.jpg"],
+  andhra: ["/images/food/thali.jpg", "/images/food/biryani.jpg", "/images/food/dosa.svg"],
+  chai: ["/images/food/chai.svg", "/images/food/filter-coffee.svg", "/images/food/pastry.svg"],
+  coffee: ["/images/food/filter-coffee.svg", unsplashImage("photo-1509042239860-f550ce710b93"), "/images/food/pastry.svg"],
+  bakery: ["/images/food/pastry.svg", "/images/food/dessert.svg", "/images/food/pastry.svg"],
+  dessert: ["/images/food/dessert.svg", "/images/food/pastry.svg", unsplashImage("photo-1565958011703-44f9829ba187")],
+  dosa: ["/images/food/dosa.svg", "/images/food/idli.jpg", commonsImage("Masala dosa with ghee and chutney.jpg")],
+  chaat: ["/images/food/chaat.jpg", "/images/food/dosa.svg", "/images/food/chai.svg"],
+  shawarma: ["/images/food/shawarma.jpg", "/images/food/kebab.jpg", "/images/food/mandi.svg"],
+  thali: ["/images/food/thali.jpg", "/images/food/dosa.svg", "/images/food/kebab.jpg"],
+  pizza: ["/images/food/pizza.jpg", unsplashImage("photo-1565299624946-b28f40a0ae38"), "/images/food/rooftop.svg"],
+  buffet: ["/images/food/buffet.jpg", "/images/food/thali.jpg", unsplashImage("photo-1551218808-94e220e084d2")],
+  asian: ["/images/food/sushi.jpg", "/images/food/buffet.jpg", unsplashImage("photo-1540189549336-e6e99c3679fe")],
+  rooftop: ["/images/food/rooftop.svg", unsplashImage("photo-1517248135467-4c7edcad34c4"), unsplashImage("photo-1552566626-52f8b828add9")],
+  burger: [unsplashImage("photo-1568901346375-23c9450c58cd"), "/images/food/pizza.jpg", "/images/food/rooftop.svg"]
+};
 
 const allFoodImagePool = Array.from(
   new Set([
@@ -2107,6 +2200,13 @@ export function getFoodSpotImage(spot: FoodSpot, usedImages?: Set<string>) {
   if (spot.image && !usedImages?.has(spot.image)) {
     usedImages?.add(spot.image);
     return spot.image;
+  }
+  if (spot.imageKey && foodImageKeyPools[spot.imageKey]) {
+    return stableFoodImageFromPool(
+      [...foodImageKeyPools[spot.imageKey], ...(foodCategoryImagePools[spot.category] ?? []), ...allFoodImagePool],
+      spot,
+      usedImages
+    );
   }
   const text = `${spot.name} ${spot.area} ${spot.specialties.join(" ")}`.toLowerCase();
   const specialtyPool = specialtyImagePools.find(({ match }) => match.some((keyword) => text.includes(keyword)));

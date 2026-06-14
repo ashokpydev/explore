@@ -3,11 +3,13 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { BrainCircuit, Calculator, Coffee, ExternalLink, IndianRupee, Loader2, MapPinned, Moon, Navigation, Search, ShieldCheck, Sparkles, Star, Users, Utensils, X } from "lucide-react";
-import { getFoodAIRecommendations, listRestaurants, type FoodAIResponse } from "@/lib/api";
+import { getFoodAIRecommendations, getRestaurantPhoto, listRestaurants, type FoodAIResponse, type RestaurantPhoto } from "@/lib/api";
 import { food, getFoodSpotImage, getRestaurantMenu, type FoodSpot } from "@/lib/data";
 import { googleMapsSearchUrl, googleMapsTextDirectionsUrl } from "@/lib/maps";
 
 const foodFilters = ["All", "Biryani", "Street food", "Cafe", "Rooftop", "Midnight", "Fine dining", "South Indian", "Bakery"];
+const defaultFoodOrigin = "MGBS, Hyderabad";
+const mgbsCoordinates = { lat: 17.379, lng: 78.4834 };
 
 export function InteractiveFood({ initialQuery = "" }: { initialQuery?: string }) {
   const [items, setItems] = useState(food);
@@ -15,7 +17,7 @@ export function InteractiveFood({ initialQuery = "" }: { initialQuery?: string }
   const [maxBudget, setMaxBudget] = useState(10000);
   const [members, setMembers] = useState(2);
   const [openLate, setOpenLate] = useState(false);
-  const [startLocation, setStartLocation] = useState("");
+  const [startLocation, setStartLocation] = useState(defaultFoodOrigin);
   const [query, setQuery] = useState(initialQuery);
   const [foodPrompt, setFoodPrompt] = useState(
     initialQuery || "Best biryani and chai plan under budget with safe pickup points"
@@ -25,39 +27,36 @@ export function InteractiveFood({ initialQuery = "" }: { initialQuery?: string }
   const [aiLoading, setAiLoading] = useState(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState<FoodSpot | null>(null);
   const [visibleCount, setVisibleCount] = useState(36);
+  const [exactPhotos, setExactPhotos] = useState<Record<string, RestaurantPhoto>>({});
 
   useEffect(() => {
     let active = true;
     listRestaurants({ limit: 50 })
       .then((restaurants) => {
         if (!active || !restaurants.length) return;
-        const apiItems: FoodSpot[] = restaurants.map((restaurant) => ({
+        const existingByKey = new Map(food.map((spot) => [restaurantKey(spot.name), spot]));
+        const apiItems: FoodSpot[] = restaurants.map((restaurant) => {
+          const existing = existingByKey.get(restaurantKey(restaurant.name));
+          const category = toFoodCategory(restaurant.category) ?? categoryFromCuisine(restaurant.cuisine, restaurant.open_late);
+          return {
             name: restaurant.name,
-            category: restaurant.cuisine.some((item) => item.toLowerCase().includes("biryani"))
-              ? "Biryani"
-              : restaurant.cuisine.some((item) => item.toLowerCase().includes("bakery"))
-                ? "Bakery"
-                : restaurant.cuisine.some((item) => item.toLowerCase().includes("south"))
-                  ? "South Indian"
-              : restaurant.open_late
-                ? "Midnight"
-                : "Cafe",
-            area: restaurant.address,
-            costForTwo: restaurant.cost_for_two,
-            rating: restaurant.rating,
+            category,
+            area: existing?.area ?? restaurant.address,
+            costForTwo: existing?.costForTwo ?? restaurant.cost_for_two,
+            rating: existing?.rating ?? restaurant.rating,
             crowd: restaurant.crowd_level === "very_high" ? "Very high" : restaurant.crowd_level === "high" ? "High" : "Moderate",
             openLate: restaurant.open_late,
-            distanceKm: 5,
-            specialties: restaurant.highlights.length ? restaurant.highlights : restaurant.cuisine,
-            safetyNote: "Use main pickup points and verify current opening hours before travel."
-          }));
+            distanceKm: restaurant.distance_from_mgbs_km ?? existing?.distanceKm ?? estimateDistanceFromMgbs(restaurant.latitude, restaurant.longitude),
+            specialties: existing?.specialties ?? (restaurant.highlights.length ? restaurant.highlights : restaurant.cuisine),
+            safetyNote: existing?.safetyNote ?? "Use main pickup points and verify current opening hours before travel.",
+            imageKey: restaurant.image_key ?? existing?.imageKey
+          };
+        });
         const merged = [...food];
         apiItems.forEach((apiItem) => {
-          const index = merged.findIndex((item) => item.name === apiItem.name);
+          const index = merged.findIndex((item) => restaurantKey(item.name) === restaurantKey(apiItem.name));
           if (index >= 0) {
             merged[index] = { ...merged[index], ...apiItem };
-          } else {
-            merged.push(apiItem);
           }
         });
         setItems(merged);
@@ -84,6 +83,40 @@ export function InteractiveFood({ initialQuery = "" }: { initialQuery?: string }
     const usedImages = new Set<string>();
     return new Map(visibleRestaurants.map((spot) => [spot.name, getFoodSpotImage(spot, usedImages)]));
   }, [visibleRestaurants]);
+
+  useEffect(() => {
+    let active = true;
+    const missing = visibleRestaurants.filter((spot) => !exactPhotos[restaurantKey(spot.name)]).slice(0, 12);
+    if (!missing.length) return;
+    Promise.all(
+      missing.map(async (spot) => {
+        try {
+          const photo = await getRestaurantPhoto({ name: spot.name, address: `${spot.area}, Hyderabad` });
+          return [restaurantKey(spot.name), photo] as const;
+        } catch {
+          const fallback: RestaurantPhoto = {
+            photo_url: null,
+            source: "unavailable",
+            configured: false,
+            attribution_html: []
+          };
+          return [restaurantKey(spot.name), fallback] as const;
+        }
+      })
+    ).then((results) => {
+      if (!active) return;
+      setExactPhotos((current) => {
+        const next = { ...current };
+        results.forEach(([key, photo]) => {
+          next[key] = photo;
+        });
+        return next;
+      });
+    });
+    return () => {
+      active = false;
+    };
+  }, [exactPhotos, visibleRestaurants]);
 
   const selectedMenu = selectedRestaurant ? getRestaurantMenu(selectedRestaurant) : [];
   const selectedBudget = selectedRestaurant ? estimateRestaurantBudget(selectedRestaurant.costForTwo, members) : null;
@@ -287,14 +320,16 @@ export function InteractiveFood({ initialQuery = "" }: { initialQuery?: string }
       </div>
 
       <p className="mt-3 text-sm font-medium text-black/60 dark:text-white/65">
-        Showing {visibleRestaurants.length} of {filtered.length} matching restaurants across Hyderabad.
+        Showing {visibleRestaurants.length} of {filtered.length} verified restaurant branches. Distances are approximate road distance from MGBS.
       </p>
 
       <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {visibleRestaurants.map((item) => {
           const budget = estimateRestaurantBudget(item.costForTwo, members);
           const destination = restaurantMapQuery(item);
-          const image = visibleImages.get(item.name) ?? getFoodSpotImage(item);
+          const exactPhoto = exactPhotos[restaurantKey(item.name)];
+          const image = exactPhoto?.photo_url ?? visibleImages.get(item.name) ?? getFoodSpotImage(item);
+          const isExactPhoto = Boolean(exactPhoto?.photo_url);
           return (
           <article key={item.name} className="rounded-lg border border-black/10 bg-white dark:border-white/10 dark:bg-white/5">
             <button
@@ -304,14 +339,25 @@ export function InteractiveFood({ initialQuery = "" }: { initialQuery?: string }
               aria-label={`View menu for ${item.name}`}
             >
             <div className="relative aspect-[16/10] bg-pearl dark:bg-night">
-              <Image
-                src={image}
-                alt={`${item.name} food photo`}
-                fill
-                sizes="(max-width: 768px) 100vw, 33vw"
-                className="object-cover"
-                unoptimized={image.endsWith(".svg")}
-              />
+              {isExactPhoto ? (
+                // Google Places photo URLs are short-lived and already optimized by Google.
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={image} alt={`${item.name} restaurant photo`} className="h-full w-full object-cover" />
+              ) : (
+                <Image
+                  src={image}
+                  alt={`${item.name} food photo`}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover"
+                  unoptimized={isUnoptimizedImage(image)}
+                />
+              )}
+              {isExactPhoto ? (
+                <span className="absolute bottom-2 left-2 rounded-md bg-black/65 px-2 py-1 text-[11px] font-semibold text-white">
+                  Photo: Google Places
+                </span>
+              ) : null}
             </div>
             <div className="p-5">
             <Utensils className="mb-4 text-lac dark:text-turmeric" />
@@ -328,7 +374,7 @@ export function InteractiveFood({ initialQuery = "" }: { initialQuery?: string }
               <div className="flex justify-between"><dt>Cost for two</dt><dd>INR {item.costForTwo.toLocaleString("en-IN")}</dd></div>
               <div className="flex justify-between"><dt>{members}-member estimate</dt><dd>INR {budget.total.toLocaleString("en-IN")}</dd></div>
               <div className="flex justify-between"><dt>Live crowd</dt><dd>{item.crowd}</dd></div>
-              <div className="flex justify-between"><dt>Distance</dt><dd>{item.distanceKm} km</dd></div>
+              <div className="flex justify-between"><dt>From MGBS</dt><dd>{item.distanceKm.toFixed(1)} km</dd></div>
             </dl>
             <div className="mt-4 flex flex-wrap gap-2">
               {item.specialties.map((specialty) => (
@@ -348,7 +394,7 @@ export function InteractiveFood({ initialQuery = "" }: { initialQuery?: string }
             </button>
             <div className="grid grid-cols-2 gap-2 border-t border-black/10 p-3 dark:border-white/10">
               <a
-                href={googleMapsTextDirectionsUrl(destination, startLocation)}
+                href={googleMapsTextDirectionsUrl(destination, startLocation || defaultFoodOrigin)}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center justify-center gap-2 rounded-md bg-lac px-3 py-2 text-sm font-semibold text-white transition hover:bg-lac/90"
@@ -410,7 +456,7 @@ export function InteractiveFood({ initialQuery = "" }: { initialQuery?: string }
                 <p className="text-sm font-semibold uppercase tracking-[0.14em] text-lac dark:text-turmeric">{selectedRestaurant.category}</p>
                 <h2 id="restaurant-menu-title" className="mt-1 text-3xl font-bold">{selectedRestaurant.name}</h2>
                 <p className="mt-2 text-sm text-black/65 dark:text-white/65">
-                  {selectedRestaurant.area} | INR {selectedRestaurant.costForTwo.toLocaleString("en-IN")} for two | {selectedRestaurant.openLate ? "Open late" : "Day/evening dining"}
+                  {selectedRestaurant.area} | INR {selectedRestaurant.costForTwo.toLocaleString("en-IN")} for two | {selectedRestaurant.distanceKm.toFixed(1)} km from MGBS | {selectedRestaurant.openLate ? "Open late" : "Day/evening dining"}
                 </p>
               </div>
               <button
@@ -436,7 +482,7 @@ export function InteractiveFood({ initialQuery = "" }: { initialQuery?: string }
                           height={480}
                           className="h-full w-full object-cover"
                           loading="lazy"
-                          unoptimized={dish.image.endsWith(".svg")}
+                          unoptimized={isUnoptimizedImage(dish.image)}
                         />
                       </div>
                       <div className="space-y-3 p-4">
@@ -464,7 +510,7 @@ export function InteractiveFood({ initialQuery = "" }: { initialQuery?: string }
                 <dl className="mt-4 grid gap-3 text-sm">
                   <div className="flex justify-between gap-4"><dt>Rating</dt><dd className="font-semibold">{selectedRestaurant.rating}</dd></div>
                   <div className="flex justify-between gap-4"><dt>Crowd</dt><dd className="font-semibold">{selectedRestaurant.crowd}</dd></div>
-                  <div className="flex justify-between gap-4"><dt>Distance</dt><dd className="font-semibold">{selectedRestaurant.distanceKm} km</dd></div>
+                  <div className="flex justify-between gap-4"><dt>From MGBS</dt><dd className="font-semibold">{selectedRestaurant.distanceKm.toFixed(1)} km</dd></div>
                   <div className="flex justify-between gap-4"><dt>Members</dt><dd className="font-semibold">{members}</dd></div>
                   <div className="flex justify-between gap-4"><dt>Food subtotal</dt><dd className="font-semibold">INR {selectedBudget?.subtotal.toLocaleString("en-IN")}</dd></div>
                   <div className="flex justify-between gap-4"><dt>Taxes/service</dt><dd className="font-semibold">INR {selectedBudget?.service.toLocaleString("en-IN")}</dd></div>
@@ -472,7 +518,7 @@ export function InteractiveFood({ initialQuery = "" }: { initialQuery?: string }
                 </dl>
                 <div className="mt-5 grid gap-2">
                   <a
-                    href={googleMapsTextDirectionsUrl(restaurantMapQuery(selectedRestaurant), startLocation)}
+                    href={googleMapsTextDirectionsUrl(restaurantMapQuery(selectedRestaurant), startLocation || defaultFoodOrigin)}
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center justify-center gap-2 rounded-md bg-lac px-3 py-2 text-sm font-semibold text-white transition hover:bg-lac/90"
@@ -491,7 +537,7 @@ export function InteractiveFood({ initialQuery = "" }: { initialQuery?: string }
                 <div className="mt-5 rounded-md bg-white p-3 text-sm leading-6 dark:bg-night">
                   <p className="flex items-center gap-2 font-semibold"><Calculator size={16} /> Budget formula</p>
                   <p className="mt-1 text-black/60 dark:text-white/62">
-                    Cost for two is converted to per-person pricing, multiplied by visitors, then 12% is added for taxes or service.
+                    Cost for two is converted to per-person pricing, multiplied by visitors, then 12% is added for taxes or service. Distance is the curated approximate road distance from MGBS.
                   </p>
                 </div>
                 <div className="mt-5 flex flex-wrap gap-2">
@@ -526,4 +572,43 @@ function estimateRestaurantBudget(costForTwo: number, members: number) {
 
 function restaurantMapQuery(spot: FoodSpot) {
   return `${spot.name}, ${spot.area}, Hyderabad`;
+}
+
+function isUnoptimizedImage(src: string) {
+  return src.endsWith(".svg") || src.startsWith("http");
+}
+
+function toFoodCategory(value?: string | null): FoodSpot["category"] | null {
+  const normalized = value?.toLowerCase();
+  if (!normalized) return null;
+  const match = foodFilters.find((item) => item.toLowerCase() === normalized);
+  return match && match !== "All" ? (match as FoodSpot["category"]) : null;
+}
+
+function categoryFromCuisine(cuisine: string[], openLate: boolean): FoodSpot["category"] {
+  const text = cuisine.join(" ").toLowerCase();
+  if (text.includes("biryani") || text.includes("hyderabadi")) return "Biryani";
+  if (text.includes("bakery")) return "Bakery";
+  if (text.includes("south") || text.includes("tiffin") || text.includes("andhra")) return "South Indian";
+  if (text.includes("rooftop") || text.includes("brew") || text.includes("pub")) return "Rooftop";
+  if (text.includes("fine") || text.includes("premium") || text.includes("mediterranean")) return "Fine dining";
+  if (text.includes("street") || text.includes("chaat") || text.includes("shawarma")) return openLate ? "Midnight" : "Street food";
+  return openLate ? "Midnight" : "Cafe";
+}
+
+function restaurantKey(name: string) {
+  return name.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+function estimateDistanceFromMgbs(latitude?: number, longitude?: number) {
+  if (!latitude || !longitude) return 0;
+  const toRadians = (value: number) => (value * Math.PI) / 180;
+  const radiusKm = 6371;
+  const dLat = toRadians(latitude - mgbsCoordinates.lat);
+  const dLng = toRadians(longitude - mgbsCoordinates.lng);
+  const lat1 = toRadians(mgbsCoordinates.lat);
+  const lat2 = toRadians(latitude);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+  const straightLineKm = 2 * radiusKm * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Math.round(straightLineKm * 1.25 * 10) / 10;
 }
